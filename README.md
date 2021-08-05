@@ -1,0 +1,2 @@
+# xunsafe
+Faster golang reflection
