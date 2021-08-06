@@ -25,7 +25,7 @@ func Example_FastReflection() {
 	for i := range foos {
 		fooAddr := xunsafe.Addr(&foos[i])
 		fmt.Print(fooAddr)
-	//	fmt.Printf("[%v] ID: %v, Name: %v\n", i, fooID.Int(fooAddr), fooName.String(fooAddr))
+		fmt.Printf("[%v] ID: %v, Name: %v\n", i, fooID.Int(fooAddr), fooName.String(fooAddr))
 	}
 }
 
