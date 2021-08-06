@@ -445,7 +445,7 @@ func BenchmarkField_Accessor_Reflect(b *testing.B) {
 	if field, ok := aType.FieldByName("Name"); ok {
 		nameFiledIdx = field.Index[0]
 	}
-	if field, ok := aType.FieldByName("value"); ok {
+	if field, ok := aType.FieldByName("Val"); ok {
 		valFieldIdx = field.Index[0]
 	}
 
@@ -501,7 +501,7 @@ func BenchmarkField_Accessor_Reflect_Ptr(b *testing.B) {
 	if field, ok := aType.FieldByName("Name"); ok {
 		nameFiledIdx = field.Index[0]
 	}
-	if field, ok := aType.FieldByName("value"); ok {
+	if field, ok := aType.FieldByName("Val"); ok {
 		valFieldIdx = field.Index[0]
 	}
 	if field, ok := aType.FieldByName("Time"); ok {
