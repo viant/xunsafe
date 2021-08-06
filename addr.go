@@ -21,9 +21,9 @@ func Addr(src interface{}) uintptr {
 //AddrGetter creates a Getter function returning filed pointer or error
 func (f *Field) AddrGetter() Getter {
 	offset := f.field.Offset
-	if f.Address != nil {
+	if f.address != nil {
 		return func(structAddr uintptr) interface{} {
-			return f.Address(structAddr)
+			return f.address(structAddr)
 		}
 	}
 	switch f.field.Type.Kind() {

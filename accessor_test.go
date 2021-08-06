@@ -393,7 +393,7 @@ var _accBenchInstance = &AccBenchStruct{
 
 var _AcciDField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "ID")
 var _AccNameField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "Name")
-var _AccValField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "Val")
+var _AccValField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "value")
 var _TimeValField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "Time")
 
 func BenchmarkField_Accessor_Native(b *testing.B) {
@@ -445,7 +445,7 @@ func BenchmarkField_Accessor_Reflect(b *testing.B) {
 	if field, ok := aType.FieldByName("Name"); ok {
 		nameFiledIdx = field.Index[0]
 	}
-	if field, ok := aType.FieldByName("Val"); ok {
+	if field, ok := aType.FieldByName("value"); ok {
 		valFieldIdx = field.Index[0]
 	}
 
@@ -501,7 +501,7 @@ func BenchmarkField_Accessor_Reflect_Ptr(b *testing.B) {
 	if field, ok := aType.FieldByName("Name"); ok {
 		nameFiledIdx = field.Index[0]
 	}
-	if field, ok := aType.FieldByName("Val"); ok {
+	if field, ok := aType.FieldByName("value"); ok {
 		valFieldIdx = field.Index[0]
 	}
 	if field, ok := aType.FieldByName("Time"); ok {

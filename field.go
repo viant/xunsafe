@@ -5,8 +5,8 @@ import "reflect"
 //Field represent a field
 type Field struct {
 	Field   *Field
-	Address Getter
-	Val     Getter
+	address Getter
+	value   Getter
 	field   reflect.StructField
 }
 
@@ -30,3 +30,16 @@ func FieldByName(structType reflect.Type, name string) *Field {
 	}
 	return NewField(structField)
 }
+
+
+//FieldWithGetters creates a field supplied custom address, value getter
+func FieldWithGetters(address, value Getter) *Field {
+	return &Field{
+		address: address,
+		value:   value,
+	}
+}
+
+
+
+

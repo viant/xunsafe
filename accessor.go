@@ -376,20 +376,20 @@ func (f *Field) TimePtr(structAddr uintptr) *time.Time {
 
 //Value returns a value getter or error
 func (f *Field) Value(structAddr uintptr) interface{} {
-	if f.Val != nil {
-		return f.Val(structAddr)
+	if f.value != nil {
+		return f.value(structAddr)
 	}
-	f.Val = f.fieldValue()
-	return f.Val(structAddr)
+	f.value = f.fieldValue()
+	return f.value(structAddr)
 }
 
 //Addr returns a field addr getter or error
 func (f *Field) Addr(structAddr uintptr) interface{} {
-	if f.Address != nil {
-		return f.Address(structAddr)
+	if f.address != nil {
+		return f.address(structAddr)
 	}
-	f.Address = f.AddrGetter()
-	return f.Address(structAddr)
+	f.address = f.AddrGetter()
+	return f.address(structAddr)
 }
 
 //Interface returns field address
