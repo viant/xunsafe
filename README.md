@@ -95,7 +95,7 @@ func ExampleAddr() {
 	fooID := xunsafe.FieldByName(fooType, "ID")
 	foo := &Foo{ID: 101, Name: "name 101"}
 
-	fooAddr := xunsafe.Addr(foo)
+    fooAddr := unsafe.Pointer(foo)
 	fmt.Printf("foo.ID: %v\n", fooID.Value(fooAddr))//prints 101
 }
 ```

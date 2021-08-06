@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/viant/xunsafe"
 	"reflect"
+	"testing"
+	"unsafe"
 )
 
 func Example_FastReflection() {
@@ -39,6 +41,22 @@ func ExampleAddr() {
 	foo := &Foo{ID: 101, Name: "name 101"}
 
 	fooAddr := xunsafe.Addr(foo)
+	*(fooID.Addr(fooAddr).(*int)) = 201
+	fmt.Printf("foo.ID: %v\n", foo.ID) //prints 201
+}
+
+
+
+func Test_Me(t *testing.T) {
+	type Foo struct {
+		ID   int
+		Name string
+	}
+	fooType := reflect.TypeOf(Foo{})
+	fooID := xunsafe.FieldByName(fooType, "ID")
+	foo := &Foo{ID: 101, Name: "name 101"}
+
+	fooAddr := unsafe.Pointer(foo)
 	*(fooID.Addr(fooAddr).(*int)) = 201
 	fmt.Printf("foo.ID: %v\n", foo.ID) //prints 201
 }
