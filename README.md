@@ -109,11 +109,11 @@ in other cases ```reflect.NewAt(field.Type, unsafe.Pointer(structAddr + field.Of
 Given that reflect.NewAt is quite slow, you can register custom unsafe type casting bypassing reflect.NewAt all together
 
 ```go
-    xunsafe.Register(reflect.TypeOf(time.Time{}), func(addr uintptr) interface{} {
-		return (*time.Time)(unsafe.Pointer(addr))
+    xunsafe.Register(reflect.TypeOf(time.Time{}), func(addr unsafe.Pointer) interface{} {
+		return (*time.Time)(addr)
 	})
-    xunsafe.Register(reflect.TypeOf(&time.Time{}), func(addr uintptr) interface{} {
-		return (**time.Time)(unsafe.Pointer(addr))
+    xunsafe.Register(reflect.TypeOf(&time.Time{}), func(addr unsafe.Pointer) interface{} {
+		return (**time.Time)(addr)
 	})
 
 ```
