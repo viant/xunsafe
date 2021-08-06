@@ -91,7 +91,7 @@ func (f *Field) AddrGetter() Getter {
 			}
 		}
 		if f.Field == nil {
-			if getter := _registry.Lookup(f.field.Type); getter != nil {
+			if getter := lookup(f.field.Type); getter != nil {
 				return func(structAddr unsafe.Pointer) interface{} {
 					return getter(unsafe.Pointer(uintptr(structAddr) + offset))
 				}
@@ -117,7 +117,7 @@ func (f *Field) AddrGetter() Getter {
 				}
 			}
 			if f.Field == nil {
-				if getter := _registry.Lookup(f.field.Type); getter != nil {
+				if getter := lookup(f.field.Type); getter != nil {
 					return func(structAddr unsafe.Pointer) interface{} {
 						return getter(unsafe.Pointer(uintptr(structAddr) + offset))
 					}
