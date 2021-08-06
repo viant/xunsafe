@@ -138,7 +138,8 @@ Benchmark_Mutator_Fast_Ptr-16             	100000000	          10.05 ns/op	     
 BenchmarkField_Mutator_Reflect-16         	11812810	          99.02 ns/op	      32 B/op	       3 allocs/op
 BenchmarkField_Mutator_Reflect_Ptr-16     	22566876	          54.51 ns/op	       0 B/op	       0 allocs/op
 ```
-'Fast' suffix represent reflection implemented by this library.
+* **'Native'** suffix represent statically typed code
+* **'Fast'** suffix represent reflection implemented by this library
 
 
 ## License
