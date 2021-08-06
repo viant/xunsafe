@@ -82,7 +82,7 @@ func ExampleAddr() {
 
 ###### Field Value
 
-Field Addr returns an interface{} wrapping actual field value
+Field Value returns an interface{} wrapping actual field value
 
 
 ```go
