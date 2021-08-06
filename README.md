@@ -140,6 +140,7 @@ BenchmarkField_Mutator_Reflect_Ptr-16     	22566876	          54.51 ns/op	      
 ```
 * **'Native'** suffix represent statically typed code
 * **'Fast'** suffix represent reflection implemented by this library
+* **'Reflect'** suffix represent implementation with golang native reflect package
 
 
 ## License
