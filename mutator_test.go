@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"testing"
 	"time"
+	"unsafe"
 )
 
 func TestField_Mutator(t *testing.T) {
@@ -179,7 +180,7 @@ func TestField_Mutator(t *testing.T) {
 	for _, testCase := range testCases {
 
 		var field *Field
-		var aStructAddr uintptr
+		var aStructAddr unsafe.Pointer
 		var holderVal reflect.Value
 		field = FieldByName(aStruct1Type, testCase.name)
 		aStructAddr = aStruct1Addr

@@ -10,102 +10,102 @@ import (
 func (f *Field) fieldValue() Getter {
 	offset := f.field.Offset
 	if f.address != nil {
-		return func(structAddr uintptr) interface{} {
+		return func(structAddr unsafe.Pointer) interface{} {
 			return f.address(structAddr)
 		}
 	}
 	switch f.field.Type.Kind() {
 	case reflect.Int:
-		return func(structAddr uintptr) interface{} {
-			result := (*int)(unsafe.Pointer(structAddr + offset))
+		return func(structAddr unsafe.Pointer) interface{} {
+			result := (*int)(unsafe.Pointer(uintptr(structAddr) + offset))
 			if result == nil {
 				return nil
 			}
 			return *result
 		}
 	case reflect.Uint:
-		return func(structAddr uintptr) interface{} {
-			result := (*uint)(unsafe.Pointer(structAddr + offset))
+		return func(structAddr unsafe.Pointer) interface{} {
+			result := (*uint)(unsafe.Pointer(uintptr(structAddr) + offset))
 			if result == nil {
 				return nil
 			}
 			return *result
 		}
 	case reflect.Int64:
-		return func(structAddr uintptr) interface{} {
-			result := (*int64)(unsafe.Pointer(structAddr + offset))
+		return func(structAddr unsafe.Pointer) interface{} {
+			result := (*int64)(unsafe.Pointer(uintptr(structAddr) + offset))
 			if result == nil {
 				return nil
 			}
 			return *result
 		}
 	case reflect.Int32:
-		return func(structAddr uintptr) interface{} {
-			result := (*int32)(unsafe.Pointer(structAddr + offset))
+		return func(structAddr unsafe.Pointer) interface{} {
+			result := (*int32)(unsafe.Pointer(uintptr(structAddr) + offset))
 			if result == nil {
 				return nil
 			}
 			return *result
 		}
 	case reflect.Int16:
-		return func(structAddr uintptr) interface{} {
-			result := (*int16)(unsafe.Pointer(structAddr + offset))
+		return func(structAddr unsafe.Pointer) interface{} {
+			result := (*int16)(unsafe.Pointer(uintptr(structAddr) + offset))
 			if result == nil {
 				return nil
 			}
 			return *result
 		}
 	case reflect.Int8:
-		return func(structAddr uintptr) interface{} {
-			result := (*int8)(unsafe.Pointer(structAddr + offset))
+		return func(structAddr unsafe.Pointer) interface{} {
+			result := (*int8)(unsafe.Pointer(uintptr(structAddr) + offset))
 			if result == nil {
 				return nil
 			}
 			return *result
 		}
 	case reflect.Uint64:
-		return func(structAddr uintptr) interface{} {
-			result := (*uint64)(unsafe.Pointer(structAddr + offset))
+		return func(structAddr unsafe.Pointer) interface{} {
+			result := (*uint64)(unsafe.Pointer(uintptr(structAddr) + offset))
 			if result == nil {
 				return nil
 			}
 			return *result
 		}
 	case reflect.Uint32:
-		return func(structAddr uintptr) interface{} {
-			result := (*uint32)(unsafe.Pointer(structAddr + offset))
+		return func(structAddr unsafe.Pointer) interface{} {
+			result := (*uint32)(unsafe.Pointer(uintptr(structAddr) + offset))
 			if result == nil {
 				return nil
 			}
 			return *result
 		}
 	case reflect.Uint16:
-		return func(structAddr uintptr) interface{} {
-			result := (*uint16)(unsafe.Pointer(structAddr + offset))
+		return func(structAddr unsafe.Pointer) interface{} {
+			result := (*uint16)(unsafe.Pointer(uintptr(structAddr) + offset))
 			if result == nil {
 				return nil
 			}
 			return *result
 		}
 	case reflect.Uint8:
-		return func(structAddr uintptr) interface{} {
-			result := (*uint8)(unsafe.Pointer(structAddr + offset))
+		return func(structAddr unsafe.Pointer) interface{} {
+			result := (*uint8)(unsafe.Pointer(uintptr(structAddr) + offset))
 			if result == nil {
 				return nil
 			}
 			return *result
 		}
 	case reflect.String:
-		return func(structAddr uintptr) interface{} {
-			result := (*string)(unsafe.Pointer(structAddr + offset))
+		return func(structAddr unsafe.Pointer) interface{} {
+			result := (*string)(unsafe.Pointer(uintptr(structAddr) + offset))
 			if result == nil {
 				return nil
 			}
 			return *result
 		}
 	case reflect.Float64:
-		return func(structAddr uintptr) interface{} {
-			result := (*float64)(unsafe.Pointer(structAddr + offset))
+		return func(structAddr unsafe.Pointer) interface{} {
+			result := (*float64)(unsafe.Pointer(uintptr(structAddr) + offset))
 			if result == nil {
 				return nil
 			}
@@ -113,16 +113,16 @@ func (f *Field) fieldValue() Getter {
 		}
 
 	case reflect.Float32:
-		return func(structAddr uintptr) interface{} {
-			result := (*float32)(unsafe.Pointer(structAddr + offset))
+		return func(structAddr unsafe.Pointer) interface{} {
+			result := (*float32)(unsafe.Pointer(uintptr(structAddr) + offset))
 			if result == nil {
 				return nil
 			}
 			return *result
 		}
 	case reflect.Bool:
-		return func(structAddr uintptr) interface{} {
-			result := (*bool)(unsafe.Pointer(structAddr + offset))
+		return func(structAddr unsafe.Pointer) interface{} {
+			result := (*bool)(unsafe.Pointer(uintptr(structAddr) + offset))
 			if result == nil {
 				return nil
 			}
@@ -132,8 +132,8 @@ func (f *Field) fieldValue() Getter {
 	case reflect.Struct:
 
 		if f.field.Type.ConvertibleTo(timeType) {
-			return func(structAddr uintptr) interface{} {
-				result := (*time.Time)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (*time.Time)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
@@ -141,29 +141,28 @@ func (f *Field) fieldValue() Getter {
 			}
 		}
 		if getter := _registry.Lookup(f.field.Type); getter != nil {
-			return func(structAddr uintptr) interface{} {
-				return getter(structAddr + offset)
+			return func(structAddr unsafe.Pointer) interface{} {
+				return getter(unsafe.Pointer(uintptr(structAddr) + offset))
 			}
 		}
 		if f.Field == nil {
-			return func(structAddr uintptr) interface{} {
-				fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(structAddr+offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(uintptr(structAddr)+offset))
 				return fieldValue.Interface()
 			}
 		}
 		fn := f.AddrGetter()
-		return func(structAddr uintptr) interface{} {
-			fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(structAddr+offset))
-			addr := fieldValue.Elem().UnsafeAddr()
-			return fn(addr)
+		return func(structAddr unsafe.Pointer) interface{} {
+			fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(uintptr(structAddr)+offset))
+			return fn(unsafe.Pointer(fieldValue.Elem().UnsafeAddr()))
 		}
 
 	case reflect.Ptr:
 		switch f.field.Type.Elem().Kind() {
 		case reflect.Struct:
 			if f.field.Type.ConvertibleTo(timeTypePtr) {
-				return func(structAddr uintptr) interface{} {
-					result := (**time.Time)(unsafe.Pointer(structAddr + offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					result := (**time.Time)(unsafe.Pointer(uintptr(structAddr) + offset))
 					if result == nil {
 						return nil
 					}
@@ -171,13 +170,13 @@ func (f *Field) fieldValue() Getter {
 				}
 			}
 			if getter := _registry.Lookup(f.field.Type); getter != nil {
-				return func(structAddr uintptr) interface{} {
-					return getter(structAddr + offset)
+				return func(structAddr unsafe.Pointer) interface{} {
+					return getter(unsafe.Pointer(uintptr(structAddr) + offset))
 				}
 			}
 			if f.Field == nil {
-				return func(structAddr uintptr) interface{} {
-					fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(structAddr+offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(uintptr(structAddr)+offset))
 					if fieldValue.Elem().IsNil() {
 						ptr := reflect.New(fieldValue.Type().Elem().Elem())
 						fieldValue.Elem().Set(ptr)
@@ -186,106 +185,106 @@ func (f *Field) fieldValue() Getter {
 				}
 			}
 			fn := f.Field.AddrGetter()
-			return func(structAddr uintptr) interface{} {
-				fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(structAddr+offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(uintptr(structAddr)+offset))
 				if fieldValue.Elem().IsNil() {
 					ptr := reflect.New(fieldValue.Type().Elem().Elem())
 					fieldValue.Elem().Set(ptr)
 				}
-				return fn(fieldValue.Elem().Elem().UnsafeAddr())
+				return fn(unsafe.Pointer(fieldValue.Elem().Elem().UnsafeAddr()))
 			}
 
 		case reflect.Int:
-			return func(structAddr uintptr) interface{} {
-				result := (**int)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (**int)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Uint:
-			return func(structAddr uintptr) interface{} {
-				result := (**uint)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (**uint)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Int64:
-			return func(structAddr uintptr) interface{} {
-				result := (**int64)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (**int64)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Int32:
-			return func(structAddr uintptr) interface{} {
-				result := (**int32)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (**int32)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Int16:
-			return func(structAddr uintptr) interface{} {
-				result := (**int16)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (**int16)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Int8:
-			return func(structAddr uintptr) interface{} {
-				result := (**int8)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (**int8)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Uint64:
-			return func(structAddr uintptr) interface{} {
-				result := (**uint64)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (**uint64)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Uint32:
-			return func(structAddr uintptr) interface{} {
-				result := (**uint32)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (**uint32)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Uint16:
-			return func(structAddr uintptr) interface{} {
-				result := (**uint16)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (**uint16)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Uint8:
-			return func(structAddr uintptr) interface{} {
-				result := (**uint8)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (**uint8)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.String:
-			return func(structAddr uintptr) interface{} {
-				result := (**string)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (**string)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Float64:
-			return func(structAddr uintptr) interface{} {
-				result := (**float64)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (**float64)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
@@ -293,16 +292,16 @@ func (f *Field) fieldValue() Getter {
 			}
 
 		case reflect.Float32:
-			return func(structAddr uintptr) interface{} {
-				result := (**float32)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (**float32)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Bool:
-			return func(structAddr uintptr) interface{} {
-				result := (**bool)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (**bool)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
@@ -311,96 +310,96 @@ func (f *Field) fieldValue() Getter {
 		case reflect.Slice:
 			switch f.field.Type.Elem().Elem().Kind() {
 			case reflect.Int:
-				return func(structAddr uintptr) interface{} {
-					result := (**[]int)(unsafe.Pointer(structAddr + offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					result := (**[]int)(unsafe.Pointer(uintptr(structAddr) + offset))
 					if result == nil {
 						return nil
 					}
 					return *result
 				}
 			case reflect.Uint:
-				return func(structAddr uintptr) interface{} {
-					result := (**[]uint)(unsafe.Pointer(structAddr + offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					result := (**[]uint)(unsafe.Pointer(uintptr(structAddr) + offset))
 					if result == nil {
 						return nil
 					}
 					return *result
 				}
 			case reflect.Int64:
-				return func(structAddr uintptr) interface{} {
-					result := (**[]int64)(unsafe.Pointer(structAddr + offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					result := (**[]int64)(unsafe.Pointer(uintptr(structAddr) + offset))
 					if result == nil {
 						return nil
 					}
 					return *result
 				}
 			case reflect.Int32:
-				return func(structAddr uintptr) interface{} {
-					result := (**[]int32)(unsafe.Pointer(structAddr + offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					result := (**[]int32)(unsafe.Pointer(uintptr(structAddr) + offset))
 					if result == nil {
 						return nil
 					}
 					return *result
 				}
 			case reflect.Int16:
-				return func(structAddr uintptr) interface{} {
-					result := (**[]int16)(unsafe.Pointer(structAddr + offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					result := (**[]int16)(unsafe.Pointer(uintptr(structAddr) + offset))
 					if result == nil {
 						return nil
 					}
 					return *result
 				}
 			case reflect.Int8:
-				return func(structAddr uintptr) interface{} {
-					result := (**[]int8)(unsafe.Pointer(structAddr + offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					result := (**[]int8)(unsafe.Pointer(uintptr(structAddr) + offset))
 					if result == nil {
 						return nil
 					}
 					return *result
 				}
 			case reflect.Uint64:
-				return func(structAddr uintptr) interface{} {
-					result := (**[]uint64)(unsafe.Pointer(structAddr + offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					result := (**[]uint64)(unsafe.Pointer(uintptr(structAddr) + offset))
 					if result == nil {
 						return nil
 					}
 					return *result
 				}
 			case reflect.Uint32:
-				return func(structAddr uintptr) interface{} {
-					result := (**[]uint32)(unsafe.Pointer(structAddr + offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					result := (**[]uint32)(unsafe.Pointer(uintptr(structAddr) + offset))
 					if result == nil {
 						return nil
 					}
 					return *result
 				}
 			case reflect.Uint16:
-				return func(structAddr uintptr) interface{} {
-					result := (**[]uint16)(unsafe.Pointer(structAddr + offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					result := (**[]uint16)(unsafe.Pointer(uintptr(structAddr) + offset))
 					if result == nil {
 						return nil
 					}
 					return *result
 				}
 			case reflect.Uint8:
-				return func(structAddr uintptr) interface{} {
-					result := (**[]uint8)(unsafe.Pointer(structAddr + offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					result := (**[]uint8)(unsafe.Pointer(uintptr(structAddr) + offset))
 					if result == nil {
 						return nil
 					}
 					return *result
 				}
 			case reflect.String:
-				return func(structAddr uintptr) interface{} {
-					result := (**[]string)(unsafe.Pointer(structAddr + offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					result := (**[]string)(unsafe.Pointer(uintptr(structAddr) + offset))
 					if result == nil {
 						return nil
 					}
 					return *result
 				}
 			case reflect.Float64:
-				return func(structAddr uintptr) interface{} {
-					result := (**[]float64)(unsafe.Pointer(structAddr + offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					result := (**[]float64)(unsafe.Pointer(uintptr(structAddr) + offset))
 					if result == nil {
 						return nil
 					}
@@ -408,16 +407,16 @@ func (f *Field) fieldValue() Getter {
 				}
 
 			case reflect.Float32:
-				return func(structAddr uintptr) interface{} {
-					result := (**[]float32)(unsafe.Pointer(structAddr + offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					result := (**[]float32)(unsafe.Pointer(uintptr(structAddr) + offset))
 					if result == nil {
 						return nil
 					}
 					return *result
 				}
 			case reflect.Bool:
-				return func(structAddr uintptr) interface{} {
-					result := (**[]bool)(unsafe.Pointer(structAddr + offset))
+				return func(structAddr unsafe.Pointer) interface{} {
+					result := (**[]bool)(unsafe.Pointer(uintptr(structAddr) + offset))
 					if result == nil {
 						return nil
 					}
@@ -428,96 +427,96 @@ func (f *Field) fieldValue() Getter {
 	case reflect.Slice:
 		switch f.field.Type.Elem().Kind() {
 		case reflect.Int:
-			return func(structAddr uintptr) interface{} {
-				result := (*[]int)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (*[]int)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Uint:
-			return func(structAddr uintptr) interface{} {
-				result := (*[]uint)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (*[]uint)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Int64:
-			return func(structAddr uintptr) interface{} {
-				result := (*[]int64)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (*[]int64)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Int32:
-			return func(structAddr uintptr) interface{} {
-				result := (*[]int32)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (*[]int32)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Int16:
-			return func(structAddr uintptr) interface{} {
-				result := (*[]int16)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (*[]int16)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Int8:
-			return func(structAddr uintptr) interface{} {
-				result := (*[]int8)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (*[]int8)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Uint64:
-			return func(structAddr uintptr) interface{} {
-				result := (*[]uint64)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (*[]uint64)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Uint32:
-			return func(structAddr uintptr) interface{} {
-				result := (*[]uint32)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (*[]uint32)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Uint16:
-			return func(structAddr uintptr) interface{} {
-				result := (*[]uint16)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (*[]uint16)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Uint8:
-			return func(structAddr uintptr) interface{} {
-				result := (*[]uint8)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (*[]uint8)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.String:
-			return func(structAddr uintptr) interface{} {
-				result := (*[]string)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (*[]string)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Float64:
-			return func(structAddr uintptr) interface{} {
-				result := (*[]float64)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (*[]float64)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
@@ -525,16 +524,16 @@ func (f *Field) fieldValue() Getter {
 			}
 
 		case reflect.Float32:
-			return func(structAddr uintptr) interface{} {
-				result := (*[]float32)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (*[]float32)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
 				return *result
 			}
 		case reflect.Bool:
-			return func(structAddr uintptr) interface{} {
-				result := (*[]bool)(unsafe.Pointer(structAddr + offset))
+			return func(structAddr unsafe.Pointer) interface{} {
+				result := (*[]bool)(unsafe.Pointer(uintptr(structAddr) + offset))
 				if result == nil {
 					return nil
 				}
@@ -542,8 +541,8 @@ func (f *Field) fieldValue() Getter {
 			}
 		}
 	}
-	return func(structPtr uintptr) interface{} {
-		fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(structPtr+offset))
+	return func(structPtr unsafe.Pointer) interface{} {
+		fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(uintptr(structPtr)+offset))
 		return fieldValue.Elem().Interface()
 	}
 }

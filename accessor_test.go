@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"unsafe"
 )
 
 func TestField_Accessor(t *testing.T) {
@@ -291,7 +292,7 @@ func TestField_Accessor(t *testing.T) {
 	for _, testCase := range testCases {
 
 		var field *Field
-		var aStructAddr uintptr
+		var aStructAddr unsafe.Pointer
 
 		if strings.Contains(testCase.description, "*") {
 			field = FieldByName(aStruct2Type, testCase.name)
