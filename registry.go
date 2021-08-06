@@ -12,7 +12,7 @@ type registry struct {
 
 func (r *registry) Register(aType reflect.Type, getter Getter) {
 	r.mux.Lock()
-	r.mux.Unlock()
+	defer r.mux.Unlock()
 	r.reg[aType] = getter
 }
 
