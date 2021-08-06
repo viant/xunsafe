@@ -274,7 +274,7 @@ var _mutBenchInstance = &MutBenchStruct{
 
 var _mutIDField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "ID")
 var _mutNameField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "Name")
-var _mutValField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "value")
+var _mutValField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "Val")
 
 func BenchmarkField_Mutator_Native(b *testing.B) {
 	var id = 1000
