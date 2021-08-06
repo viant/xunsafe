@@ -393,7 +393,7 @@ var _accBenchInstance = &AccBenchStruct{
 
 var _AcciDField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "ID")
 var _AccNameField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "Name")
-var _AccValField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "value")
+var _AccValField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "Value")
 var _TimeValField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "Time")
 
 func BenchmarkField_Accessor_Native(b *testing.B) {
