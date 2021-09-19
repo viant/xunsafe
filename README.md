@@ -3,7 +3,7 @@
 [![GoReportCard](https://goreportcard.com/badge/github.com/viant/xunsafe)](https://goreportcard.com/report/github.com/viant/xunsafe)
 [![GoDoc](https://godoc.org/github.com/viant/xunsafe?status.svg)](https://godoc.org/github.com/viant/xunsafe)
 
-This library is compatible with Go 1.13+
+This library is compatible with Go 1.17+
 
 Please refer to [`CHANGELOG.md`](CHANGELOG.md) if you encounter breaking changes.
 

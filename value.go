@@ -9,11 +9,12 @@ import (
 //fieldValue creates Getter function for a field value or error
 func (f *Field) fieldValue() Getter {
 	offset := f.field.Offset
-	if f.address != nil {
+	if f.value != nil {
 		return func(structAddr unsafe.Pointer) interface{} {
-			return f.address(structAddr)
+			return f.value(structAddr)
 		}
 	}
+
 	switch f.field.Type.Kind() {
 	case reflect.Int:
 		return func(structAddr unsafe.Pointer) interface{} {

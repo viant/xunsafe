@@ -1,6 +1,8 @@
 package xunsafe
 
-import "reflect"
+import (
+	"reflect"
+)
 
 //Field represent a field
 type Field struct {
@@ -8,12 +10,14 @@ type Field struct {
 	address Getter
 	value   Getter
 	field   reflect.StructField
+	Type reflect.Type
 }
 
 //NewField creates a new filed
 func NewField(field reflect.StructField) *Field {
 	return &Field{
 		field: field,
+		Type: field.Type,
 	}
 }
 
@@ -24,6 +28,13 @@ func FieldByIndex(structType reflect.Type, index int) *Field {
 
 //FieldByName creates a field for supplied struct type and field name
 func FieldByName(structType reflect.Type, name string) *Field {
+	switch structType.Kind() {
+		case reflect.Ptr:
+			return FieldByName(structType.Elem(), name)
+		case reflect.Slice:
+			return FieldByName(structType.Elem(), name)
+
+	}
 	structField, ok := structType.FieldByName(name)
 	if !ok {
 		return nil

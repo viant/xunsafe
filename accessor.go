@@ -392,6 +392,13 @@ func (f *Field) Addr(structAddr unsafe.Pointer) interface{} {
 	return f.address(structAddr)
 }
 
+//UnsafeAddr returns unsafe address
+func (f *Field) UnsafeAddr(structAddr unsafe.Pointer) unsafe.Pointer {
+	return unsafe.Pointer(uintptr(structAddr) + f.field.Offset)
+}
+
+
+
 //Interface returns field address
 func (f *Field) Interface(structAddr unsafe.Pointer) interface{} {
 	fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(uintptr(structAddr)+f.field.Offset))
