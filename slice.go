@@ -18,7 +18,6 @@ func (r *Slice) Range(addr unsafe.Pointer, visit func(index int, addr unsafe.Poi
 			return
 		}
 	}
-	unsafe
 }
 
 func (r *Slice) Index(addr unsafe.Pointer, index int) unsafe.Pointer {

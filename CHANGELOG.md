@@ -3,5 +3,5 @@
   * add evaluaor pacakge
   * add Slice wrapper
 
-    ## August 5 2021 - v.0.1.0
+## August 5 2021 - v.0.1.0
   * Initial Release.

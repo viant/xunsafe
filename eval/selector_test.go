@@ -10,7 +10,7 @@ import (
 func TestSelector_IntAddr(t *testing.T) {
 
 	type Foo struct {
-		ID int
+		ID   int
 		Name string
 	}
 
@@ -21,49 +21,49 @@ func TestSelector_IntAddr(t *testing.T) {
 		expect      interface{}
 	}{
 
-		//{
-		//	description: "top level string",
-		//	source: struct {
-		//		Name string
-		//	}{Name: "test"},
-		//	selector: "Name",
-		//	expect:   "test",
-		//},
-		//{
-		//	description: "child node int",
-		//	source: struct {
-		//		ID    int
-		//		Child struct {
-		//			N int
-		//		}
-		//	}{
-		//		ID: 12,
-		//		Child: struct {
-		//			N int
-		//		}{N: 23},
-		//	},
-		//	selector: "Child.N",
-		//	expect:   23,
-		//},
-		//{
-		//	description: "array item bool",
-		//	source: struct {
-		//		Items []struct {
-		//			Active bool
-		//			N      int
-		//		}
-		//	}{
-		//		Items: []struct {
-		//			Active bool
-		//			N      int
-		//		}{
-		//			{N: 10},
-		//			{Active: true, N: 20},
-		//		},
-		//	},
-		//	selector: "Items[1].Active",
-		//	expect:   true,
-		//},
+		{
+			description: "top level string",
+			source: struct {
+				Name string
+			}{Name: "test"},
+			selector: "Name",
+			expect:   "test",
+		},
+		{
+			description: "child node int",
+			source: struct {
+				ID    int
+				Child struct {
+					N int
+				}
+			}{
+				ID: 12,
+				Child: struct {
+					N int
+				}{N: 23},
+			},
+			selector: "Child.N",
+			expect:   23,
+		},
+		{
+			description: "array item bool",
+			source: struct {
+				Items []struct {
+					Active bool
+					N      int
+				}
+			}{
+				Items: []struct {
+					Active bool
+					N      int
+				}{
+					{N: 10},
+					{Active: true, N: 20},
+				},
+			},
+			selector: "Items[1].Active",
+			expect:   true,
+		},
 
 		{
 			description: "array item string",
@@ -90,7 +90,7 @@ func TestSelector_IntAddr(t *testing.T) {
 			source: struct {
 				Items []*Foo
 			}{
-				Items: []*Foo {
+				Items: []*Foo{
 					{ID: 1, Name: "Adam"},
 					{ID: 2, Name: "Ben"},
 					{ID: 3, Name: "Chris"},
