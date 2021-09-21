@@ -19,6 +19,7 @@ func TestSelector_IntAddr(t *testing.T) {
 		source      interface{}
 		selector    string
 		expect      interface{}
+		expectNil   bool
 	}{
 
 		{
@@ -99,6 +100,32 @@ func TestSelector_IntAddr(t *testing.T) {
 			selector: "Items[1].Name",
 			expect:   "Ben",
 		},
+		{
+			description: "child ptr node string",
+			source: struct {
+				ID    int
+				Child *Foo
+			}{
+				ID: 12,
+				Child: &Foo{
+					Name: "Ted",
+				},
+			},
+			selector: "Child.Name",
+			expect:   "Ted",
+		},
+		{
+			description: "child ptr nil node int",
+			source: struct {
+				ID    int
+				Child *Foo
+			}{
+				ID: 12,
+			},
+			selector:  "Child.ID",
+			expect:    0,
+			expectNil: true,
+		},
 	}
 
 	for _, testCase := range testCases {
@@ -111,6 +138,10 @@ func TestSelector_IntAddr(t *testing.T) {
 		switch expect := testCase.expect.(type) {
 		case int:
 			valPtr := selector.IntAddr(xunsafe.Addr(instance))
+			if testCase.expectNil {
+				assert.Nil(t, valPtr, testCase.description)
+				continue
+			}
 			assert.EqualValues(t, expect, *valPtr)
 		case string:
 			valPtr := selector.StringAddr(xunsafe.Addr(instance))
@@ -124,8 +155,10 @@ func TestSelector_IntAddr(t *testing.T) {
 			}
 
 		default:
+
 			assert.Fail(t, testCase.description)
 		}
+
 	}
 
 }

@@ -12,6 +12,7 @@ type Field struct {
 	setter  Setter
 	field   reflect.StructField
 	Type    reflect.Type
+	kind    reflect.Kind
 }
 
 //NewField creates a new filed
@@ -19,6 +20,7 @@ func NewField(field reflect.StructField) *Field {
 	return &Field{
 		field: field,
 		Type:  field.Type,
+		kind:  field.Type.Kind(),
 	}
 }
 

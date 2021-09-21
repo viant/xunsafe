@@ -394,10 +394,15 @@ func (f *Field) Addr(structAddr unsafe.Pointer) interface{} {
 
 //UnsafeAddr returns unsafe address
 func (f *Field) UnsafeAddr(structAddr unsafe.Pointer) unsafe.Pointer {
+	if f.kind == reflect.Ptr {
+		addr := (*unsafe.Pointer)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+		if addr == nil {
+			f.SetValue(structAddr, reflect.New(f.Type).Elem().Interface())
+		}
+		return *addr
+	}
 	return unsafe.Pointer(uintptr(structAddr) + f.field.Offset)
 }
-
-
 
 //Interface returns field address
 func (f *Field) Interface(structAddr unsafe.Pointer) interface{} {
