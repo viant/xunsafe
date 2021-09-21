@@ -1,8 +1,7 @@
-package eval
+package xunsafe
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/viant/xunsafe"
 	"reflect"
 	"testing"
 )
@@ -137,17 +136,17 @@ func TestSelector_IntAddr(t *testing.T) {
 		assert.Nil(t, err, testCase.description)
 		switch expect := testCase.expect.(type) {
 		case int:
-			valPtr := selector.IntAddr(xunsafe.Addr(instance))
+			valPtr := selector.IntAddr(Addr(instance))
 			if testCase.expectNil {
 				assert.Nil(t, valPtr, testCase.description)
 				continue
 			}
 			assert.EqualValues(t, expect, *valPtr)
 		case string:
-			valPtr := selector.StringAddr(xunsafe.Addr(instance))
+			valPtr := selector.StringAddr(Addr(instance))
 			assert.EqualValues(t, expect, *valPtr)
 		case bool:
-			valPtr := selector.BoolAddr(xunsafe.Addr(instance))
+			valPtr := selector.BoolAddr(Addr(instance))
 			if expect {
 				assert.True(t, *valPtr, testCase.description)
 			} else {

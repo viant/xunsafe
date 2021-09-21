@@ -6,11 +6,13 @@ import (
 	"unsafe"
 )
 
+//Slice represents a slice
 type Slice struct {
 	reflect.Type
 	sliceDataAddress func(structAddr unsafe.Pointer, index uintptr) unsafe.Pointer
 }
 
+//Range call visit callback for each slice element , to terminate visit should return false
 func (r *Slice) Range(addr unsafe.Pointer, visit func(index int, addr unsafe.Pointer) bool) {
 	header := *(*reflect.SliceHeader)(addr)
 	for i := 0; i < header.Len; i++ {
@@ -20,6 +22,7 @@ func (r *Slice) Range(addr unsafe.Pointer, visit func(index int, addr unsafe.Poi
 	}
 }
 
+//Index return slice item address
 func (r *Slice) Index(addr unsafe.Pointer, index int) unsafe.Pointer {
 	return r.sliceDataAddress(addr, uintptr(index))
 }

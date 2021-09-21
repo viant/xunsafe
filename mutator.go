@@ -9,6 +9,7 @@ import (
 //Setter represents a func setting field value
 type Setter func(structAddr unsafe.Pointer, val interface{})
 
+//Set sets field value
 func (f *Field) Set(structAddr unsafe.Pointer, v interface{}) {
 	if f.setter != nil {
 		f.setter(structAddr, v)
