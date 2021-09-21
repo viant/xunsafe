@@ -9,15 +9,16 @@ type Field struct {
 	Field   *Field
 	address Getter
 	value   Getter
+	setter  Setter
 	field   reflect.StructField
-	Type reflect.Type
+	Type    reflect.Type
 }
 
 //NewField creates a new filed
 func NewField(field reflect.StructField) *Field {
 	return &Field{
 		field: field,
-		Type: field.Type,
+		Type:  field.Type,
 	}
 }
 
@@ -29,10 +30,10 @@ func FieldByIndex(structType reflect.Type, index int) *Field {
 //FieldByName creates a field for supplied struct type and field name
 func FieldByName(structType reflect.Type, name string) *Field {
 	switch structType.Kind() {
-		case reflect.Ptr:
-			return FieldByName(structType.Elem(), name)
-		case reflect.Slice:
-			return FieldByName(structType.Elem(), name)
+	case reflect.Ptr:
+		return FieldByName(structType.Elem(), name)
+	case reflect.Slice:
+		return FieldByName(structType.Elem(), name)
 
 	}
 	structField, ok := structType.FieldByName(name)
@@ -42,7 +43,6 @@ func FieldByName(structType reflect.Type, name string) *Field {
 	return NewField(structField)
 }
 
-
 //FieldWithGetters creates a field supplied custom address, value getter
 func FieldWithGetters(address, value Getter) *Field {
 	return &Field{
@@ -50,7 +50,3 @@ func FieldWithGetters(address, value Getter) *Field {
 		value:   value,
 	}
 }
-
-
-
-

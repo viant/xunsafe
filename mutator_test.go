@@ -257,6 +257,8 @@ func TestField_Mutator(t *testing.T) {
 		}
 		actual := holderVal.Elem().FieldByName(testCase.name).Interface()
 		assert.EqualValues(t, testCase.expect, actual, testCase.description)
+
+		field.Set(aStructAddr, testCase.expect)
 	}
 
 }
