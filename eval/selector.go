@@ -25,12 +25,21 @@ func (s *Selector) Type() reflect.Type {
 	return s.child.Type()
 }
 
+//Set sets path value
+func (s *Selector) Set(structAddr unsafe.Pointer, val interface{}) {
+	if s.index != nil {
+		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+	} else if s.child == nil {
+		s.field.Set(structAddr, val)
+		return
+	}
+	s.child.Set(s.field.UnsafeAddr(structAddr), val)
+}
+
 //IntAddr returns field *int address
 func (s *Selector) IntAddr(structAddr unsafe.Pointer) *int {
 	if s.index != nil {
-		header := *(*reflect.SliceHeader)(structAddr)
-		structAddr = unsafe.Pointer(header.Data + *s.index*s.itemType.Size())
-		return s.field.IntAddr(structAddr)
+		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
 	} else if s.child == nil {
 		return s.field.IntAddr(structAddr)
 	}
@@ -50,8 +59,7 @@ func (s *Selector) StringAddr(structAddr unsafe.Pointer) *string {
 //IntAddr returns field *int address
 func (s *Selector) BoolAddr(structAddr unsafe.Pointer) *bool {
 	if s.index != nil {
-		header := *(*reflect.SliceHeader)(structAddr)
-		structAddr = unsafe.Pointer(header.Data + *s.index*s.itemType.Size())
+		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
 	} else if s.child == nil {
 		return s.field.BoolAddr(structAddr)
 	}
