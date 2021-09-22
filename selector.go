@@ -47,6 +47,36 @@ func (s *Selector) IntAddr(structAddr unsafe.Pointer) *int {
 	return s.child.IntAddr(s.field.UnsafeAddr(structAddr))
 }
 
+//Int returns field int value
+func (s *Selector) Int(structAddr unsafe.Pointer) int {
+	if s.index != nil {
+		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+	} else if s.child == nil {
+		return s.field.Int(structAddr)
+	}
+	return s.child.Int(s.field.UnsafeAddr(structAddr))
+}
+
+//Float64Addr returns field *float64 address
+func (s *Selector) Float64Addr(structAddr unsafe.Pointer) *float64 {
+	if s.index != nil {
+		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+	} else if s.child == nil {
+		return s.field.Float64Addr(structAddr)
+	}
+	return s.child.Float64Addr(s.field.UnsafeAddr(structAddr))
+}
+
+//Float64 returns field float64 value
+func (s *Selector) Float64(structAddr unsafe.Pointer) float64 {
+	if s.index != nil {
+		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+	} else if s.child == nil {
+		return s.field.Float64(structAddr)
+	}
+	return s.child.Float64(s.field.UnsafeAddr(structAddr))
+}
+
 //StringAddr returns field *string addr
 func (s *Selector) StringAddr(structAddr unsafe.Pointer) *string {
 	if s.index != nil {
@@ -57,6 +87,16 @@ func (s *Selector) StringAddr(structAddr unsafe.Pointer) *string {
 	return s.child.StringAddr(s.field.UnsafeAddr(structAddr))
 }
 
+//String returns field int value
+func (s *Selector) String(structAddr unsafe.Pointer) string {
+	if s.index != nil {
+		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+	} else if s.child == nil {
+		return s.field.String(structAddr)
+	}
+	return s.child.String(s.field.UnsafeAddr(structAddr))
+}
+
 //BoolAddr returns field *bool address
 func (s *Selector) BoolAddr(structAddr unsafe.Pointer) *bool {
 	if s.index != nil {
@@ -65,6 +105,16 @@ func (s *Selector) BoolAddr(structAddr unsafe.Pointer) *bool {
 		return s.field.BoolAddr(structAddr)
 	}
 	return s.child.BoolAddr(s.field.UnsafeAddr(structAddr))
+}
+
+//Bool returns field bool value
+func (s *Selector) Bool(structAddr unsafe.Pointer) bool {
+	if s.index != nil {
+		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+	} else if s.child == nil {
+		return s.field.Bool(structAddr)
+	}
+	return s.child.Bool(s.field.UnsafeAddr(structAddr))
 }
 
 //NewSelector creates a selector for supplied expression
@@ -93,7 +143,11 @@ func NewSelector(owner reflect.Type, expr string) (*Selector, error) {
 	result := &Selector{name: expr, index: idx}
 	result.field = FieldByName(owner, result.name)
 	if result.field == nil {
-		return nil, fmt.Errorf("failed to lookup %v.%v", owner.Name(), expr)
+		ownerName := owner.Name()
+		if ownerName != "" {
+			ownerName += "."
+		}
+		return nil, fmt.Errorf("failed to lookup %v%v", ownerName, expr)
 	}
 
 	if idx != nil {
