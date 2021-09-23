@@ -47,6 +47,16 @@ func (s *Selector) IntAddr(structAddr unsafe.Pointer) *int {
 	return s.child.IntAddr(s.field.UnsafeAddr(structAddr))
 }
 
+//Value returns field value
+func (s *Selector) Value(structAddr unsafe.Pointer) interface{} {
+	if s.index != nil {
+		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+	} else if s.child == nil {
+		return s.field.Value(structAddr)
+	}
+	return s.child.Value(s.field.UnsafeAddr(structAddr))
+}
+
 //Int returns field int value
 func (s *Selector) Int(structAddr unsafe.Pointer) int {
 	if s.index != nil {
