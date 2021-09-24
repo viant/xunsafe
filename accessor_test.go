@@ -15,6 +15,10 @@ func TestField_Accessor(t *testing.T) {
 		ID int
 	}
 
+	type Foo struct {
+		ID int
+	}
+
 	type Struct1 struct {
 		I   int
 		I64 int64
@@ -36,6 +40,7 @@ func TestField_Accessor(t *testing.T) {
 		Bs   []byte
 		T    time.Time
 		Bars []Bar
+		Foo  *Foo
 	}
 
 	type Struct2 struct {
@@ -85,6 +90,7 @@ func TestField_Accessor(t *testing.T) {
 				ID: 1,
 			},
 		},
+		Foo: &Foo{ID: 1},
 	}
 
 	aStruct2 := &Struct2{
@@ -118,6 +124,11 @@ func TestField_Accessor(t *testing.T) {
 			description: "int",
 			expect:      aStruct1.I,
 			name:        "I",
+		},
+		{
+			description: "Foo",
+			expect:      aStruct1.Foo,
+			name:        "Foo",
 		},
 		{
 			description: "int64",
@@ -371,6 +382,8 @@ func TestField_Accessor(t *testing.T) {
 			actual = field.Float32Ptr(aStructAddr)
 		case *time.Time:
 			actual = field.TimePtr(aStructAddr)
+		case *Foo:
+			actual = field.Value(aStructAddr)
 
 		}
 		assert.EqualValues(t, testCase.expect, actual, testCase.description)

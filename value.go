@@ -177,12 +177,14 @@ func (f *Field) fieldValue() Getter {
 			}
 			if f.Field == nil {
 				return func(structAddr unsafe.Pointer) interface{} {
-					fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(uintptr(structAddr)+offset))
-					if fieldValue.Elem().IsNil() {
-						ptr := reflect.New(fieldValue.Type().Elem().Elem())
-						fieldValue.Elem().Set(ptr)
+					newValue := reflect.New(f.field.Type)
+					actualPtr := (*unsafe.Pointer)(unsafe.Pointer(uintptr(structAddr) + offset))
+					if actualPtr == nil {
+						return nil
 					}
-					return fieldValue.Interface()
+					newPtr := (*unsafe.Pointer)(unsafe.Pointer(newValue.Elem().UnsafeAddr()))
+					*newPtr = *actualPtr
+					return newValue.Elem().Interface()
 				}
 			}
 			fn := f.Field.AddrGetter()
