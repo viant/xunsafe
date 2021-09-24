@@ -313,7 +313,7 @@ func (f *Field) SetValue(structAddr unsafe.Pointer, val interface{}) {
 		}
 	} else {
 		addr := f.Addr(structAddr)
-		if addr == nil || refValue.IsZero() {
+		if addr == nil || !refValue.IsValid() {
 			return
 		}
 		reflect.ValueOf(addr).Elem().Set(refValue)
