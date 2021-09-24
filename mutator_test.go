@@ -14,6 +14,10 @@ func TestField_Mutator(t *testing.T) {
 		ID int
 	}
 
+	type Foo struct {
+		ID int
+	}
+
 	type Struct1 struct {
 		I   int
 		I64 int64
@@ -35,6 +39,9 @@ func TestField_Mutator(t *testing.T) {
 		Bs   []byte
 		T    time.Time
 		Bars []Bar
+		Foo  *Foo
+		F2   Foo
+		F3   *Foo
 	}
 
 	type Struct2 struct {
@@ -84,6 +91,8 @@ func TestField_Mutator(t *testing.T) {
 				ID: 1,
 			},
 		},
+		Foo: &Foo{ID: 12},
+		F2:  Foo{ID: 30},
 	}
 
 	var testCases = []struct {
@@ -92,6 +101,27 @@ func TestField_Mutator(t *testing.T) {
 		actual      func() interface{}
 		name        string
 	}{
+
+		{
+			description: "*Foo",
+			expect:      aStruct1.Foo,
+			name:        "Foo",
+		},
+		{
+			description: "Foo",
+			expect:      aStruct1.F2,
+			name:        "F2",
+		},
+		{
+			description: "nil *Foo",
+			expect:      aStruct1.F3,
+			name:        "F3",
+		},
+		{
+			description: "int",
+			expect:      100 + aStruct1.I,
+			name:        "I",
+		},
 		{
 			description: "int",
 			expect:      100 + aStruct1.I,
@@ -254,6 +284,9 @@ func TestField_Mutator(t *testing.T) {
 			field.SetFloat32Ptr(aStructAddr, val)
 		case *time.Time:
 			field.SetTimePtr(aStructAddr, val)
+		case *Foo:
+			field.SetValue(aStructAddr, val)
+
 		}
 		actual := holderVal.Elem().FieldByName(testCase.name).Interface()
 		assert.EqualValues(t, testCase.expect, actual, testCase.description)
