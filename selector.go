@@ -127,6 +127,11 @@ func (s *Selector) Bool(structAddr unsafe.Pointer) bool {
 	return s.child.Bool(s.field.UnsafeAddr(structAddr))
 }
 
+//SetField set selector field
+func (s *Selector) SetFiled(field *Field) {
+	s.field = field
+}
+
 //NewSelector creates a selector for supplied expression
 func NewSelector(owner reflect.Type, expr string) (*Selector, error) {
 	subNode := strings.Index(expr, ".")
