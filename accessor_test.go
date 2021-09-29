@@ -1,6 +1,7 @@
 package xunsafe
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"strings"
@@ -41,6 +42,8 @@ func TestField_Accessor(t *testing.T) {
 		T    time.Time
 		Bars []Bar
 		Foo  *Foo
+		F2   *Foo
+		Fn   func()
 	}
 
 	type Struct2 struct {
@@ -91,6 +94,9 @@ func TestField_Accessor(t *testing.T) {
 			},
 		},
 		Foo: &Foo{ID: 1},
+		Fn: func() {
+
+		},
 	}
 
 	aStruct2 := &Struct2{
@@ -121,14 +127,25 @@ func TestField_Accessor(t *testing.T) {
 		name        string
 	}{
 		{
+			description: "function",
+			expect:      aStruct1.Fn,
+			name:        "Fn",
+		},
+		{
 			description: "int",
 			expect:      aStruct1.I,
 			name:        "I",
 		},
+
 		{
 			description: "Foo",
 			expect:      aStruct1.Foo,
 			name:        "Foo",
+		},
+		{
+			description: "F2",
+			expect:      aStruct1.F2,
+			name:        "F2",
 		},
 		{
 			description: "int64",
@@ -300,6 +317,7 @@ func TestField_Accessor(t *testing.T) {
 	aStruct2Type := reflect.TypeOf(Struct2{})
 	aStruct2Addr := Addr(aStruct2)
 
+	assert.Nil(t, aStruct1.F2)
 	for _, testCase := range testCases {
 
 		var field *Field
@@ -384,7 +402,15 @@ func TestField_Accessor(t *testing.T) {
 			actual = field.TimePtr(aStructAddr)
 		case *Foo:
 			actual = field.Value(aStructAddr)
+		case func():
+			actual = field.Value(aStructAddr)
+		default:
+			actual = field.Value(aStructAddr)
 
+		}
+		if _, ok := actual.(func()); ok {
+			assert.EqualValues(t, fmt.Sprintf("%v", testCase.expect), fmt.Sprintf("%v", actual), testCase.description)
+			continue
 		}
 		assert.EqualValues(t, testCase.expect, actual, testCase.description)
 	}

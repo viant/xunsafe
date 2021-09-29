@@ -9,25 +9,25 @@ import (
 
 func TestSlice_Range(t *testing.T) {
 	type Foo struct {
-		ID int
+		ID   int
 		Name string
 	}
 	ID := FieldByName(reflect.TypeOf(Foo{}), "ID")
 
-	var testCases = []struct{
+	var testCases = []struct {
 		description string
-		source interface{}
-		expect interface{}
+		source      interface{}
+		expect      interface{}
 	}{
 		{
 			description: "slice",
 			source: []Foo{
 				{
-					ID: 1,
+					ID:   1,
 					Name: "abc",
 				},
 				{
-					ID: 12,
+					ID:   12,
 					Name: "xyz",
 				},
 			},
@@ -37,18 +37,17 @@ func TestSlice_Range(t *testing.T) {
 			description: "slice item pointer",
 			source: []*Foo{
 				{
-					ID: 1,
+					ID:   1,
 					Name: "abc",
 				},
 				{
-					ID: 12,
+					ID:   12,
 					Name: "xyz",
 				},
 			},
 			expect: []interface{}{1, 12},
 		},
 	}
-
 
 	for _, testCase := range testCases {
 		aSlice := NewSlice(reflect.TypeOf(testCase.source))

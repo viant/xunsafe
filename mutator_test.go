@@ -1,6 +1,7 @@
 package xunsafe
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
@@ -42,6 +43,7 @@ func TestField_Mutator(t *testing.T) {
 		Foo  *Foo
 		F2   Foo
 		F3   *Foo
+		Fn   func()
 	}
 
 	type Struct2 struct {
@@ -93,6 +95,9 @@ func TestField_Mutator(t *testing.T) {
 		},
 		Foo: &Foo{ID: 12},
 		F2:  Foo{ID: 30},
+		Fn: func() {
+			fmt.Println("123")
+		},
 	}
 
 	var testCases = []struct {
@@ -102,6 +107,11 @@ func TestField_Mutator(t *testing.T) {
 		name        string
 	}{
 
+		{
+			description: "func",
+			expect:      aStruct1.Fn,
+			name:        "Fn",
+		},
 		{
 			description: "*Foo",
 			expect:      aStruct1.Foo,
@@ -286,9 +296,15 @@ func TestField_Mutator(t *testing.T) {
 			field.SetTimePtr(aStructAddr, val)
 		case *Foo:
 			field.SetValue(aStructAddr, val)
+		case func():
+			field.SetValue(aStructAddr, val)
 
 		}
 		actual := holderVal.Elem().FieldByName(testCase.name).Interface()
+		if _, ok := actual.(func()); ok {
+			assert.EqualValues(t, fmt.Sprintf("%v", testCase.expect), fmt.Sprintf("%v", actual), testCase.description)
+			continue
+		}
 		assert.EqualValues(t, testCase.expect, actual, testCase.description)
 
 		field.Set(aStructAddr, testCase.expect)

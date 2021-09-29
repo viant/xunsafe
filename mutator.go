@@ -301,7 +301,8 @@ func (f *Field) SetInterface(structAddr unsafe.Pointer, val interface{}) {
 //SetValue sets value
 func (f *Field) SetValue(structAddr unsafe.Pointer, val interface{}) {
 	refValue := reflect.ValueOf(val)
-	if refValue.Kind() == reflect.Ptr {
+	switch refValue.Kind() {
+	case reflect.Ptr:
 		ptr := (*unsafe.Pointer)(unsafe.Add(structAddr, f.field.Offset))
 		if ptr == nil {
 			return
@@ -311,7 +312,10 @@ func (f *Field) SetValue(structAddr unsafe.Pointer, val interface{}) {
 		} else {
 			*ptr = unsafe.Pointer(refValue.Elem().UnsafeAddr())
 		}
-	} else {
+	case reflect.Func:
+		addr := f.Addr(structAddr)
+		reflect.ValueOf(addr).Elem().Set(refValue)
+	default:
 		addr := f.Addr(structAddr)
 		if addr == nil || !refValue.IsValid() {
 			return

@@ -9,7 +9,7 @@ import (
 //Addr returns src unsafe addr
 func Addr(src interface{}) unsafe.Pointer {
 	value := reflect.ValueOf(src)
-	switch value.Kind()  {
+	switch value.Kind() {
 	case reflect.UnsafePointer:
 		return src.(unsafe.Pointer)
 	case reflect.Ptr:
@@ -35,7 +35,7 @@ func (f *Field) AddrGetter() Getter {
 	}
 	return func(structAddr unsafe.Pointer) interface{} {
 		fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(uintptr(structAddr)+f.field.Offset))
-		return fieldValue.Elem().Elem().Interface()
+		return fieldValue.Interface()
 	}
 }
 

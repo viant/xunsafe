@@ -45,8 +45,6 @@ func ExampleAddr() {
 	fmt.Printf("foo.ID: %v\n", foo.ID) //prints 201
 }
 
-
-
 func Test_Me(t *testing.T) {
 	type Foo struct {
 		ID   int

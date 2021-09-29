@@ -184,7 +184,8 @@ func (f *Field) fieldValue() Getter {
 					}
 					newPtr := (*unsafe.Pointer)(unsafe.Pointer(newValue.Elem().UnsafeAddr()))
 					*newPtr = *actualPtr
-					return newValue.Elem().Interface()
+					elem := newValue.Elem()
+					return elem.Interface()
 				}
 			}
 			fn := f.Field.AddrGetter()
