@@ -1,6 +1,7 @@
 package xunsafe
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
@@ -11,6 +12,7 @@ func TestSelector_IntAddr(t *testing.T) {
 	type Foo struct {
 		ID   int
 		Name string
+		Fn   func()
 	}
 
 	var testCases = []struct {
@@ -113,6 +115,27 @@ func TestSelector_IntAddr(t *testing.T) {
 			selector: "Child.Name",
 			expect:   "Ted",
 		},
+
+		{
+			description: "child fn node string",
+			source: struct {
+				ID    int
+				Child *Foo
+			}{
+				ID: 12,
+				Child: &Foo{
+					Name: "Ted",
+					Fn: func() {
+						fmt.Println("123")
+					},
+				},
+			},
+			selector: "Child.Fn",
+			expect: func() {
+				fmt.Println("123")
+			},
+		},
+
 		{
 			description: "child ptr nil node int",
 			source: struct {
@@ -152,6 +175,9 @@ func TestSelector_IntAddr(t *testing.T) {
 			} else {
 				assert.False(t, *valPtr, testCase.description)
 			}
+		case func():
+			val := selector.Value(Addr(instance))
+			selector.Set(Addr(instance), val)
 
 		default:
 

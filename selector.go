@@ -67,6 +67,17 @@ func (s *Selector) Int(structAddr unsafe.Pointer) int {
 	return s.child.Int(s.field.UnsafeAddr(structAddr))
 }
 
+//SetInt sets int value
+func (s *Selector) SetInt(structAddr unsafe.Pointer, val int) {
+	if s.index != nil {
+		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+	} else if s.child == nil {
+		s.field.SetInt(structAddr, val)
+		return
+	}
+	s.child.SetInt(s.field.UnsafeAddr(structAddr), val)
+}
+
 //Float64Addr returns field *float64 address
 func (s *Selector) Float64Addr(structAddr unsafe.Pointer) *float64 {
 	if s.index != nil {
@@ -85,6 +96,17 @@ func (s *Selector) Float64(structAddr unsafe.Pointer) float64 {
 		return s.field.Float64(structAddr)
 	}
 	return s.child.Float64(s.field.UnsafeAddr(structAddr))
+}
+
+//SetFloat64 sets int value
+func (s *Selector) SetFloat64(structAddr unsafe.Pointer, val float64) {
+	if s.index != nil {
+		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+	} else if s.child == nil {
+		s.field.SetFloat64(structAddr, val)
+		return
+	}
+	s.child.SetFloat64(s.field.UnsafeAddr(structAddr), val)
 }
 
 //StringAddr returns field *string addr
@@ -107,6 +129,17 @@ func (s *Selector) String(structAddr unsafe.Pointer) string {
 	return s.child.String(s.field.UnsafeAddr(structAddr))
 }
 
+//SetString sets string value
+func (s *Selector) SetString(structAddr unsafe.Pointer, val string) {
+	if s.index != nil {
+		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+	} else if s.child == nil {
+		s.field.SetString(structAddr, val)
+		return
+	}
+	s.child.SetString(s.field.UnsafeAddr(structAddr), val)
+}
+
 //BoolAddr returns field *bool address
 func (s *Selector) BoolAddr(structAddr unsafe.Pointer) *bool {
 	if s.index != nil {
@@ -125,6 +158,17 @@ func (s *Selector) Bool(structAddr unsafe.Pointer) bool {
 		return s.field.Bool(structAddr)
 	}
 	return s.child.Bool(s.field.UnsafeAddr(structAddr))
+}
+
+//SetBool sets bool value
+func (s *Selector) SetBool(structAddr unsafe.Pointer, val bool) {
+	if s.index != nil {
+		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+	} else if s.child == nil {
+		s.field.SetBool(structAddr, val)
+		return
+	}
+	s.child.SetBool(s.field.UnsafeAddr(structAddr), val)
 }
 
 //SetField set selector field

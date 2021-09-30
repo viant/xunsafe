@@ -297,7 +297,7 @@ func TestField_Mutator(t *testing.T) {
 		case *Foo:
 			field.SetValue(aStructAddr, val)
 		case func():
-			field.SetValue(aStructAddr, val)
+			field.Set(aStructAddr, val)
 
 		}
 		actual := holderVal.Elem().FieldByName(testCase.name).Interface()
