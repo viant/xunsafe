@@ -12,8 +12,8 @@ import (
 type Selector struct {
 	child            *Selector
 	name             string
-	sliceDataAddress func(structAddr unsafe.Pointer) unsafe.Pointer
-	index            *uintptr
+	sliceDataAddress func(structAddr unsafe.Pointer, index int) unsafe.Pointer
+	index            *int
 	itemType         reflect.Type
 	field            *Field
 }
@@ -26,10 +26,34 @@ func (s *Selector) Type() reflect.Type {
 	return s.child.Type()
 }
 
+//ISet sets path value with optional slice indexes
+func (s *Selector) ISet(structAddr unsafe.Pointer, val interface{}, indexes []int) {
+	if s.index != nil {
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), indexes[0])
+		s.child.ISet(structAddr, val, indexes[1:])
+		return
+	} else if s.child == nil {
+		s.field.Set(structAddr, val)
+		return
+	}
+	s.child.ISet(s.field.UnsafeAddr(structAddr), val, indexes)
+}
+
+//IValue returns field value
+func (s *Selector) IValue(structAddr unsafe.Pointer, indexes []int) interface{} {
+	if s.index != nil {
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), indexes[0])
+		return s.child.IValue(structAddr, indexes[1:])
+	} else if s.child == nil {
+		return s.field.Value(structAddr)
+	}
+	return s.child.IValue(s.field.UnsafeAddr(structAddr), indexes)
+}
+
 //Set sets path value
 func (s *Selector) Set(structAddr unsafe.Pointer, val interface{}) {
 	if s.index != nil {
-		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
 	} else if s.child == nil {
 		s.field.Set(structAddr, val)
 		return
@@ -37,30 +61,30 @@ func (s *Selector) Set(structAddr unsafe.Pointer, val interface{}) {
 	s.child.Set(s.field.UnsafeAddr(structAddr), val)
 }
 
-//IntAddr returns field *int address
-func (s *Selector) IntAddr(structAddr unsafe.Pointer) *int {
-	if s.index != nil {
-		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
-	} else if s.child == nil {
-		return s.field.IntAddr(structAddr)
-	}
-	return s.child.IntAddr(s.field.UnsafeAddr(structAddr))
-}
-
 //Value returns field value
 func (s *Selector) Value(structAddr unsafe.Pointer) interface{} {
 	if s.index != nil {
-		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
 	} else if s.child == nil {
 		return s.field.Value(structAddr)
 	}
 	return s.child.Value(s.field.UnsafeAddr(structAddr))
 }
 
+//IntAddr returns field *int address
+func (s *Selector) IntAddr(structAddr unsafe.Pointer) *int {
+	if s.index != nil {
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
+	} else if s.child == nil {
+		return s.field.IntAddr(structAddr)
+	}
+	return s.child.IntAddr(s.field.UnsafeAddr(structAddr))
+}
+
 //Int returns field int value
 func (s *Selector) Int(structAddr unsafe.Pointer) int {
 	if s.index != nil {
-		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
 	} else if s.child == nil {
 		return s.field.Int(structAddr)
 	}
@@ -70,7 +94,7 @@ func (s *Selector) Int(structAddr unsafe.Pointer) int {
 //SetInt sets int value
 func (s *Selector) SetInt(structAddr unsafe.Pointer, val int) {
 	if s.index != nil {
-		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
 	} else if s.child == nil {
 		s.field.SetInt(structAddr, val)
 		return
@@ -81,7 +105,7 @@ func (s *Selector) SetInt(structAddr unsafe.Pointer, val int) {
 //Float64Addr returns field *float64 address
 func (s *Selector) Float64Addr(structAddr unsafe.Pointer) *float64 {
 	if s.index != nil {
-		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
 	} else if s.child == nil {
 		return s.field.Float64Addr(structAddr)
 	}
@@ -91,7 +115,7 @@ func (s *Selector) Float64Addr(structAddr unsafe.Pointer) *float64 {
 //Float64 returns field float64 value
 func (s *Selector) Float64(structAddr unsafe.Pointer) float64 {
 	if s.index != nil {
-		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
 	} else if s.child == nil {
 		return s.field.Float64(structAddr)
 	}
@@ -101,7 +125,7 @@ func (s *Selector) Float64(structAddr unsafe.Pointer) float64 {
 //SetFloat64 sets int value
 func (s *Selector) SetFloat64(structAddr unsafe.Pointer, val float64) {
 	if s.index != nil {
-		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
 	} else if s.child == nil {
 		s.field.SetFloat64(structAddr, val)
 		return
@@ -112,7 +136,7 @@ func (s *Selector) SetFloat64(structAddr unsafe.Pointer, val float64) {
 //StringAddr returns field *string addr
 func (s *Selector) StringAddr(structAddr unsafe.Pointer) *string {
 	if s.index != nil {
-		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
 	} else if s.child == nil {
 		return s.field.StringAddr(structAddr)
 	}
@@ -122,7 +146,7 @@ func (s *Selector) StringAddr(structAddr unsafe.Pointer) *string {
 //String returns field int value
 func (s *Selector) String(structAddr unsafe.Pointer) string {
 	if s.index != nil {
-		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
 	} else if s.child == nil {
 		return s.field.String(structAddr)
 	}
@@ -132,7 +156,7 @@ func (s *Selector) String(structAddr unsafe.Pointer) string {
 //SetString sets string value
 func (s *Selector) SetString(structAddr unsafe.Pointer, val string) {
 	if s.index != nil {
-		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
 	} else if s.child == nil {
 		s.field.SetString(structAddr, val)
 		return
@@ -143,7 +167,7 @@ func (s *Selector) SetString(structAddr unsafe.Pointer, val string) {
 //BoolAddr returns field *bool address
 func (s *Selector) BoolAddr(structAddr unsafe.Pointer) *bool {
 	if s.index != nil {
-		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
 	} else if s.child == nil {
 		return s.field.BoolAddr(structAddr)
 	}
@@ -153,7 +177,7 @@ func (s *Selector) BoolAddr(structAddr unsafe.Pointer) *bool {
 //Bool returns field bool value
 func (s *Selector) Bool(structAddr unsafe.Pointer) bool {
 	if s.index != nil {
-		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
 	} else if s.child == nil {
 		return s.field.Bool(structAddr)
 	}
@@ -163,7 +187,7 @@ func (s *Selector) Bool(structAddr unsafe.Pointer) bool {
 //SetBool sets bool value
 func (s *Selector) SetBool(structAddr unsafe.Pointer, val bool) {
 	if s.index != nil {
-		structAddr = s.field.UnsafeAddr(s.sliceDataAddress(structAddr))
+		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
 	} else if s.child == nil {
 		s.field.SetBool(structAddr, val)
 		return
@@ -171,7 +195,7 @@ func (s *Selector) SetBool(structAddr unsafe.Pointer, val bool) {
 	s.child.SetBool(s.field.UnsafeAddr(structAddr), val)
 }
 
-//SetField set selector field
+//SetFiled set selector field
 func (s *Selector) SetFiled(field *Field) {
 	s.field = field
 }
@@ -181,13 +205,17 @@ func NewSelector(owner reflect.Type, expr string) (*Selector, error) {
 	subNode := strings.Index(expr, ".")
 	itemNode := strings.Index(expr, "[")
 	child := ""
-	var idx *uintptr
+	var idx *int
 	if itemNode != -1 && itemNode < subNode {
-		itemIdx, err := strconv.Atoi(expr[itemNode+1 : subNode-1])
-		if err != nil {
-			return nil, fmt.Errorf("invalid selector: %v index: %v", expr, err)
+		indexLit := expr[itemNode+1 : subNode-1]
+		offset := -1
+		var err error
+		if indexLit != "" {
+			offset, err = strconv.Atoi(indexLit)
+			if err != nil {
+				return nil, fmt.Errorf("invalid selector: %v index: %v", expr, err)
+			}
 		}
-		offset := uintptr(itemIdx)
 		idx = &offset
 		child = expr[subNode+1:]
 		expr = expr[:itemNode]
@@ -198,7 +226,6 @@ func NewSelector(owner reflect.Type, expr string) (*Selector, error) {
 		child = expr[subNode+1:]
 		expr = expr[:subNode]
 	}
-
 	result := &Selector{name: expr, index: idx}
 	result.field = FieldByName(owner, result.name)
 	if result.field == nil {
@@ -210,18 +237,25 @@ func NewSelector(owner reflect.Type, expr string) (*Selector, error) {
 	}
 
 	if idx != nil {
-		field, _ := owner.FieldByName(result.name)
-		result.itemType = field.Type.Elem()
+		if owner.Kind() == reflect.Slice {
+			field, _ := owner.Elem().FieldByName(result.name)
+			result.itemType = field.Type.Elem()
+
+		} else {
+			field, _ := owner.FieldByName(result.name)
+			result.itemType = field.Type.Elem()
+		}
+
 		if result.itemType.Kind() == reflect.Ptr {
-			result.sliceDataAddress = func(structAddr unsafe.Pointer) unsafe.Pointer {
+			result.sliceDataAddress = func(structAddr unsafe.Pointer, index int) unsafe.Pointer {
 				header := *(*reflect.SliceHeader)(structAddr)
-				offset := header.Data - uintptr(structAddr) + *result.index*result.itemType.Size()
+				offset := header.Data - uintptr(structAddr) + uintptr(index)*result.itemType.Size()
 				return *(*unsafe.Pointer)(unsafe.Add(structAddr, offset))
 			}
 		} else {
-			result.sliceDataAddress = func(structAddr unsafe.Pointer) unsafe.Pointer {
+			result.sliceDataAddress = func(structAddr unsafe.Pointer, index int) unsafe.Pointer {
 				header := *(*reflect.SliceHeader)(structAddr)
-				offset := header.Data - uintptr(structAddr) + *result.index*result.itemType.Size()
+				offset := header.Data - uintptr(structAddr) + uintptr(index)*result.itemType.Size()
 				return unsafe.Add(structAddr, offset)
 			}
 		}

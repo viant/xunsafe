@@ -13,15 +13,39 @@ func TestSelector_IntAddr(t *testing.T) {
 		ID   int
 		Name string
 		Fn   func()
+		Foos []Foo
 	}
 
 	var testCases = []struct {
 		description string
 		source      interface{}
 		selector    string
+		indexes     []int
 		expect      interface{}
 		expectNil   bool
 	}{
+
+		{
+			description: "nexted slice",
+			source: struct {
+				Z []Foo
+			}{Z: []Foo{
+				{
+					ID: 1,
+					Foos: []Foo{
+						{
+							Name: "Tester 1",
+						},
+						{
+							Name: "Tester 2",
+						},
+					},
+				},
+			}},
+			selector: "Z[].Foos[].Name",
+			indexes:  []int{0, 1},
+			expect:   "Tester 2",
+		},
 
 		{
 			description: "top level string",
@@ -156,7 +180,9 @@ func TestSelector_IntAddr(t *testing.T) {
 		ptr.Elem().Set(val)
 		instance := ptr.Interface()
 		selector, err := NewSelector(val.Type(), testCase.selector)
-		assert.Nil(t, err, testCase.description)
+		if !assert.Nil(t, err, testCase.description) {
+			continue
+		}
 		switch expect := testCase.expect.(type) {
 		case int:
 			valPtr := selector.IntAddr(Addr(instance))
@@ -166,8 +192,13 @@ func TestSelector_IntAddr(t *testing.T) {
 			}
 			assert.EqualValues(t, expect, *valPtr)
 		case string:
-			valPtr := selector.StringAddr(Addr(instance))
-			assert.EqualValues(t, expect, *valPtr)
+			if len(testCase.indexes) > 0 {
+				actual := selector.IValue(Addr(instance), testCase.indexes)
+				assert.EqualValues(t, expect, actual)
+			} else {
+				valPtr := selector.StringAddr(Addr(instance))
+				assert.EqualValues(t, expect, *valPtr)
+			}
 		case bool:
 			valPtr := selector.BoolAddr(Addr(instance))
 			if expect {
