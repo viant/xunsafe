@@ -237,6 +237,9 @@ func NewSelector(owner reflect.Type, expr string) (*Selector, error) {
 	}
 
 	if idx != nil {
+		if owner.Kind() == reflect.Ptr {
+			owner = owner.Elem()
+		}
 		if owner.Kind() == reflect.Slice {
 			field, _ := owner.Elem().FieldByName(result.name)
 			result.itemType = field.Type.Elem()
@@ -260,6 +263,7 @@ func NewSelector(owner reflect.Type, expr string) (*Selector, error) {
 			}
 		}
 	}
+
 	var err error
 	if len(child) > 1 {
 		result.child, err = NewSelector(result.field.Type, child)

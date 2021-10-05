@@ -26,6 +26,27 @@ func TestSelector_IntAddr(t *testing.T) {
 	}{
 
 		{
+			description: "nexted ptr struct slice",
+			source: struct {
+				Z []Foo
+			}{Z: []Foo{
+				{
+					ID: 1,
+					Foos: []Foo{
+						{
+							Name: "Tester 1",
+						},
+						{
+							Name: "Tester 2",
+						},
+					},
+				},
+			}},
+			selector: "Z[].Foos[].Name",
+			indexes:  []int{0, 1},
+			expect:   "Tester 2",
+		},
+		{
 			description: "nexted slice",
 			source: struct {
 				Z []Foo
