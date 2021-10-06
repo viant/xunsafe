@@ -16,6 +16,8 @@ type Selector struct {
 	index            *int
 	itemType         reflect.Type
 	field            *Field
+	_getValue        func(structAddr unsafe.Pointer) interface{}
+	_setValue        func(structAddr unsafe.Pointer, val interface{})
 }
 
 //Type returns field type
@@ -52,23 +54,52 @@ func (s *Selector) IValue(structAddr unsafe.Pointer, indexes []int) interface{} 
 
 //Set sets path value
 func (s *Selector) Set(structAddr unsafe.Pointer, val interface{}) {
-	if s.index != nil {
-		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
-	} else if s.child == nil {
-		s.field.Set(structAddr, val)
+	if s._setValue != nil {
+		s._setValue(structAddr, val)
 		return
 	}
-	s.child.Set(s.field.UnsafeAddr(structAddr), val)
+
+	var fn func(structAddr unsafe.Pointer, val interface{})
+	if s.index != nil {
+		fn = func(structAddr unsafe.Pointer, val interface{}) {
+			structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
+			s.child.Set(structAddr, val)
+		}
+	} else if s.child == nil {
+		fn = func(structAddr unsafe.Pointer, val interface{}) {
+			s.field.Set(structAddr, val)
+		}
+	} else {
+		fn = func(structAddr unsafe.Pointer, val interface{}) {
+			s.child.Set(s.field.UnsafeAddr(structAddr), val)
+		}
+	}
+	s._setValue = fn
+	fn(structAddr, val)
 }
 
 //Value returns field value
 func (s *Selector) Value(structAddr unsafe.Pointer) interface{} {
-	if s.index != nil {
-		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
-	} else if s.child == nil {
-		return s.field.Value(structAddr)
+	if s._getValue != nil {
+		return s._getValue(structAddr)
 	}
-	return s.child.Value(s.field.UnsafeAddr(structAddr))
+	var fn func(structAddr unsafe.Pointer) interface{}
+	if s.index != nil {
+		fn = func(structAddr unsafe.Pointer) interface{} {
+			structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
+			return s.child.Value(structAddr)
+		}
+	} else if s.child == nil {
+		fn = func(structAddr unsafe.Pointer) interface{} {
+			return s.field.Value(structAddr)
+		}
+	} else {
+		fn = func(structAddr unsafe.Pointer) interface{} {
+			return s.child.Value(s.field.UnsafeAddr(structAddr))
+		}
+	}
+	s._getValue = fn
+	return fn(structAddr)
 }
 
 //IntAddr returns field *int address
@@ -85,6 +116,7 @@ func (s *Selector) IntAddr(structAddr unsafe.Pointer) *int {
 func (s *Selector) Int(structAddr unsafe.Pointer) int {
 	if s.index != nil {
 		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
+		return s.child.Int(structAddr)
 	} else if s.child == nil {
 		return s.field.Int(structAddr)
 	}
@@ -95,6 +127,8 @@ func (s *Selector) Int(structAddr unsafe.Pointer) int {
 func (s *Selector) SetInt(structAddr unsafe.Pointer, val int) {
 	if s.index != nil {
 		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
+		s.child.SetInt(structAddr, val)
+		return
 	} else if s.child == nil {
 		s.field.SetInt(structAddr, val)
 		return
@@ -106,6 +140,7 @@ func (s *Selector) SetInt(structAddr unsafe.Pointer, val int) {
 func (s *Selector) Float64Addr(structAddr unsafe.Pointer) *float64 {
 	if s.index != nil {
 		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
+		return s.child.Float64Addr(structAddr)
 	} else if s.child == nil {
 		return s.field.Float64Addr(structAddr)
 	}
@@ -116,6 +151,7 @@ func (s *Selector) Float64Addr(structAddr unsafe.Pointer) *float64 {
 func (s *Selector) Float64(structAddr unsafe.Pointer) float64 {
 	if s.index != nil {
 		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
+		return s.child.Float64(structAddr)
 	} else if s.child == nil {
 		return s.field.Float64(structAddr)
 	}
@@ -126,6 +162,8 @@ func (s *Selector) Float64(structAddr unsafe.Pointer) float64 {
 func (s *Selector) SetFloat64(structAddr unsafe.Pointer, val float64) {
 	if s.index != nil {
 		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
+		s.child.SetFloat64(structAddr, val)
+		return
 	} else if s.child == nil {
 		s.field.SetFloat64(structAddr, val)
 		return
@@ -137,6 +175,7 @@ func (s *Selector) SetFloat64(structAddr unsafe.Pointer, val float64) {
 func (s *Selector) StringAddr(structAddr unsafe.Pointer) *string {
 	if s.index != nil {
 		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
+		return s.child.StringAddr(structAddr)
 	} else if s.child == nil {
 		return s.field.StringAddr(structAddr)
 	}
@@ -147,6 +186,7 @@ func (s *Selector) StringAddr(structAddr unsafe.Pointer) *string {
 func (s *Selector) String(structAddr unsafe.Pointer) string {
 	if s.index != nil {
 		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
+		return s.child.String(structAddr)
 	} else if s.child == nil {
 		return s.field.String(structAddr)
 	}
@@ -157,6 +197,8 @@ func (s *Selector) String(structAddr unsafe.Pointer) string {
 func (s *Selector) SetString(structAddr unsafe.Pointer, val string) {
 	if s.index != nil {
 		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
+		s.child.SetString(structAddr, val)
+		return
 	} else if s.child == nil {
 		s.field.SetString(structAddr, val)
 		return
@@ -168,6 +210,7 @@ func (s *Selector) SetString(structAddr unsafe.Pointer, val string) {
 func (s *Selector) BoolAddr(structAddr unsafe.Pointer) *bool {
 	if s.index != nil {
 		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
+		return s.child.BoolAddr(structAddr)
 	} else if s.child == nil {
 		return s.field.BoolAddr(structAddr)
 	}
@@ -178,6 +221,7 @@ func (s *Selector) BoolAddr(structAddr unsafe.Pointer) *bool {
 func (s *Selector) Bool(structAddr unsafe.Pointer) bool {
 	if s.index != nil {
 		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
+		return s.child.Bool(structAddr)
 	} else if s.child == nil {
 		return s.field.Bool(structAddr)
 	}
@@ -188,6 +232,8 @@ func (s *Selector) Bool(structAddr unsafe.Pointer) bool {
 func (s *Selector) SetBool(structAddr unsafe.Pointer, val bool) {
 	if s.index != nil {
 		structAddr = s.sliceDataAddress(s.field.UnsafeAddr(structAddr), *s.index)
+		s.child.SetBool(structAddr, val)
+		return
 	} else if s.child == nil {
 		s.field.SetBool(structAddr, val)
 		return
