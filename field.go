@@ -6,22 +6,26 @@ import (
 
 //Field represent a field
 type Field struct {
-	Field   *Field
-	address Getter
-	value   Getter
-	setter  Setter
-	field   reflect.StructField
-	Type    reflect.Type
-	kind    reflect.Kind
+	Field       *Field
+	address     Getter
+	Value       Getter
+	setter      Setter
+	field       reflect.StructField
+	Type        reflect.Type
+	kind        reflect.Kind
 }
 
 //NewField creates a new filed
 func NewField(field reflect.StructField) *Field {
-	return &Field{
+	fType := field.Type
+	f := &Field{
 		field: field,
-		Type:  field.Type,
-		kind:  field.Type.Kind(),
+		Type:  fType,
+		kind:  fType.Kind(),
 	}
+
+	f.Value = FieldAccessor(f)
+	return f
 }
 
 //FieldByIndex creates a field for supplied struct type and field index
@@ -49,6 +53,6 @@ func FieldByName(structType reflect.Type, name string) *Field {
 func FieldWithGetters(address, value Getter) *Field {
 	return &Field{
 		address: address,
-		value:   value,
+		Value:   value,
 	}
 }

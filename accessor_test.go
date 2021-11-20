@@ -475,6 +475,25 @@ func BenchmarkField_Accessor_Fast(b *testing.B) {
 
 }
 
+func BenchmarkField_Accessor_Value(b *testing.B) {
+	var id interface{}
+	var name interface{}
+	var val interface{}
+	var ts interface{}
+	ptr := Addr(_accBenchInstance)
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		id = _AcciDField.Value(ptr)
+		name = _AccNameField.Value(ptr)
+		val = _AccValField.Value(ptr)
+		ts = _TimeValField.Value(ptr)
+	}
+	assert.EqualValues(b, _accBenchInstance.ID, id)
+	assert.EqualValues(b, _accBenchInstance.Name, name)
+	assert.EqualValues(b, _accBenchInstance.Val, val)
+	assert.EqualValues(b, _accBenchInstance.Time, ts)
+}
+
 func BenchmarkField_Accessor_Reflect(b *testing.B) {
 	aType := reflect.TypeOf(AccBenchStruct{})
 	var idFieldIdx, nameFiledIdx, valFieldIdx, tsFieldIdx int
