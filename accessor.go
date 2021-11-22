@@ -374,15 +374,6 @@ func (f *Field) TimePtr(structAddr unsafe.Pointer) *time.Time {
 	return *result
 }
 
-//Value returns a value getter or error
-func (f *Field) Value(structAddr unsafe.Pointer) interface{} {
-	if f.value != nil {
-		return f.value(structAddr)
-	}
-	f.value = f.fieldValue()
-	return f.value(structAddr)
-}
-
 //Addr returns a field addr getter or error
 func (f *Field) Addr(structAddr unsafe.Pointer) interface{} {
 	if f.address != nil {
