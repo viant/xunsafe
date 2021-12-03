@@ -6,13 +6,14 @@ import (
 
 //Field represent a field
 type Field struct {
-	Field       *Field
-	address     Getter
-	Value       Getter
-	setter      Setter
-	field       reflect.StructField
-	Type        reflect.Type
-	kind        reflect.Kind
+	Field   *Field
+	address Getter
+	Value   Getter
+	Set     Setter
+	GetInto GetterInto
+	field   reflect.StructField
+	Type    reflect.Type
+	kind    reflect.Kind
 }
 
 //NewField creates a new filed
@@ -25,6 +26,9 @@ func NewField(field reflect.StructField) *Field {
 	}
 
 	f.Value = FieldAccessor(f)
+	f.Set = FieldMutator(f)
+	f.GetInto = FieldGetterInto(f)
+
 	return f
 }
 

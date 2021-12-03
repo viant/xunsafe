@@ -1,9 +1,9 @@
 package xunsafe
 
 import (
+	"fmt"
 	"reflect"
 	"unsafe"
-	"fmt"
 )
 
 var accessors = initAccessors()
@@ -371,7 +371,7 @@ func (f *Field) getStructAccessor() Getter {
 	if f.Field == nil {
 		return func(structAddr unsafe.Pointer) interface{} {
 			fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(uintptr(structAddr)+offset))
-			return fieldValue.Interface()
+			return fieldValue.Elem().Interface()
 		}
 	}
 	fn := f.AddrGetter()

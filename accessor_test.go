@@ -476,17 +476,17 @@ func BenchmarkField_Accessor_Fast(b *testing.B) {
 }
 
 func BenchmarkField_Accessor_Value(b *testing.B) {
-	var id interface{}
-	var name interface{}
-	var val interface{}
-	var ts interface{}
+	var id int
+	var name string
+	var val float32
+	var ts time.Time
 	ptr := Addr(_accBenchInstance)
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		id = _AcciDField.Value(ptr)
-		name = _AccNameField.Value(ptr)
-		val = _AccValField.Value(ptr)
-		ts = _TimeValField.Value(ptr)
+		id = _AcciDField.Value(ptr).(int)
+		name = _AccNameField.Value(ptr).(string)
+		val = _AccValField.Value(ptr).(float32)
+		ts = _TimeValField.Value(ptr).(time.Time)
 	}
 	assert.EqualValues(b, _accBenchInstance.ID, id)
 	assert.EqualValues(b, _accBenchInstance.Name, name)
