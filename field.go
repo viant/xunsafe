@@ -2,7 +2,11 @@ package xunsafe
 
 import (
 	"reflect"
+	"unsafe"
 )
+
+//FieldPointer represents a field pointer
+type FieldPointer func(pointer unsafe.Pointer) unsafe.Pointer
 
 //Field represent a field
 type Field struct {
