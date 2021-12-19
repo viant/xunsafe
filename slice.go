@@ -80,8 +80,8 @@ func (s *Slice) IndexAddr(sliceAddr unsafe.Pointer) Index {
 	}
 }
 
-//UseItemAddr option that instructs implementation to use item address as **T for []*T or *T for []T, otherwise *T would be used
-type UseItemAddr bool
+//UseItemAddrOpt option that instructs implementation to use item address as **T for []*T or *T for []T, otherwise *T would be used
+type UseItemAddrOpt bool
 
 //NewSlice creates  slice
 func NewSlice(aType reflect.Type, options ...interface{}) *Slice {
@@ -108,7 +108,7 @@ func (s *Slice) applyOptions(options []interface{}) {
 		s.useItemAddr = s.Type.Elem().Kind() != reflect.Ptr
 	}
 	for _, opt := range options {
-		if useItemAddr, ok := opt.(UseItemAddr); ok {
+		if useItemAddr, ok := opt.(UseItemAddrOpt); ok {
 			s.useItemAddr = bool(useItemAddr) || s.Type.Elem().Kind() != reflect.Ptr
 		}
 	}
@@ -141,6 +141,26 @@ loop2:
 		goto loop2
 	}
 	a.header.Len = a.size
+}
+
+//Add grows slice by 1 and returns item pointer (see UseItemAddrOpt)
+func (a *Appender) Add() unsafe.Pointer {
+	if a.cap < a.size+1 {
+		a.grow(1)
+	}
+	i := 0
+	if a.slice.useItemAddr {
+		result := (a.indexAddr(uintptr(a.size)))
+		a.size++
+		a.header.Len = a.size
+		return result
+	}
+	*(*unsafe.Pointer)(a.indexAddr(uintptr(a.size))) = unsafe.Pointer(reflect.New(a.itemType).Elem().UnsafeAddr())
+	result := (DereferencePointer(a.indexAddr(uintptr(a.size))))
+	a.size++
+	i++
+	a.header.Len = a.size
+	return result
 }
 
 func (a *Appender) grow(by int) {

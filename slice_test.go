@@ -80,6 +80,24 @@ func TestSlice_Appender(t *testing.T) {
 	}
 }
 
+func TestSlice_AppenderAdd(t *testing.T) {
+	type Foo struct {
+		ID   int
+		Name string
+	}
+	aSlice := NewSlice(reflect.TypeOf([]*Foo{}))
+	var foos []*Foo
+	appender := aSlice.Appender(unsafe.Pointer(&foos))
+	for i := 0; i < 20; i++ {
+		fooPtr := (*Foo)(appender.Add())
+		*fooPtr = Foo{ID: i}
+	}
+	assert.EqualValues(t, 20, len(foos))
+	for i := 0; i < 20; i++ {
+		assert.EqualValues(t, i, foos[i].ID)
+	}
+}
+
 func TestAppender_Append(t *testing.T) {
 
 	type Foo struct {
@@ -150,7 +168,7 @@ func TestAppender_Append(t *testing.T) {
 
 		sliceType := reflect.SliceOf(testCase.itemType)
 		actualSlice := reflect.New(sliceType)
-		aSlice := NewSlice(sliceType, UseItemAddr(true))
+		aSlice := NewSlice(sliceType, UseItemAddrOpt(true))
 		appender := aSlice.Appender(unsafe.Pointer(actualSlice.Elem().UnsafeAddr()))
 		for i := 0; i < len(testCase.expect); i++ {
 			item := reflect.New(testCase.itemType)
