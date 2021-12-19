@@ -1,6 +1,7 @@
 package xunsafe
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
@@ -60,4 +61,214 @@ func TestSlice_Range(t *testing.T) {
 		assert.EqualValues(t, testCase.expect, actual)
 	}
 
+}
+
+func TestSlice_Appender(t *testing.T) {
+	type Foo struct {
+		ID   int
+		Name string
+	}
+	aSlice := NewSlice(reflect.TypeOf([]*Foo{}))
+	var foos []*Foo
+	appender := aSlice.Appender(unsafe.Pointer(&foos))
+	for i := 0; i < 20; i++ {
+		appender.Append(unsafe.Pointer(&Foo{ID: i}))
+	}
+	assert.EqualValues(t, 20, len(foos))
+	for i := 0; i < 20; i++ {
+		assert.EqualValues(t, i, foos[i].ID)
+	}
+}
+
+func TestAppender_Append(t *testing.T) {
+
+	type Foo struct {
+		ID   int
+		Name string
+	}
+
+	var testCases = []struct {
+		description string
+		setter      func(interface{}, int)
+		itemType    reflect.Type
+		expect      []interface{}
+	}{
+
+		{
+			description: "[]int",
+			itemType:    reflect.TypeOf(0),
+			setter: func(ptr interface{}, val int) {
+				item := ptr.(*int)
+				*item = val
+			},
+			expect: []interface{}{0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
+		},
+		{
+			description: "[]*int",
+			itemType:    reflect.PtrTo(reflect.TypeOf(0)),
+			setter: func(ptr interface{}, val int) {
+				item := ptr.(**int)
+				*item = &val
+			},
+			expect: []interface{}{ptrTo(0), ptrTo(1), ptrTo(2), ptrTo(3), ptrTo(4), ptrTo(5), ptrTo(6), ptrTo(7), ptrTo(8), ptrTo(9)},
+		},
+		{
+			description: "[]Foo",
+			itemType:    reflect.TypeOf(Foo{}),
+			setter: func(ptr interface{}, val int) {
+				item := ptr.(*Foo)
+				item.ID = val
+			},
+			expect: []interface{}{
+				Foo{ID: 0},
+				Foo{ID: 1},
+				Foo{ID: 2},
+				Foo{ID: 3},
+				Foo{ID: 4},
+				Foo{ID: 5},
+			},
+		},
+		{
+			description: "[]*Foo",
+			itemType:    reflect.TypeOf(&Foo{}),
+			setter: func(ptr interface{}, val int) {
+				item := ptr.(**Foo)
+				*item = &Foo{ID: val}
+			},
+			expect: []interface{}{
+				&Foo{ID: 0},
+				&Foo{ID: 1},
+				&Foo{ID: 2},
+				&Foo{ID: 3},
+				&Foo{ID: 4},
+				&Foo{ID: 5},
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+
+		sliceType := reflect.SliceOf(testCase.itemType)
+		actualSlice := reflect.New(sliceType)
+		aSlice := NewSlice(sliceType, UseItemAddr(true))
+		appender := aSlice.Appender(unsafe.Pointer(actualSlice.Elem().UnsafeAddr()))
+		for i := 0; i < len(testCase.expect); i++ {
+			item := reflect.New(testCase.itemType)
+			testCase.setter(item.Interface(), i)
+			appender.Append(unsafe.Pointer(item.Elem().UnsafeAddr()))
+		}
+
+		for i, expect := range testCase.expect {
+			actual := actualSlice.Elem().Index(i).Interface()
+			assert.EqualValues(t, expect, actual, fmt.Sprintf("[%v]: ", i)+testCase.description)
+		}
+
+	}
+
+}
+
+func BenchmarkSlice_Index_Native(b *testing.B) {
+	var sliceSize = 10
+	var ints = make([]int, sliceSize)
+	for i := 0; i < sliceSize; i++ {
+		ints[i] = i
+	}
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		for i := 0; i < sliceSize; i++ {
+			v := ints[i]
+			if v != i {
+				b.Fail()
+			}
+		}
+	}
+}
+
+func BenchmarkSlice_Index_Xunsafe(b *testing.B) {
+	var sliceSize = 10
+	var ints = make([]int, sliceSize)
+	for i := 0; i < sliceSize; i++ {
+		ints[i] = i
+	}
+	ptr := unsafe.Pointer(&ints)
+	aSlice := NewSlice(reflect.TypeOf(ints))
+	accessor := aSlice.IndexAddr(ptr)
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < sliceSize; j++ {
+			v := (*int)(accessor(uintptr(j)))
+			if *v != j {
+				b.Fail()
+			}
+		}
+	}
+}
+
+func BenchmarkSlice_Index_Reflect(b *testing.B) {
+	var sliceSize = 10
+	var ints = make([]int, sliceSize)
+	for i := 0; i < sliceSize; i++ {
+		ints[i] = i
+	}
+	aSlice := reflect.ValueOf(ints)
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		for i := 0; i < sliceSize; i++ {
+			v := aSlice.Index(i).Interface()
+			if v != i {
+				b.Fail()
+			}
+		}
+	}
+}
+
+func BenchmarkAppender_Append_Xunsafe(b *testing.B) {
+	aSlice := NewSlice(reflect.TypeOf([]int{}))
+	b.ReportAllocs()
+	for k := 0; k < b.N; k++ {
+		var ints []int
+		appender := aSlice.Appender(unsafe.Pointer(&ints))
+		for i := 0; i < 100; i++ {
+			z := i
+			appender.Append(unsafe.Pointer(&z))
+		}
+		if len(ints) != 100 {
+			b.Fail()
+		}
+	}
+}
+
+func BenchmarkAppender_Append_Relfect(b *testing.B) {
+	b.ReportAllocs()
+	for k := 0; k < b.N; k++ {
+		var ints []int
+		slice := reflect.ValueOf(&ints)
+		for i := 0; i < 100; i++ {
+			z := i
+			slice.Elem().Set(reflect.Append(slice.Elem(), reflect.ValueOf(z)))
+		}
+		if len(ints) != 100 {
+			b.Fail()
+		}
+	}
+}
+
+func BenchmarkAppender_Append_Native(b *testing.B) {
+	b.ReportAllocs()
+	for k := 0; k < b.N; k++ {
+		var ints []int
+		for i := 0; i < 100; i++ {
+			z := i
+			ints = append(ints, z)
+		}
+		if len(ints) != 100 {
+			b.Fail()
+		}
+	}
+}
+
+func ptrTo(i interface{}) interface{} {
+	ptr := reflect.New(reflect.TypeOf(i))
+	ptr.Elem().Set(reflect.ValueOf(i))
+	return ptr.Interface()
 }

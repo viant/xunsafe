@@ -348,3 +348,8 @@ func interfacePtrGetter(field *Field) func(structAddr unsafe.Pointer) interface{
 		return fieldValue.Interface()
 	}
 }
+
+//DereferencePointer dereference pointer
+func DereferencePointer(pointer unsafe.Pointer) unsafe.Pointer {
+	return *(*unsafe.Pointer)(pointer)
+}

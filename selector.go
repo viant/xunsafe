@@ -259,7 +259,7 @@ func NewSelector(owner reflect.Type, expr string) (*Selector, error) {
 		if indexLit != "" {
 			offset, err = strconv.Atoi(indexLit)
 			if err != nil {
-				return nil, fmt.Errorf("invalid selector: %v index: %v", expr, err)
+				return nil, fmt.Errorf("invalid selector: %v indexAddr: %v", expr, err)
 			}
 		}
 		idx = &offset

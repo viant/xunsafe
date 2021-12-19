@@ -6,13 +6,14 @@ import (
 
 //Field represent a field
 type Field struct {
-	Field       *Field
-	address     Getter
-	Value       Getter
-	setter      Setter
-	field       reflect.StructField
-	Type        reflect.Type
-	kind        reflect.Kind
+	Field   *Field
+	address Getter
+	Value   Getter
+
+	setter Setter
+	field  reflect.StructField
+	Type   reflect.Type
+	kind   reflect.Kind
 }
 
 //NewField creates a new filed
@@ -28,7 +29,7 @@ func NewField(field reflect.StructField) *Field {
 	return f
 }
 
-//FieldByIndex creates a field for supplied struct type and field index
+//FieldByIndex creates a field for supplied struct type and field indexAddr
 func FieldByIndex(structType reflect.Type, index int) *Field {
 	return NewField(structType.Field(index))
 }

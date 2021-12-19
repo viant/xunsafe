@@ -118,6 +118,54 @@ Given that reflect.NewAt is quite slow, you can register custom unsafe type cast
 
 ```
 
+
+### Slice range
+
+```go
+        type T {ID int}
+        aSlice := NewSlice(reflect.TypeOf([]T))
+		var items = []T{
+			{ID:1}, {ID:2}, {ID:3},
+        }   
+		aSlice.Range(unsafe.Pointer(&items), func(index int, addr unsafe.Pointer) bool {
+			item := (*T)(addr)
+			fmt.Printf("%+v\n", item)
+			return true //to continue
+		})
+```
+
+
+### Slice index
+
+```go
+        type T {ID int}
+        aSlice := NewSlice(reflect.TypeOf([]T))
+		var items = []T{
+			{ID:1}, {ID:2}, {ID:3},
+        }   
+		index := aSlice.Index(unsafe.Pointer(&items))
+		for i :=0;i<len(items);i++ {
+            item := (*T)(index(i))
+            fmt.Printf("%+v\n", item)
+        }
+	
+```
+
+### Slice appender
+
+```go
+        type T {ID int}
+        aSlice := NewSlice(reflect.TypeOf([]T))
+		var items []T
+		
+		appender := aSlice.Appender(unsafe.Pointer(&items))
+        appender.Append(unsafe.Pointer(&T{ID:1}),unsafe.Pointer(&T{ID:2}))
+        appender.Append(unsafe.Pointer(&T{ID:3}),unsafe.Pointer(&T{ID:4}))
+        fmt.Printf("%v\n", items)
+		
+```
+
+
 ### Benchmark
 
 Accessor/Mutator benchmark
@@ -127,19 +175,53 @@ goos: darwin
 goarch: amd64
 pkg: github.com/viant/xunsafe
 cpu: Intel(R) Core(TM) i9-9980HK CPU @ 2.40GHz
-BenchmarkField_Accessor_Native-16         	890931754	          1.235 ns/op	       0 B/op	       0 allocs/op
-BenchmarkField_Accessor_Fast-16           	558196452	          2.217 ns/op	       0 B/op	       0 allocs/op
-BenchmarkField_Accessor_Reflect-16        	 8435084	          134.9 ns/op	      56 B/op	       4 allocs/op
-BenchmarkField_Accessor_PtrFast-16        	94770246	          12.95 ns/op	       0 B/op	       0 allocs/op
-BenchmarkField_Accessor_Reflect_Ptr-16    	17914276	          68.10 ns/op	       0 B/op	       0 allocs/op
-BenchmarkField_Mutator_Native-16          	1000000000	         0.9271 ns/op	       0 B/op	       0 allocs/op
-Benchmark_Mutator_Fast-16                 	879740266	          1.333 ns/op	       0 B/op	       0 allocs/op
-Benchmark_Mutator_Fast_Ptr-16             	100000000	          10.05 ns/op	       0 B/op	       0 allocs/op
-BenchmarkField_Mutator_Reflect-16         	11812810	          99.02 ns/op	      32 B/op	       3 allocs/op
-BenchmarkField_Mutator_Reflect_Ptr-16     	22566876	          54.51 ns/op	       0 B/op	       0 allocs/op
+BenchmarkField_Accessor_Native-16               15784005                69.36 ns/op            0 B/op          0 allocs/op
+BenchmarkField_Accessor_Xunsafe-16               6739143               178.8 ns/op             0 B/op          0 allocs/op
+BenchmarkField_Accessor_Value-16                 2807060               439.8 ns/op            56 B/op          3 allocs/op
+BenchmarkField_Accessor_Reflect-16               1470356               826.7 ns/op            72 B/op          4 allocs/op
+BenchmarkField_Accessor_PtrXunsafe-16            4269766               278.6 ns/op             0 B/op          0 allocs/op
+BenchmarkField_Accessor_Reflect_Ptr-16           1902192               635.8 ns/op             0 B/op          0 allocs/op
+BenchmarkField_Mutator_Native-16                25268916                46.56 ns/op            0 B/op          0 allocs/op
+Benchmark_Mutator_Fast-16                        9487674               125.5 ns/op             0 B/op          0 allocs/op
+Benchmark_Mutator_Fast_Ptr-16                    5344639               224.0 ns/op             0 B/op          0 allocs/op
+BenchmarkField_Mutator_Reflect-16                2005026               604.2 ns/op            48 B/op          3 allocs/op
+BenchmarkField_Mutator_Reflect_Ptr-16            2423137               483.6 ns/op             0 B/op          0 allocs/op
+BenchmarkSlice_Index_Native-16                  14769567                76.22 ns/op
+BenchmarkSlice_Index_Xunsafe-16                  4705651               243.9 ns/op
+BenchmarkSlice_Index_Reflect-16                   643263              2001 ns/op
+BenchmarkAppender_Append_Xunsafe-16                57892             19709 ns/op
+BenchmarkAppender_Append_Relfect-16                18657             67098 ns/op
+BenchmarkAppender_Append_Native-16                354895              3180 ns/op
+PASS
+ok      github.com/viant/xunsafe        26.395s
+awitas@AWITAS-C02C42QCMD6R xunsafe % go teset -bench=.                              
+go teset: unknown command
+Run 'go help' for usage.
+awitas@AWITAS-C02C42QCMD6R xunsafe % go test -bench=. 
+goos: darwin
+goarch: amd64
+pkg: github.com/viant/xunsafe
+cpu: Intel(R) Core(TM) i9-9980HK CPU @ 2.40GHz
+BenchmarkField_Accessor_Native-16               933782421                1.215 ns/op           0 B/op          0 allocs/op
+BenchmarkField_Accessor_Xunsafe-16              594855732                1.934 ns/op           0 B/op          0 allocs/op
+BenchmarkField_Accessor_Value-16                16291875                67.54 ns/op           44 B/op          3 allocs/op
+BenchmarkField_Accessor_Reflect-16               9490488               115.7 ns/op            56 B/op          4 allocs/op
+BenchmarkField_Accessor_PtrXunsafe-16           100000000               10.27 ns/op            0 B/op          0 allocs/op
+BenchmarkField_Accessor_Reflect_Ptr-16          23711229                47.98 ns/op            0 B/op          0 allocs/op
+BenchmarkField_Mutator_Native-16                1000000000               0.9083 ns/op          0 B/op          0 allocs/op
+Benchmark_Mutator_Xunsafe-16                    778190858                1.529 ns/op           0 B/op          0 allocs/op
+Benchmark_Mutator_Xunsafe_Ptr-16                156936856                7.637 ns/op           0 B/op          0 allocs/op
+BenchmarkField_Mutator_Reflect-16               12456297                93.22 ns/op           32 B/op          3 allocs/op
+BenchmarkField_Mutator_Reflect_Ptr-16           32652355                36.07 ns/op            0 B/op          0 allocs/op
+BenchmarkSlice_Index_Native-16                  205128967                5.789 ns/op           0 B/op          0 allocs/op
+BenchmarkSlice_Index_Xunsafe-16                 157107307                7.303 ns/op           0 B/op          0 allocs/op
+BenchmarkSlice_Index_Reflect-16                  5529320               201.7 ns/op            80 B/op         10 allocs/op
+BenchmarkAppender_Append_Xunsafe-16               857829              1331 ns/op            2128 B/op         13 allocs/op
+BenchmarkAppender_Append_Relfect-16               140394              8425 ns/op            4464 B/op        109 allocs/op
+BenchmarkAppender_Append_Native-16               2400387               480.7 ns/op          2040 B/op          8 allocs/op
 ```
 * **'Native'** suffix represent statically typed code
-* **'Fast'** suffix represent reflection implemented by this library
+* **'Xunsafe'** suffix represent reflection implemented by this library
 * **'Reflect'** suffix represent implementation with golang native reflect package
 
 

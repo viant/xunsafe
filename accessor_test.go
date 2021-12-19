@@ -455,7 +455,7 @@ func BenchmarkField_Accessor_Native(b *testing.B) {
 
 }
 
-func BenchmarkField_Accessor_Fast(b *testing.B) {
+func BenchmarkField_Accessor_Xunsafe(b *testing.B) {
 	var id int
 	var name string
 	var val float32
@@ -531,7 +531,7 @@ func BenchmarkField_Accessor_Reflect(b *testing.B) {
 
 }
 
-func BenchmarkField_Accessor_PtrFast(b *testing.B) {
+func BenchmarkField_Accessor_PtrXunsafe(b *testing.B) {
 	var id *int
 	var name *string
 	var val *float32

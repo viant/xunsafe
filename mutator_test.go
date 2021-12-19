@@ -343,7 +343,7 @@ func BenchmarkField_Mutator_Native(b *testing.B) {
 	assert.EqualValues(b, _mutBenchInstance.Val, val)
 }
 
-func Benchmark_Mutator_Fast(b *testing.B) {
+func Benchmark_Mutator_Xunsafe(b *testing.B) {
 	var id = 1000
 	var name = "test 1000"
 	var val = float32(43.4)
@@ -360,7 +360,7 @@ func Benchmark_Mutator_Fast(b *testing.B) {
 	assert.EqualValues(b, _mutBenchInstance.Val, val)
 }
 
-func Benchmark_Mutator_Fast_Ptr(b *testing.B) {
+func Benchmark_Mutator_Xunsafe_Ptr(b *testing.B) {
 	var id = 1000
 	var name = "test 1000"
 	var val = float32(43.4)

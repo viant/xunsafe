@@ -1,7 +1,5 @@
 package xunsafe
 
-
-
 import (
 	"reflect"
 	"unsafe"
@@ -301,4 +299,3 @@ func ValuePointerForType(t reflect.Type) ValuePointer {
 	}
 	return nil
 }
-

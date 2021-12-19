@@ -1,81 +1,80 @@
 package xunsafe
 
 import (
+	"fmt"
 	"reflect"
 	"unsafe"
-	"fmt"
 )
 
 var accessors = initAccessors()
 
 func initAccessors() []func(f *Field) Getter {
-	newAccessors := make([]func(f *Field) Getter, reflect.UnsafePointer)
-	newAccessors[reflect.Int] = func(f *Field) Getter {
+	var accesors = make([]func(f *Field) Getter, reflect.UnsafePointer)
+	accesors[reflect.Int] = func(f *Field) Getter {
 		return f.intAccessor
 	}
-	newAccessors[reflect.Int64] = func(f *Field) Getter {
+	accesors[reflect.Int64] = func(f *Field) Getter {
 		return f.int64Accessor
 	}
-	newAccessors[reflect.Int32] = func(f *Field) Getter {
+	accesors[reflect.Int32] = func(f *Field) Getter {
 		return f.int32Accessor
 	}
-	newAccessors[reflect.Int16] = func(f *Field) Getter {
+	accesors[reflect.Int16] = func(f *Field) Getter {
 		return f.int16Accessor
 	}
-	newAccessors[reflect.Int8] = func(f *Field) Getter {
+	accesors[reflect.Int8] = func(f *Field) Getter {
 		return f.int8Accessor
 	}
 
-	newAccessors[reflect.Uint] = func(f *Field) Getter {
+	accesors[reflect.Uint] = func(f *Field) Getter {
 		return f.uintAccessor
 	}
-	newAccessors[reflect.Uint64] = func(f *Field) Getter {
+	accesors[reflect.Uint64] = func(f *Field) Getter {
 		return f.uint64Accessor
 	}
-	newAccessors[reflect.Uint32] = func(f *Field) Getter {
+	accesors[reflect.Uint32] = func(f *Field) Getter {
 		return f.uint32Accessor
 	}
-	newAccessors[reflect.Uint16] = func(f *Field) Getter {
+	accesors[reflect.Uint16] = func(f *Field) Getter {
 		return f.uint16Accessor
 	}
 
-	newAccessors[reflect.Uint8] = func(f *Field) Getter {
+	accesors[reflect.Uint8] = func(f *Field) Getter {
 		return f.uint8Accessor
 	}
-	newAccessors[reflect.String] = func(f *Field) Getter {
+	accesors[reflect.String] = func(f *Field) Getter {
 		return f.stringAccessor
 	}
-	newAccessors[reflect.Float64] = func(f *Field) Getter {
+	accesors[reflect.Float64] = func(f *Field) Getter {
 		return f.float64Accessor
 	}
-	newAccessors[reflect.Float32] = func(f *Field) Getter {
+	accesors[reflect.Float32] = func(f *Field) Getter {
 		return f.float32Accessor
 	}
-	newAccessors[reflect.Bool] = func(f *Field) Getter {
+	accesors[reflect.Bool] = func(f *Field) Getter {
 		return f.boolAccessor
 	}
 
-	newAccessors[reflect.Func] = func(f *Field) Getter {
+	accesors[reflect.Func] = func(f *Field) Getter {
 		return func(structPtr unsafe.Pointer) interface{} {
 			fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(uintptr(structPtr)+f.field.Offset))
 			return fieldValue.Elem().Interface()
 		}
 	}
 
-	newAccessors[reflect.Slice] = func(f *Field) Getter {
+	accesors[reflect.Slice] = func(f *Field) Getter {
 		return f.getSliceAccessor()
 	}
 
-	newAccessors[reflect.Ptr] = func(f *Field) Getter {
+	accesors[reflect.Ptr] = func(f *Field) Getter {
 		return f.getPointerAccessor()
 	}
 
-	newAccessors[reflect.Struct] = func(f *Field) Getter {
+	accesors[reflect.Struct] = func(f *Field) Getter {
 		return f.getStructAccessor()
 	}
-	return newAccessors
+	return accesors
 }
-
 
 func FieldAccessor(f *Field) Getter {
 	return accessors[f.kind](f)
@@ -356,7 +355,6 @@ func (f *Field) pointerSliceFloat32Accessor(structAddr unsafe.Pointer) interface
 func (f *Field) pointerSliceBoolAccessor(structAddr unsafe.Pointer) interface{} {
 	return f.PtrSliceBool(structAddr)
 }
-
 
 func (f *Field) getStructAccessor() Getter {
 	offset := f.field.Offset
