@@ -155,7 +155,8 @@ func (a *Appender) Add() unsafe.Pointer {
 		a.header.Len = a.size
 		return result
 	}
-	*(*unsafe.Pointer)(a.indexAddr(uintptr(a.size))) = unsafe.Pointer(reflect.New(a.itemType).Elem().UnsafeAddr())
+	newPtr := reflect.New(a.itemType)
+	*(*unsafe.Pointer)(a.indexAddr(uintptr(a.size))) = unsafe.Pointer(newPtr.Pointer())
 	result := (DereferencePointer(a.indexAddr(uintptr(a.size))))
 	a.size++
 	i++
