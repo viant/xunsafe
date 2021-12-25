@@ -13,15 +13,19 @@ func TestSlice_Range(t *testing.T) {
 		ID   int
 		Name string
 	}
+
 	ID := FieldByName(reflect.TypeOf(Foo{}), "ID")
+	Name := FieldByName(reflect.TypeOf(Foo{}), "Name")
 
 	var testCases = []struct {
 		description string
+		field       *Field
 		source      interface{}
 		expect      interface{}
 	}{
 		{
 			description: "slice",
+			field:       ID,
 			source: []Foo{
 				{
 					ID:   1,
@@ -36,6 +40,7 @@ func TestSlice_Range(t *testing.T) {
 		},
 		{
 			description: "slice item pointer",
+			field:       Name,
 			source: []*Foo{
 				{
 					ID:   1,
@@ -46,18 +51,36 @@ func TestSlice_Range(t *testing.T) {
 					Name: "xyz",
 				},
 			},
-			expect: []interface{}{1, 12},
+			expect: []interface{}{"abc", "xyz"},
+		},
+		{
+			description: "primitive slice",
+			field:       nil,
+			source: []string{
+				"abc",
+				"xyz",
+				"zzz",
+			},
+			expect: []interface{}{"abc",
+				"xyz",
+				"zzz"},
 		},
 	}
 
 	for _, testCase := range testCases {
 		aSlice := NewSlice(reflect.TypeOf(testCase.source))
-		holderAddr := Addr(testCase.source)
+		holderAddr := EnsurePointer(testCase.source)
 		actual := make([]interface{}, 0)
-		aSlice.Range(holderAddr, func(index int, addr unsafe.Pointer) bool {
-			actual = append(actual, ID.Int(addr))
+		aSlice.Range(holderAddr, func(index int, item interface{}) bool {
+			if testCase.field == nil {
+				actual = append(actual, item)
+				return true
+			}
+			val := testCase.field.Interface(AsPointer(item))
+			actual = append(actual, val)
 			return true
 		})
+
 		assert.EqualValues(t, testCase.expect, actual)
 	}
 
@@ -72,7 +95,7 @@ func TestSlice_Appender(t *testing.T) {
 	var foos []*Foo
 	appender := aSlice.Appender(unsafe.Pointer(&foos))
 	for i := 0; i < 20; i++ {
-		appender.Append(unsafe.Pointer(&Foo{ID: i}))
+		appender.Append(&Foo{ID: i})
 	}
 	assert.EqualValues(t, 20, len(foos))
 	for i := 0; i < 20; i++ {
@@ -89,7 +112,8 @@ func TestSlice_AppenderAdd(t *testing.T) {
 	var foos []*Foo
 	appender := aSlice.Appender(unsafe.Pointer(&foos))
 	for i := 0; i < 20; i++ {
-		fooPtr := (*Foo)(appender.Add())
+		fooPtr, ok := appender.Add().(*Foo)
+		assert.True(t, ok)
 		*fooPtr = Foo{ID: i}
 	}
 	assert.EqualValues(t, 20, len(foos))
@@ -173,7 +197,7 @@ func TestAppender_Append(t *testing.T) {
 		for i := 0; i < len(testCase.expect); i++ {
 			item := reflect.New(testCase.itemType)
 			testCase.setter(item.Interface(), i)
-			appender.Append(unsafe.Pointer(item.Elem().UnsafeAddr()))
+			appender.Append(item.Interface())
 		}
 
 		for i, expect := range testCase.expect {
@@ -210,12 +234,11 @@ func BenchmarkSlice_Index_Xunsafe(b *testing.B) {
 	}
 	ptr := unsafe.Pointer(&ints)
 	aSlice := NewSlice(reflect.TypeOf(ints))
-	accessor := aSlice.IndexAddr(ptr)
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < sliceSize; j++ {
-			v := (*int)(accessor(uintptr(j)))
-			if *v != j {
+			val := aSlice.Addr(ptr, j).(*int)
+			if *val != j {
 				b.Fail()
 			}
 		}
@@ -256,7 +279,7 @@ func BenchmarkAppender_Append_Xunsafe(b *testing.B) {
 	}
 }
 
-func BenchmarkAppender_Append_Relfect(b *testing.B) {
+func BenchmarkAppender_Append_Reflect(b *testing.B) {
 	b.ReportAllocs()
 	for k := 0; k < b.N; k++ {
 		var ints []int

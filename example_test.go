@@ -17,7 +17,7 @@ func Example_FastReflection() {
 
 	var foos = make([]Foo, 100)
 	for i := range foos {
-		fooAddr := xunsafe.Addr(&foos[i])
+		fooAddr := xunsafe.EnsurePointer(&foos[i])
 		fooID.SetInt(fooAddr, i)
 		fooName.SetString(fooAddr, fmt.Sprintf("name %d", i))
 	}
@@ -33,7 +33,7 @@ func ExampleAddr() {
 	fooID := xunsafe.FieldByName(fooType, "ID")
 	foo := &Foo{ID: 101, Name: "name 101"}
 
-	fooAddr := xunsafe.Addr(foo)
+	fooAddr := xunsafe.EnsurePointer(foo)
 	*(fooID.Addr(fooAddr).(*int)) = 201
 	fmt.Printf("foo.ID: %v\n", foo.ID) //prints 201
 }

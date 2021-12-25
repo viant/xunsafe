@@ -1,402 +1,311 @@
 package xunsafe
 
 import (
-	"reflect"
 	"time"
 	"unsafe"
 )
 
-//IntAddr returns field *int address
-func (f *Field) IntAddr(structAddr unsafe.Pointer) *int {
-	return (*int)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Interface cast field pointer to value
+func (f *Field) Interface(structPtr unsafe.Pointer) interface{} {
+	//return reflect.NewAt(f.Type, f.Pointer(structPtr)).Elem().Interface()
+	return asInterface(f.Pointer(structPtr), f.rtype, true)
 }
 
-//Int returns field int
-func (f *Field) Int(structAddr unsafe.Pointer) int {
-	result := (*int)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return 0
-	}
-	return *result
+//Int cast field pointer to int
+func (f *Field) Int(structPtr unsafe.Pointer) int {
+	return AsInt(f.Pointer(structPtr))
 }
 
-//IntPtr returns field *int
-func (f *Field) IntPtr(structAddr unsafe.Pointer) *int {
-	result := (**int)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//IntPtr cast field pointer to *int
+func (f *Field) IntPtr(structPtr unsafe.Pointer) *int {
+	result := AsIntAddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//Int64Addr returns field *int64 addr
-func (f *Field) Int64Addr(structAddr unsafe.Pointer) *int64 {
-	return (*int64)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//IntAddr cast field pointer to **int
+func (f *Field) IntAddr(structPtr unsafe.Pointer) *int {
+	return AsIntPtr(f.Pointer(structPtr))
 }
 
-//Int64 returns field int64
-func (f *Field) Int64(structAddr unsafe.Pointer) int64 {
-	result := (*int64)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return 0
-	}
-	return *result
+//Int64 cast field pointer to int64
+func (f *Field) Int64(structPtr unsafe.Pointer) int64 {
+	return AsInt64(f.Pointer(structPtr))
 }
 
-//Int64Ptr returns field *int64
-func (f *Field) Int64Ptr(structAddr unsafe.Pointer) *int64 {
-	result := (**int64)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Int64Ptr cast field pointer to *int
+func (f *Field) Int64Ptr(structPtr unsafe.Pointer) *int64 {
+	result := AsInt64AddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//Int32Addr returns field *int32 addr
-func (f *Field) Int32Addr(structAddr unsafe.Pointer) *int32 {
-	return (*int32)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Int64Addr cast field pointer to *int64
+func (f *Field) Int64Addr(structPtr unsafe.Pointer) *int64 {
+	return AsInt64Ptr(f.Pointer(structPtr))
 }
 
-//Int32 returns field int32
-func (f *Field) Int32(structAddr unsafe.Pointer) int32 {
-	result := (*int32)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return 0
-	}
-	return *result
+//Int32 cast field pointer to int32
+func (f *Field) Int32(structPtr unsafe.Pointer) int32 {
+	return AsInt32(f.Pointer(structPtr))
 }
 
-//Int32Ptr returns field *int32
-func (f *Field) Int32Ptr(structAddr unsafe.Pointer) *int32 {
-	result := (**int32)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Int32Ptr cast field pointer to *int32
+func (f *Field) Int32Ptr(structPtr unsafe.Pointer) *int32 {
+	result := AsInt32AddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//Int16Addr returns field *int16 addr
-func (f *Field) Int16Addr(structAddr unsafe.Pointer) *int16 {
-	return (*int16)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Int32Addr cast field pointer to *int32
+func (f *Field) Int32Addr(structPtr unsafe.Pointer) *int32 {
+	return AsInt32Ptr(f.Pointer(structPtr))
 }
 
-//Int16 returns field int16
-func (f *Field) Int16(structAddr unsafe.Pointer) int16 {
-	result := (*int16)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return 0
-	}
-	return *result
+//Int16 cast field pointer to int16
+func (f *Field) Int16(structPtr unsafe.Pointer) int16 {
+	return AsInt16(f.Pointer(structPtr))
 }
 
-//Int16Ptr returns field *int16
-func (f *Field) Int16Ptr(structAddr unsafe.Pointer) *int16 {
-	result := (**int16)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Int16Ptr cast field pointer to *int16
+func (f *Field) Int16Ptr(structPtr unsafe.Pointer) *int16 {
+	result := AsInt16AddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//Int8Addr returns field *int8 addr
-func (f *Field) Int8Addr(structAddr unsafe.Pointer) *int8 {
-	return (*int8)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Int16Addr returns *int16
+func (f *Field) Int16Addr(structPtr unsafe.Pointer) *int16 {
+	return AsInt16Ptr(f.Pointer(structPtr))
 }
 
-//Int8 returns field int8
-func (f *Field) Int8(structAddr unsafe.Pointer) int8 {
-	result := (*int8)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return 0
-	}
-	return *result
+//Int8 cast field pointer to int8
+func (f *Field) Int8(structPtr unsafe.Pointer) int8 {
+	return AsInt8(f.Pointer(structPtr))
 }
 
-//Int8Ptr returns field *int8
-func (f *Field) Int8Ptr(structAddr unsafe.Pointer) *int8 {
-	result := (**int8)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Int8Ptr cast field pointer to *int8
+func (f *Field) Int8Ptr(structPtr unsafe.Pointer) *int8 {
+	result := AsInt8AddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//UintAddr returns field *uint address
-func (f *Field) UintAddr(structAddr unsafe.Pointer) *uint {
-	return (*uint)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Int8Addr cast field pointer to *int8
+func (f *Field) Int8Addr(structPtr unsafe.Pointer) *int8 {
+	return AsInt8Ptr(f.Pointer(structPtr))
 }
 
-//Uint returns field uint
-func (f *Field) Uint(structAddr unsafe.Pointer) uint {
-	result := (*uint)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return 0
-	}
-	return *result
+//UintAddr cast field pointer to **uint
+func (f *Field) UintAddr(structPtr unsafe.Pointer) *uint {
+	return AsUintPtr(f.Pointer(structPtr))
 }
 
-//UintPtr returns field *uint
-func (f *Field) UintPtr(structAddr unsafe.Pointer) *uint {
-	result := (**uint)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return nil
-	}
-	return *result
+//Uint cast field pointer to uint
+func (f *Field) Uint(structPtr unsafe.Pointer) uint {
+	return AsUint(f.Pointer(structPtr))
 }
 
-//Uint64Addr returns field *uint64 addr
-func (f *Field) Uint64Addr(structAddr unsafe.Pointer) *uint64 {
-	return (*uint64)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-}
-
-//Uint64 returns field uint64
-func (f *Field) Uint64(structAddr unsafe.Pointer) uint64 {
-	result := (*uint64)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return 0
-	}
-	return *result
-}
-
-//Uint64Ptr returns field *uint64
-func (f *Field) Uint64Ptr(structAddr unsafe.Pointer) *uint64 {
-	result := (**uint64)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//UintPtr cast field pointer to *uint
+func (f *Field) UintPtr(structPtr unsafe.Pointer) *uint {
+	result := AsUintAddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//Uint32Addr returns field *uint32 addr
-func (f *Field) Uint32Addr(structAddr unsafe.Pointer) *uint32 {
-	return (*uint32)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Uint64 cast field pointer to uint64
+func (f *Field) Uint64(structPtr unsafe.Pointer) uint64 {
+	return AsUint64(f.Pointer(structPtr))
 }
 
-//Uint32 returns field uint32
-func (f *Field) Uint32(structAddr unsafe.Pointer) uint32 {
-	result := (*uint32)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return 0
-	}
-	return *result
-}
-
-//Uint32Ptr returns field *uint32
-func (f *Field) Uint32Ptr(structAddr unsafe.Pointer) *uint32 {
-	result := (**uint32)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Uint64Ptr cast field pointer to *uint64
+func (f *Field) Uint64Ptr(structPtr unsafe.Pointer) *uint64 {
+	result := AsUint64AddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//Uint16Addr returns field *uint16 addr
-func (f *Field) Uint16Addr(structAddr unsafe.Pointer) *uint16 {
-	return (*uint16)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Uint64Addr cast field pointer to *uint64
+func (f *Field) Uint64Addr(structPtr unsafe.Pointer) *uint64 {
+	return AsUint64Ptr(f.Pointer(structPtr))
 }
 
-//Uint16 returns field uint16
-func (f *Field) Uint16(structAddr unsafe.Pointer) uint16 {
-	result := (*uint16)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return 0
-	}
-	return *result
+//Uint32 cast field pointer to uint32
+func (f *Field) Uint32(structPtr unsafe.Pointer) uint32 {
+	return AsUint32(f.Pointer(structPtr))
 }
 
-//Uint16Ptr returns field *uint16
-func (f *Field) Uint16Ptr(structAddr unsafe.Pointer) *uint16 {
-	result := (**uint16)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Uint32Ptr cast field pointer to *uint32
+func (f *Field) Uint32Ptr(structPtr unsafe.Pointer) *uint32 {
+	result := AsUint32AddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//Uint8Addr returns field *uint8 addr
-func (f *Field) Uint8Addr(structAddr unsafe.Pointer) *uint8 {
-	return (*uint8)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Uint32Addr cast field pointer to *uint32
+func (f *Field) Uint32Addr(structPtr unsafe.Pointer) *uint32 {
+	return AsUint32Ptr(f.Pointer(structPtr))
 }
 
-//Uint8 returns field uint8
-func (f *Field) Uint8(structAddr unsafe.Pointer) uint8 {
-	result := (*uint8)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return 0
-	}
-	return *result
+//Uint16 cast field pointer to uint16
+func (f *Field) Uint16(structPtr unsafe.Pointer) uint16 {
+	return AsUint16(f.Pointer(structPtr))
 }
 
-//Uint8Ptr returns field *uint8
-func (f *Field) Uint8Ptr(structAddr unsafe.Pointer) *uint8 {
-	result := (**uint8)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Uint16Ptr cast field pointer to *uint16
+func (f *Field) Uint16Ptr(structPtr unsafe.Pointer) *uint16 {
+	result := AsUint16AddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//BoolAddr returns field *bool addr
-func (f *Field) BoolAddr(structAddr unsafe.Pointer) *bool {
-	return (*bool)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Uint16Addr cast field pointer to *uint16
+func (f *Field) Uint16Addr(structPtr unsafe.Pointer) *uint16 {
+	return AsUint16Ptr(f.Pointer(structPtr))
 }
 
-//Bool returns field bool
-func (f *Field) Bool(structAddr unsafe.Pointer) bool {
-	result := (*bool)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return false
-	}
-	return *result
+//Uint8 cast field pointer to uint8
+func (f *Field) Uint8(structPtr unsafe.Pointer) uint8 {
+	return AsUint8(f.Pointer(structPtr))
 }
 
-//BoolPtr returns field *bool
-func (f *Field) BoolPtr(structAddr unsafe.Pointer) *bool {
-	result := (**bool)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Uint8Ptr cast field pointer to *uint8
+func (f *Field) Uint8Ptr(structPtr unsafe.Pointer) *uint8 {
+	result := AsUint8AddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//Float64Addr returns field *float64 addr
-func (f *Field) Float64Addr(structAddr unsafe.Pointer) *float64 {
-	return (*float64)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Uint8Addr cast field pointer to *uint8
+func (f *Field) Uint8Addr(structPtr unsafe.Pointer) *uint8 {
+	return AsUint8Ptr(f.Pointer(structPtr))
 }
 
-//Float64 returns field float64
-func (f *Field) Float64(structAddr unsafe.Pointer) float64 {
-	result := (*float64)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return 0
-	}
-	return *result
+//Bool cast field pointer to bool
+func (f *Field) Bool(structPtr unsafe.Pointer) bool {
+	return AsBool(f.Pointer(structPtr))
 }
 
-//Float64Ptr returns field *float64
-func (f *Field) Float64Ptr(structAddr unsafe.Pointer) *float64 {
-	result := (**float64)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//BoolPtr cast field pointer to *bool
+func (f *Field) BoolPtr(structPtr unsafe.Pointer) *bool {
+	result := AsBoolAddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//Float32Addr returns field *float32 addr
-func (f *Field) Float32Addr(structAddr unsafe.Pointer) *float32 {
-	return (*float32)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//BoolAddr cast field pointer to **bool
+func (f *Field) BoolAddr(structPtr unsafe.Pointer) *bool {
+	return AsBoolPtr(f.Pointer(structPtr))
 }
 
-//Float32 returns field float32
-func (f *Field) Float32(structAddr unsafe.Pointer) float32 {
-	result := (*float32)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return 0
-	}
-	return *result
+//Float64 cast field pointer to float64
+func (f *Field) Float64(structPtr unsafe.Pointer) float64 {
+	return AsFloat64(f.Pointer(structPtr))
 }
 
-//Float32Ptr returns field *float32
-func (f *Field) Float32Ptr(structAddr unsafe.Pointer) *float32 {
-	result := (**float32)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Float64Ptr cast field pointer to *float64
+func (f *Field) Float64Ptr(structPtr unsafe.Pointer) *float64 {
+	result := AsFloat64AddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//StringAddr returns field *string addr
-func (f *Field) StringAddr(structAddr unsafe.Pointer) *string {
-	return (*string)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Float64Addr cast field pointer to *float64
+func (f *Field) Float64Addr(structPtr unsafe.Pointer) *float64 {
+	return AsFloat64Ptr(f.Pointer(structPtr))
 }
 
-//String returns field string
-func (f *Field) String(structAddr unsafe.Pointer) string {
-	result := (*string)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return ""
-	}
-	return *result
+//Float32 cast field pointer to float32
+func (f *Field) Float32(structPtr unsafe.Pointer) float32 {
+	return AsFloat32(f.Pointer(structPtr))
 }
 
-//StringPtr returns field *string
-func (f *Field) StringPtr(structAddr unsafe.Pointer) *string {
-	result := (**string)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Float32Ptr cast field pointer to *float32
+func (f *Field) Float32Ptr(structPtr unsafe.Pointer) *float32 {
+	result := AsFloat32AddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//BytesAddr returns field *[]byte addr
-func (f *Field) BytesAddr(structAddr unsafe.Pointer) *[]byte {
-	return (*[]byte)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//Float32Addr cast field pointer to *float32
+func (f *Field) Float32Addr(structPtr unsafe.Pointer) *float32 {
+	return AsFloat32Ptr(f.Pointer(structPtr))
 }
 
-//Bytes returns field []byte
-func (f *Field) Bytes(structAddr unsafe.Pointer) []byte {
-	result := (*[]byte)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//String cast field pointer to string
+func (f *Field) String(structPtr unsafe.Pointer) string {
+	return AsString(f.Pointer(structPtr))
+}
+
+//StringPtr cast field pointer to *string
+func (f *Field) StringPtr(structPtr unsafe.Pointer) *string {
+	result := AsStringAddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//BytesPtr returns field *[]byte
-func (f *Field) BytesPtr(structAddr unsafe.Pointer) *[]byte {
-	result := (**[]byte)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//StringAddr field pointer to *string
+func (f *Field) StringAddr(structPtr unsafe.Pointer) *string {
+	return AsStringPtr(f.Pointer(structPtr))
+}
+
+//Bytes cast field pointer to []byte
+func (f *Field) Bytes(structPtr unsafe.Pointer) []byte {
+	return AsUint8s(f.Pointer(structPtr))
+}
+
+//BytesPtr cast field pointer to *[]byte
+func (f *Field) BytesPtr(structPtr unsafe.Pointer) *[]byte {
+	result := AsBytesAddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//TimeAddr returns field *time.Time addr
-func (f *Field) TimeAddr(structAddr unsafe.Pointer) *time.Time {
-	return (*time.Time)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-}
-
-//Time returns field time.Time
-func (f *Field) Time(structAddr unsafe.Pointer) time.Time {
-	result := (*time.Time)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	if result == nil {
-		return time.Time{}
-	}
-	return *result
-}
-
-//TimePtr returns field *time.Time
-func (f *Field) TimePtr(structAddr unsafe.Pointer) *time.Time {
-	result := (**time.Time)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
+//TimePtr cast field pointer to *time.Time
+func (f *Field) TimePtr(structPtr unsafe.Pointer) *time.Time {
+	result := AsTimeAddrPtr(f.Pointer(structPtr))
 	if result == nil {
 		return nil
 	}
 	return *result
 }
 
-//Addr returns a field addr getter or error
-func (f *Field) Addr(structAddr unsafe.Pointer) interface{} {
-	if f.address != nil {
-		return f.address(structAddr)
-	}
-	f.address = f.AddrGetter()
-	return f.address(structAddr)
+//Time cast field pointer to time.Time
+func (f *Field) Time(structPtr unsafe.Pointer) time.Time {
+	return AsTime(f.Pointer(structPtr))
 }
 
-//UnsafeAddr returns unsafe address
-func (f *Field) UnsafeAddr(structAddr unsafe.Pointer) unsafe.Pointer {
-	if f.kind == reflect.Ptr {
-		addr := (*unsafe.Pointer)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-		if addr == nil {
-			f.SetValue(structAddr, reflect.New(f.Type).Elem().Interface())
-		}
-		return *addr
-	}
-	return unsafe.Pointer(uintptr(structAddr) + f.field.Offset)
-}
-
-//Interface returns field address
-func (f *Field) Interface(structAddr unsafe.Pointer) interface{} {
-	fieldValue := reflect.NewAt(f.field.Type, unsafe.Pointer(uintptr(structAddr)+f.field.Offset))
-	return fieldValue.Elem().Elem().Interface()
+//Value returns field value
+func (f *Field) Value(structPtr unsafe.Pointer) interface{} {
+	return f.Interface(structPtr)
 }

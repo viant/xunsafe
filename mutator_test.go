@@ -86,7 +86,7 @@ func TestField_Mutator(t *testing.T) {
 
 		B:  true,
 		S:  "test",
-		Bs: []byte("abc"),
+		Bs: []byte("abcweweqweqweqwe"),
 		T:  time.Now(),
 		Bars: []Bar{
 			{
@@ -215,7 +215,7 @@ func TestField_Mutator(t *testing.T) {
 	}
 
 	aStruct1Type := reflect.TypeOf(Struct1{})
-	aStruct1Addr := Addr(aStruct1)
+	aStruct1Addr := EnsurePointer(aStruct1)
 
 	for _, testCase := range testCases {
 
@@ -297,9 +297,9 @@ func TestField_Mutator(t *testing.T) {
 		case *Foo:
 			field.SetValue(aStructAddr, val)
 		case func():
-			field.Set(aStructAddr, val)
-
+			field.SetValue(aStructAddr, val)
 		}
+
 		actual := holderVal.Elem().FieldByName(testCase.name).Interface()
 		if _, ok := actual.(func()); ok {
 			assert.EqualValues(t, fmt.Sprintf("%v", testCase.expect), fmt.Sprintf("%v", actual), testCase.description)
@@ -307,7 +307,12 @@ func TestField_Mutator(t *testing.T) {
 		}
 		assert.EqualValues(t, testCase.expect, actual, testCase.description)
 
-		field.Set(aStructAddr, testCase.expect)
+		field.SetValue(aStructAddr, testCase.expect)
+		actual = holderVal.Elem().FieldByName(testCase.name).Interface()
+		if !assert.EqualValues(t, testCase.expect, actual, testCase.description) {
+			break
+		}
+
 	}
 
 }
@@ -343,12 +348,12 @@ func BenchmarkField_Mutator_Native(b *testing.B) {
 	assert.EqualValues(b, _mutBenchInstance.Val, val)
 }
 
-func Benchmark_Mutator_Xunsafe(b *testing.B) {
+func Benchmark_Mutator_Direct_Xunsafe(b *testing.B) {
 	var id = 1000
 	var name = "test 1000"
 	var val = float32(43.4)
 
-	addr := Addr(_mutBenchInstance)
+	addr := EnsurePointer(_mutBenchInstance)
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		_mutIDField.SetInt(addr, id)
@@ -360,12 +365,29 @@ func Benchmark_Mutator_Xunsafe(b *testing.B) {
 	assert.EqualValues(b, _mutBenchInstance.Val, val)
 }
 
+func Benchmark_Mutator_Set_Xunsafe(b *testing.B) {
+	var id = 1000
+	var name = "test 1000"
+	var val = float32(43.4)
+	addr := unsafe.Pointer(_mutBenchInstance)
+	b.ReportAllocs()
+
+	for i := 0; i < b.N; i++ {
+		_mutIDField.Set(addr, id)
+		_mutNameField.Set(addr, name)
+		_mutValField.Set(addr, val)
+	}
+	assert.EqualValues(b, id, _mutBenchInstance.ID, id)
+	assert.EqualValues(b, name, _mutBenchInstance.Name, name)
+	assert.EqualValues(b, val, _mutBenchInstance.Val, val)
+}
+
 func Benchmark_Mutator_Xunsafe_Ptr(b *testing.B) {
 	var id = 1000
 	var name = "test 1000"
 	var val = float32(43.4)
 
-	holderPtr := Addr(_mutBenchInstance)
+	holderPtr := EnsurePointer(_mutBenchInstance)
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		*(_mutIDField.Addr(holderPtr).(*int)) = id
@@ -407,7 +429,7 @@ func BenchmarkField_Mutator_Reflect(b *testing.B) {
 	assert.EqualValues(b, _mutBenchInstance.Val, val)
 }
 
-func BenchmarkField_Mutator_Reflect_Ptr(b *testing.B) {
+func BenchmarkField_Mutator_Addr_Reflect(b *testing.B) {
 	aType := reflect.TypeOf(AccBenchStruct{})
 	var idFieldIdx, nameFiledIdx, valFieldIdx int
 

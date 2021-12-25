@@ -5,31 +5,72 @@ import (
 	"unsafe"
 )
 
-//FieldPointer represents a field pointer
-type FieldPointer func(pointer unsafe.Pointer) unsafe.Pointer
-
-//Field represent a field
+//Field represents a field
 type Field struct {
-	Field   *Field
-	address Getter
-	Value   Getter
+	Name string
+	reflect.Type
+	offset   uintptr
+	kind     reflect.Kind
+	rtype    *rtype
+	flag     flag
+	rtypPtr  *rtype
+	flagPtr  flag
+	flagAddr flag
+}
 
-	setter Setter
-	field  reflect.StructField
-	Type   reflect.Type
-	kind   reflect.Kind
+//Pointer return  field pointer (structPtr + field.Offset)
+func (f *Field) Pointer(structPtr unsafe.Pointer) unsafe.Pointer {
+	return unsafe.Pointer(uintptr(structPtr) + f.offset)
+}
+
+//SafePointer returns field pointer, if field pointer is a pointer this method initialises that pointer
+func (f *Field) SafePointer(structPtr unsafe.Pointer) unsafe.Pointer {
+	if f.kind == reflect.Ptr {
+		ptr := (*unsafe.Pointer)(f.Pointer(structPtr))
+		if *ptr == nil {
+			var newPointer unsafe.Pointer
+			*ptr = unsafe.Pointer(&newPointer)
+		}
+	}
+	return f.Pointer(structPtr)
+}
+
+//EnsurePointer initialises field type pointer if needed, and return filed type value pointer rather field pointer.
+//for example if field is of T type this method returns *T, in case field is of *T, this method
+//also return *T, if you need always field pointer use Field.Pointer method
+func (f *Field) EnsurePointer(structPtr unsafe.Pointer) unsafe.Pointer {
+	addr := f.Pointer(structPtr)
+	ptr := (*unsafe.Pointer)(addr)
+	if f.kind != reflect.Ptr {
+		return addr
+	}
+	if *ptr == nil {
+		var newPointer unsafe.Pointer
+		*ptr = unsafe.Pointer(&newPointer)
+	}
+	return *ptr
+}
+
+func (f *Field) initType() {
+	fType := f.Type
+	ptrValue := reflect.New(fType)
+	ptrElemValue := ptrValue.Elem()
+	valPtr := ptrValue.Interface()
+	val := ptrElemValue.Interface()
+	f.rtypPtr = ((*emptyInterface)(unsafe.Pointer(&valPtr))).typ
+	f.rtype = ((*emptyInterface)(unsafe.Pointer(&val))).typ
 }
 
 //NewField creates a new filed
 func NewField(field reflect.StructField) *Field {
-	fType := field.Type
+	fieldType := field.Type
 	f := &Field{
-		field: field,
-		Type:  fType,
-		kind:  fType.Kind(),
+		Name:   field.Name,
+		Type:   fieldType,
+		offset: field.Offset,
+		kind:   fieldType.Kind(),
 	}
-
-	f.Value = FieldAccessor(f)
+	f.initType()
 	return f
 }
 
@@ -45,19 +86,10 @@ func FieldByName(structType reflect.Type, name string) *Field {
 		return FieldByName(structType.Elem(), name)
 	case reflect.Slice:
 		return FieldByName(structType.Elem(), name)
-
 	}
 	structField, ok := structType.FieldByName(name)
 	if !ok {
 		return nil
 	}
 	return NewField(structField)
-}
-
-//FieldWithGetters creates a field supplied custom address, value getter
-func FieldWithGetters(address, value Getter) *Field {
-	return &Field{
-		address: address,
-		Value:   value,
-	}
 }

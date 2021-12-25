@@ -1,7 +1,6 @@
 package xunsafe
 
 import (
-	"reflect"
 	"time"
 	"unsafe"
 )
@@ -13,17 +12,27 @@ func AsInt(pointer unsafe.Pointer) int {
 
 //AsIntPtr casts pointer to *int
 func AsIntPtr(pointer unsafe.Pointer) *int {
-	return *(**int)(pointer)
+	return (*int)(pointer)
 }
 
-//AsUInt casts pointer to uint
-func AsUInt(pointer unsafe.Pointer) uint {
+//AsIntAddrPtr casts pointer to **int
+func AsIntAddrPtr(pointer unsafe.Pointer) **int {
+	return (**int)(pointer)
+}
+
+//AsUint casts pointer to uint
+func AsUint(pointer unsafe.Pointer) uint {
 	return *(*uint)(pointer)
 }
 
-//AsUIntPtr casts pointer to *uint
-func AsUIntPtr(pointer unsafe.Pointer) *uint {
-	return *(**uint)(pointer)
+//AsUintPtr casts pointer to *uint
+func AsUintPtr(pointer unsafe.Pointer) *uint {
+	return (*uint)(pointer)
+}
+
+//AsUintAddrPtr casts pointer to **uint
+func AsUintAddrPtr(pointer unsafe.Pointer) **uint {
+	return (**uint)(pointer)
 }
 
 //AsInt64 casts pointer to int64
@@ -33,17 +42,27 @@ func AsInt64(pointer unsafe.Pointer) int64 {
 
 //AsInt64Ptr casts pointer to *int64
 func AsInt64Ptr(pointer unsafe.Pointer) *int64 {
-	return *(**int64)(pointer)
+	return (*int64)(pointer)
 }
 
-//AsUInt64 casts pointer to uint64
-func AsUInt64(pointer unsafe.Pointer) uint64 {
+//AsInt64AddrPtr casts pointer to **int64
+func AsInt64AddrPtr(pointer unsafe.Pointer) **int64 {
+	return (**int64)(pointer)
+}
+
+//AsUint64 casts pointer to uint64
+func AsUint64(pointer unsafe.Pointer) uint64 {
 	return *(*uint64)(pointer)
 }
 
-//AsUInt64Ptr casts pointer to *uint
-func AsUInt64Ptr(pointer unsafe.Pointer) *uint64 {
-	return *(**uint64)(pointer)
+//AsUint64Ptr casts pointer to *uint
+func AsUint64Ptr(pointer unsafe.Pointer) *uint64 {
+	return (*uint64)(pointer)
+}
+
+//AsUint64AddrPtr casts pointer to *uint
+func AsUint64AddrPtr(pointer unsafe.Pointer) **uint64 {
+	return (**uint64)(pointer)
 }
 
 //AsInt32 casts pointer to int32
@@ -53,17 +72,27 @@ func AsInt32(pointer unsafe.Pointer) int32 {
 
 //AsInt32Ptr casts pointer to *int32
 func AsInt32Ptr(pointer unsafe.Pointer) *int32 {
-	return *(**int32)(pointer)
+	return (*int32)(pointer)
 }
 
-//AsUInt32 casts pointer to uint32
-func AsUInt32(pointer unsafe.Pointer) uint32 {
+//AsInt32AddrPtr casts pointer to **int32
+func AsInt32AddrPtr(pointer unsafe.Pointer) **int32 {
+	return (**int32)(pointer)
+}
+
+//AsUint32 casts pointer to uint32
+func AsUint32(pointer unsafe.Pointer) uint32 {
 	return *(*uint32)(pointer)
 }
 
-//AsUInt32Ptr casts pointer to *uint
-func AsUInt32Ptr(pointer unsafe.Pointer) *uint32 {
-	return *(**uint32)(pointer)
+//AsUint32Ptr casts pointer to *uint
+func AsUint32Ptr(pointer unsafe.Pointer) *uint32 {
+	return (*uint32)(pointer)
+}
+
+//AsUint32AddrPtr casts pointer to *uint
+func AsUint32AddrPtr(pointer unsafe.Pointer) **uint32 {
+	return (**uint32)(pointer)
 }
 
 //AsInt16 casts pointer to int16
@@ -73,17 +102,32 @@ func AsInt16(pointer unsafe.Pointer) int16 {
 
 //AsInt16Ptr casts pointer to *int16
 func AsInt16Ptr(pointer unsafe.Pointer) *int16 {
-	return *(**int16)(pointer)
+	return (*int16)(pointer)
 }
 
-//AsUInt16 casts pointer to uint16
-func AsUInt16(pointer unsafe.Pointer) uint16 {
+//AsInt16AddrPtr casts pointer to *int16
+func AsInt16AddrPtr(pointer unsafe.Pointer) **int16 {
+	return (**int16)(pointer)
+}
+
+//AsUint16 casts pointer to uint16
+func AsUint16(pointer unsafe.Pointer) uint16 {
 	return *(*uint16)(pointer)
 }
 
-//AsUInt16Ptr casts pointer to *uint
-func AsUInt16Ptr(pointer unsafe.Pointer) *uint16 {
-	return *(**uint16)(pointer)
+//AsUintptr casts pointer to uint16
+func AsUintptr(pointer unsafe.Pointer) uintptr {
+	return *(*uintptr)(pointer)
+}
+
+//AsUint16Ptr casts pointer to *uint
+func AsUint16Ptr(pointer unsafe.Pointer) *uint16 {
+	return (*uint16)(pointer)
+}
+
+//AsUint16AddrPtr casts pointer to **uint
+func AsUint16AddrPtr(pointer unsafe.Pointer) **uint16 {
+	return (**uint16)(pointer)
 }
 
 //AsInt8 casts pointer to int8
@@ -93,67 +137,112 @@ func AsInt8(pointer unsafe.Pointer) int8 {
 
 //AsInt8Ptr casts pointer to *int8
 func AsInt8Ptr(pointer unsafe.Pointer) *int8 {
-	return *(**int8)(pointer)
+	return (*int8)(pointer)
 }
 
-//AsUInt8 casts pointer to uint8
-func AsUInt8(pointer unsafe.Pointer) uint8 {
+//AsInt8AddrPtr casts pointer to *int8
+func AsInt8AddrPtr(pointer unsafe.Pointer) **int8 {
+	return (**int8)(pointer)
+}
+
+//AsUint8 casts pointer to uint8
+func AsUint8(pointer unsafe.Pointer) uint8 {
 	return *(*uint8)(pointer)
 }
 
-//AsUInt8Ptr casts pointer to *uint
-func AsUInt8Ptr(pointer unsafe.Pointer) *uint8 {
-	return *(**uint8)(pointer)
+//AsUint8Ptr casts pointer to *uint
+func AsUint8Ptr(pointer unsafe.Pointer) *uint8 {
+	return (*uint8)(pointer)
 }
 
-//AsFloat32 casts pointer to int
+//AsUint8AddrPtr casts pointer to **uint
+func AsUint8AddrPtr(pointer unsafe.Pointer) **uint8 {
+	return (**uint8)(pointer)
+}
+
+//AsFloat32 casts pointer to float32
 func AsFloat32(pointer unsafe.Pointer) float32 {
 	return *(*float32)(pointer)
 }
 
-//AsFloat32Ptr casts pointer to *int
+//AsFloat32Ptr casts pointer to *float32
 func AsFloat32Ptr(pointer unsafe.Pointer) *float32 {
-	return *(**float32)(pointer)
+	return (*float32)(pointer)
 }
 
-//AsFloat64 casts pointer to int
+//AsFloat32AddrPtr casts pointer to **float32
+func AsFloat32AddrPtr(pointer unsafe.Pointer) **float32 {
+	return (**float32)(pointer)
+}
+
+//AsFloat64 casts pointer to float64
 func AsFloat64(pointer unsafe.Pointer) float64 {
 	return *(*float64)(pointer)
 }
 
-//AsFloat64Ptr casts pointer to *int
+//AsFloat64Ptr casts pointer to *float64
 func AsFloat64Ptr(pointer unsafe.Pointer) *float64 {
-	return *(**float64)(pointer)
+	return (*float64)(pointer)
 }
 
-//AsBool casts pointer to int
+//AsFloat64AddrPtr casts pointer to **float64
+func AsFloat64AddrPtr(pointer unsafe.Pointer) **float64 {
+	return (**float64)(pointer)
+}
+
+//AsBool casts pointer to bool
 func AsBool(pointer unsafe.Pointer) bool {
 	return *(*bool)(pointer)
 }
 
-//AsBoolPtr casts pointer to *int
+//AsBoolPtr casts pointer to *bool
 func AsBoolPtr(pointer unsafe.Pointer) *bool {
-	return *(**bool)(pointer)
+	return (*bool)(pointer)
 }
 
-//AsInts casts pointer to int
+//AsBoolAddrPtr casts pointer to **bool
+func AsBoolAddrPtr(pointer unsafe.Pointer) **bool {
+	return (**bool)(pointer)
+}
+
+//AsString casts pointer to string
+func AsString(pointer unsafe.Pointer) string {
+	return *(*string)(pointer)
+}
+
+//AsStringPtr casts pointer to *string
+func AsStringPtr(pointer unsafe.Pointer) *string {
+	return (*string)(pointer)
+}
+
+//AsStringAddrPtr casts pointer to **string
+func AsStringAddrPtr(pointer unsafe.Pointer) **string {
+	return (**string)(pointer)
+}
+
+//AsStrings casts pointer to string slice
+func AsStrings(pointer unsafe.Pointer) []string {
+	return *(*[]string)(pointer)
+}
+
+//AsStringsPtr casts pointer to string slice pointer
+func AsStringsPtr(pointer unsafe.Pointer) *[]string {
+	return (*[]string)(pointer)
+}
+
+//AsInts casts pointer to []int
 func AsInts(pointer unsafe.Pointer) []int {
 	return *(*[]int)(pointer)
 }
 
-//AsIntPtrs casts pointer to *int slice
-func AsIntPtrs(pointer unsafe.Pointer) []*int {
-	return *(*[]*int)(pointer)
+//AsIntsPtr casts pointer to int slice pointer
+func AsIntsPtr(pointer unsafe.Pointer) *[]int {
+	return (*[]int)(pointer)
 }
 
-//AsUInts casts pointer to uint slice
-func AsUInts(pointer unsafe.Pointer) []uint {
+//AsUints casts pointer to uint slice
+func AsUints(pointer unsafe.Pointer) []uint {
 	return *(*[]uint)(pointer)
-}
-
-//AsUIntPtrs casts pointer to *uint slice
-func AsUIntPtrs(pointer unsafe.Pointer) []*uint {
-	return *(*[]*uint)(pointer)
 }
 
 //AsInt64s casts pointer to int64 slice
@@ -161,19 +250,9 @@ func AsInt64s(pointer unsafe.Pointer) []int64 {
 	return *(*[]int64)(pointer)
 }
 
-//AsInt64Ptrs casts pointer to *int64 slice
-func AsInt64Ptrs(pointer unsafe.Pointer) []*int64 {
-	return *(*[]*int64)(pointer)
-}
-
-//AsUInt64s casts pointer to uint64 slice
-func AsUInt64s(pointer unsafe.Pointer) []uint64 {
+//AsUint64s casts pointer to uint64 slice
+func AsUint64s(pointer unsafe.Pointer) []uint64 {
 	return *(*[]uint64)(pointer)
-}
-
-//AsUInt64Ptrs casts pointer to *uint slice
-func AsUInt64Ptrs(pointer unsafe.Pointer) []*uint64 {
-	return *(*[]*uint64)(pointer)
 }
 
 //AsInt32s casts pointer to int32 slice
@@ -181,19 +260,9 @@ func AsInt32s(pointer unsafe.Pointer) []int32 {
 	return *(*[]int32)(pointer)
 }
 
-//AsInt32Ptrs casts pointer to *int32 slice
-func AsInt32Ptrs(pointer unsafe.Pointer) []*int32 {
-	return *(*[]*int32)(pointer)
-}
-
-//AsUInt32s casts pointer to uint32 slice
-func AsUInt32s(pointer unsafe.Pointer) []uint32 {
+//AsUint32s casts pointer to uint32 slice
+func AsUint32s(pointer unsafe.Pointer) []uint32 {
 	return *(*[]uint32)(pointer)
-}
-
-//AsUInt32Ptrs casts pointer to *uint slice
-func AsUInt32Ptrs(pointer unsafe.Pointer) []*uint32 {
-	return *(*[]*uint32)(pointer)
 }
 
 //AsInt16s casts pointer to int16 slice
@@ -201,19 +270,9 @@ func AsInt16s(pointer unsafe.Pointer) []int16 {
 	return *(*[]int16)(pointer)
 }
 
-//AsInt16Ptrs casts pointer to *int16 slice
-func AsInt16Ptrs(pointer unsafe.Pointer) []*int16 {
-	return *(*[]*int16)(pointer)
-}
-
-//AsUInt16s casts pointer to uint16 slice
-func AsUInt16s(pointer unsafe.Pointer) []uint16 {
+//AsUint16s casts pointer to uint16 slice
+func AsUint16s(pointer unsafe.Pointer) []uint16 {
 	return *(*[]uint16)(pointer)
-}
-
-//AsUInt16Ptrs casts pointer to *uint slice
-func AsUInt16Ptrs(pointer unsafe.Pointer) []*uint16 {
-	return *(*[]*uint16)(pointer)
 }
 
 //AsInt8s casts pointer to int8 slice
@@ -221,19 +280,24 @@ func AsInt8s(pointer unsafe.Pointer) []int8 {
 	return *(*[]int8)(pointer)
 }
 
-//AsInt8Ptrs casts pointer to *int8 slice
-func AsInt8Ptrs(pointer unsafe.Pointer) []*int8 {
-	return *(*[]*int8)(pointer)
-}
-
-//AsUInt8s casts pointer to uint8 slice
-func AsUInt8s(pointer unsafe.Pointer) []uint8 {
+//AsUint8s casts pointer to uint8 slice
+func AsUint8s(pointer unsafe.Pointer) []uint8 {
 	return *(*[]uint8)(pointer)
 }
 
-//AsUInt8Ptrs casts pointer to *uint slice
-func AsUInt8Ptrs(pointer unsafe.Pointer) []*uint8 {
-	return *(*[]*uint8)(pointer)
+//AsBytesPtr casts pointer to []byte  pointer
+func AsBytesPtr(pointer unsafe.Pointer) *[]byte {
+	return (*[]uint8)(pointer)
+}
+
+//AsBytesAddrPtr casts pointer to []byte  pointer
+func AsBytesAddrPtr(pointer unsafe.Pointer) **[]byte {
+	return (**[]uint8)(pointer)
+}
+
+//AsUint8Ptrs casts pointer to uint slice pointer
+func AsUint8Ptrs(pointer unsafe.Pointer) *[]uint8 {
+	return (*[]uint8)(pointer)
 }
 
 //AsFloat32s casts pointer to float32 slice
@@ -241,9 +305,9 @@ func AsFloat32s(pointer unsafe.Pointer) []float32 {
 	return *(*[]float32)(pointer)
 }
 
-//AsFloat32Ptrs casts pointer to *float32 slice
-func AsFloat32Ptrs(pointer unsafe.Pointer) []*float32 {
-	return *(*[]*float32)(pointer)
+//AsFloat32sPtr casts pointer to float32 slice
+func AsFloat32sPtr(pointer unsafe.Pointer) *[]float32 {
+	return (*[]float32)(pointer)
 }
 
 //AsFloat64s casts pointer to float64 slice
@@ -251,19 +315,14 @@ func AsFloat64s(pointer unsafe.Pointer) []float64 {
 	return *(*[]float64)(pointer)
 }
 
-//AsFloat64Ptrs casts pointer to *float64 slice
-func AsFloat64Ptrs(pointer unsafe.Pointer) []*float64 {
-	return *(*[]*float64)(pointer)
+//AsFloat64sPtr casts pointer to float64 slice pointer
+func AsFloat64sPtr(pointer unsafe.Pointer) *[]float64 {
+	return (*[]float64)(pointer)
 }
 
 //AsBools casts pointer to bool slice
 func AsBools(pointer unsafe.Pointer) []bool {
 	return *(*[]bool)(pointer)
-}
-
-//AsBoolPtrs casts pointer to *bool slice
-func AsBoolPtrs(pointer unsafe.Pointer) []*bool {
-	return *(*[]*bool)(pointer)
 }
 
 //AsInterface casts pointer to interface
@@ -293,16 +352,10 @@ func AsTime(pointer unsafe.Pointer) time.Time {
 
 //AsTimePtr cast pointer to *time.Time
 func AsTimePtr(pointer unsafe.Pointer) *time.Time {
-	return *(**time.Time)(pointer)
+	return (*time.Time)(pointer)
 }
 
-//AsTyped return function casting pointer to the specified type
-func AsTyped(destType reflect.Type) func(pointer unsafe.Pointer) interface{} {
-	return func(pointer unsafe.Pointer) interface{} {
-		//using reflect.NewAt seems to be way slower than just using a reflect.New
-		ptr := reflect.New(destType)
-		newPointer := unsafe.Pointer(ptr.Pointer())
-		*(*unsafe.Pointer)(newPointer) = *(*unsafe.Pointer)(pointer)
-		return ptr.Interface()
-	}
+//AsTimeAddrPtr cast pointer to **time.Time
+func AsTimeAddrPtr(pointer unsafe.Pointer) **time.Time {
+	return (**time.Time)(pointer)
 }

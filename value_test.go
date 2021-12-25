@@ -103,7 +103,7 @@ func TestValuePointerForType(t *testing.T) {
 		}
 		ptr := reflect.New(testCase.t)
 		ptr.Elem().Set(reflect.ValueOf(testCase.value))
-		v := fn(ptr.Interface())
+		v := AsPointer(ptr.Interface())
 		actual := testCase.castBack(v)
 		assert.EqualValues(t, testCase.value, actual, testCase.description)
 	}

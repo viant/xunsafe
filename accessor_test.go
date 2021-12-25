@@ -312,10 +312,10 @@ func TestField_Accessor(t *testing.T) {
 	}
 
 	aStruct1Type := reflect.TypeOf(Struct1{})
-	aStruct1Addr := Addr(aStruct1)
+	aStruct1Addr := EnsurePointer(aStruct1)
 
 	aStruct2Type := reflect.TypeOf(Struct2{})
-	aStruct2Addr := Addr(aStruct2)
+	aStruct2Addr := EnsurePointer(aStruct2)
 
 	assert.Nil(t, aStruct1.F2)
 	for _, testCase := range testCases {
@@ -367,7 +367,7 @@ func TestField_Accessor(t *testing.T) {
 		case time.Time:
 			actual = field.Time(aStructAddr)
 		case []Bar:
-			actual = field.Value(aStructAddr)
+			actual = field.Interface(aStructAddr)
 		case *int:
 			actual = field.IntPtr(aStructAddr)
 		case *int64:
@@ -401,18 +401,19 @@ func TestField_Accessor(t *testing.T) {
 		case *time.Time:
 			actual = field.TimePtr(aStructAddr)
 		case *Foo:
-			actual = field.Value(aStructAddr)
+			actual = field.Interface(aStructAddr)
 		case func():
-			actual = field.Value(aStructAddr)
+			actual = field.Interface(aStructAddr)
 		default:
-			actual = field.Value(aStructAddr)
-
+			actual = field.Interface(aStructAddr)
 		}
 		if _, ok := actual.(func()); ok {
 			assert.EqualValues(t, fmt.Sprintf("%v", testCase.expect), fmt.Sprintf("%v", actual), testCase.description)
 			continue
 		}
-		assert.EqualValues(t, testCase.expect, actual, testCase.description)
+		if !assert.EqualValues(t, testCase.expect, actual, testCase.description) {
+			break
+		}
 	}
 
 }
@@ -455,12 +456,12 @@ func BenchmarkField_Accessor_Native(b *testing.B) {
 
 }
 
-func BenchmarkField_Accessor_Xunsafe(b *testing.B) {
+func BenchmarkField_Accessor_Direct_Xunsafe(b *testing.B) {
 	var id int
 	var name string
 	var val float32
 	var ts time.Time
-	ptr := Addr(_accBenchInstance)
+	ptr := EnsurePointer(_accBenchInstance)
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		id = _AcciDField.Int(ptr)
@@ -475,18 +476,18 @@ func BenchmarkField_Accessor_Xunsafe(b *testing.B) {
 
 }
 
-func BenchmarkField_Accessor_Value(b *testing.B) {
-	var id interface{}
-	var name interface{}
-	var val interface{}
-	var ts interface{}
-	ptr := Addr(_accBenchInstance)
+func BenchmarkField_Accessor_Interface_Xunsafe(b *testing.B) {
+	var id int
+	var name string
+	var val float32
+	var ts time.Time
+	ptr := EnsurePointer(_accBenchInstance)
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
-		id = _AcciDField.Value(ptr)
-		name = _AccNameField.Value(ptr)
-		val = _AccValField.Value(ptr)
-		ts = _TimeValField.Value(ptr)
+		id = _AcciDField.Interface(ptr).(int)
+		name = _AccNameField.Interface(ptr).(string)
+		val = _AccValField.Interface(ptr).(float32)
+		ts = _TimeValField.Interface(ptr).(time.Time)
 	}
 	assert.EqualValues(b, _accBenchInstance.ID, id)
 	assert.EqualValues(b, _accBenchInstance.Name, name)
@@ -494,7 +495,7 @@ func BenchmarkField_Accessor_Value(b *testing.B) {
 	assert.EqualValues(b, _accBenchInstance.Time, ts)
 }
 
-func BenchmarkField_Accessor_Reflect(b *testing.B) {
+func BenchmarkField_Accessor_Interface_Reflect(b *testing.B) {
 	aType := reflect.TypeOf(AccBenchStruct{})
 	var idFieldIdx, nameFiledIdx, valFieldIdx, tsFieldIdx int
 
@@ -531,12 +532,12 @@ func BenchmarkField_Accessor_Reflect(b *testing.B) {
 
 }
 
-func BenchmarkField_Accessor_PtrXunsafe(b *testing.B) {
+func BenchmarkField_Accessor_Addr_Xunsafe(b *testing.B) {
 	var id *int
 	var name *string
 	var val *float32
 	var ts *time.Time
-	ptr := Addr(_accBenchInstance)
+	ptr := EnsurePointer(_accBenchInstance)
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		id = _AcciDField.Addr(ptr).(*int)
@@ -550,7 +551,7 @@ func BenchmarkField_Accessor_PtrXunsafe(b *testing.B) {
 	assert.EqualValues(b, _accBenchInstance.Time, *ts)
 }
 
-func BenchmarkField_Accessor_Reflect_Ptr(b *testing.B) {
+func BenchmarkField_Accessor_Addr_Reflect(b *testing.B) {
 	aType := reflect.TypeOf(AccBenchStruct{})
 	var idFieldIdx, nameFiledIdx, valFieldIdx, tsFieldIdx int
 

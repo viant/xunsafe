@@ -6,16 +6,16 @@ import (
 	"unsafe"
 )
 
-//Index returns item pointer for supplied indexByAddr (see useItemAddr slice option)
-type Index func(index uintptr) unsafe.Pointer
-
 //Slice represents a slice
 type (
 	Slice struct {
 		reflect.Type
+		isPointer   bool
 		useItemAddr bool //useItemAddr flag instructs implementation to use item address as **T for []*T or *T for []T
 		//otherwise item would use *T for a slice defined as []T or []*T,
 		itemSize uintptr
+		rtype    *rtype
+		rtypePtr *rtype
 	}
 	//Appender represents a slice appender
 	Appender struct {
@@ -26,18 +26,38 @@ type (
 		reflectSlice reflect.Value
 		itemType     reflect.Type
 		ptr          unsafe.Pointer
-		indexAddr    Index
 	}
 )
+
+//IndexAt return slice item addr pointer
+func (s *Slice) IndexAt(sliceAddr unsafe.Pointer, index uintptr) unsafe.Pointer {
+	header := (*reflect.SliceHeader)(sliceAddr)
+	return unsafe.Add(unsafe.Pointer(header.Data), index*s.itemSize)
+}
+
+//Index return slice item
+func (s *Slice) Index(slicePtr unsafe.Pointer, index int) interface{} {
+	p := s.IndexAt(slicePtr, uintptr(index))
+	if s.isPointer {
+		p = DerefPointer(p)
+	}
+	return asInterface(p, s.rtype, false)
+}
+
+//Addr return slice item
+func (s *Slice) Addr(slicePtr unsafe.Pointer, index int) interface{} {
+	p := s.IndexAt(slicePtr, uintptr(index))
+	return asInterface(p, s.rtypePtr, false)
+}
 
 //Range call visit callback for each slice element , to terminate visit should return false
 //use useItemAddr would use item pointer as *T for a slice defined as []T or []*T,
 //otherwise for slice defined as []*T, item would get **T pointer
-func (s *Slice) Range(sliceAddress unsafe.Pointer, visit func(index int, item unsafe.Pointer) bool) {
+func (s *Slice) Range(sliceAddress unsafe.Pointer, visit func(index int, item interface{}) bool) {
 	header := *(*reflect.SliceHeader)(sliceAddress)
-	fn := s.Index(sliceAddress)
 	for i := 0; i < header.Len; i++ {
-		if !visit(i, fn(uintptr(i))) {
+		val := s.Index(sliceAddress, i)
+		if !visit(i, val) {
 			return
 		}
 	}
@@ -47,59 +67,40 @@ func (s *Slice) Range(sliceAddress unsafe.Pointer, visit func(index int, item un
 func (s *Slice) Appender(slicePointer unsafe.Pointer) *Appender {
 	header := (*reflect.SliceHeader)(slicePointer)
 	return &Appender{slice: s,
-		header:    header,
-		ptr:       slicePointer,
-		indexAddr: s.IndexAddr(slicePointer),
-		itemType:  s.Type.Elem(),
+		header:   header,
+		ptr:      slicePointer,
+		itemType: s.Type.Elem(),
 	}
 }
 
-//Index return slice item
-func (s *Slice) Index(sliceAddr unsafe.Pointer) Index {
-	header := (*reflect.SliceHeader)(sliceAddr)
-	size := s.itemSize
-	if s.useItemAddr {
-		return func(index uintptr) unsafe.Pointer {
-			offset := header.Data - uintptr(sliceAddr)
-			return unsafe.Add(sliceAddr, offset+index*size)
-		}
-	}
-	return func(index uintptr) unsafe.Pointer {
-		offset := header.Data - uintptr(sliceAddr)
-		return *(*unsafe.Pointer)(unsafe.Add(sliceAddr, offset+index*size))
-	}
-}
-
-//IndexAddr return slice item addr pointer
-func (s *Slice) IndexAddr(sliceAddr unsafe.Pointer) Index {
-	header := (*reflect.SliceHeader)(sliceAddr)
-	size := s.itemSize
-	return func(index uintptr) unsafe.Pointer {
-		offset := header.Data - uintptr(sliceAddr)
-		return unsafe.Add(sliceAddr, offset+index*size)
-	}
+func (s *Slice) initTypes() {
+	s.isPointer = s.Type.Elem().Kind() == reflect.Ptr
+	ptrValue := reflect.New(s.Type.Elem())
+	ptr := ptrValue.Interface()
+	val := ptrValue.Elem().Interface()
+	s.rtype = ((*emptyInterface)(unsafe.Pointer(&val))).typ
+	s.rtypePtr = ((*emptyInterface)(unsafe.Pointer(&ptr))).typ
 }
 
 //UseItemAddrOpt option that instructs implementation to use item address as **T for []*T or *T for []T, otherwise *T would be used
 type UseItemAddrOpt bool
 
 //NewSlice creates  slice
-func NewSlice(aType reflect.Type, options ...interface{}) *Slice {
-	switch aType.Kind() {
+func NewSlice(sliceType reflect.Type, options ...interface{}) *Slice {
+	switch sliceType.Kind() {
 	case reflect.Slice:
 	case reflect.Array:
-		panic(fmt.Sprintf("unsupported type: %v", aType.Name()))
+		panic(fmt.Sprintf("unsupported type: %v", sliceType.Name()))
 	default:
-		aType = reflect.SliceOf(aType)
+		sliceType = reflect.SliceOf(sliceType)
 	}
-	itemType := aType.Elem()
-	size := itemType.Size()
-
+	itemType := sliceType.Elem()
 	result := &Slice{
-		Type:     aType,
-		itemSize: size,
+		Type:     sliceType,
+		itemSize: itemType.Size(),
 	}
 	result.applyOptions(options)
+	result.initTypes()
 	return result
 }
 
@@ -115,15 +116,18 @@ func (s *Slice) applyOptions(options []interface{}) {
 }
 
 //Append appends items to a slice
-func (a *Appender) Append(items ...unsafe.Pointer) {
+func (a *Appender) Append(items ...interface{}) {
 	itemLen := len(items)
 	if a.cap < a.size+itemLen {
 		a.grow(itemLen)
 	}
 	i := 0
+
 	if a.slice.useItemAddr {
 	loop1:
-		*(*unsafe.Pointer)(a.indexAddr(uintptr(a.size))) = *(*unsafe.Pointer)(items[i])
+		sourcePtr := AsPointer(items[i])
+		ptr := a.slice.IndexAt(a.ptr, uintptr(a.size))
+		*(*unsafe.Pointer)(ptr) = *(*unsafe.Pointer)(sourcePtr)
 		a.size++
 		i++
 		if i < itemLen {
@@ -133,8 +137,12 @@ func (a *Appender) Append(items ...unsafe.Pointer) {
 		return
 	}
 loop2:
-	*(*unsafe.Pointer)(a.indexAddr(uintptr(a.size))) = unsafe.Pointer(reflect.New(a.itemType).Elem().UnsafeAddr())
-	*(*unsafe.Pointer)(DereferencePointer(a.indexAddr(uintptr(a.size)))) = *(*unsafe.Pointer)(items[i])
+	sourcePtr := AsPointer(items[i])
+	ptr := a.slice.IndexAt(a.ptr, uintptr(a.size))
+	var newPtr unsafe.Pointer
+	itemPtr := (*unsafe.Pointer)(ptr)
+	*itemPtr = unsafe.Pointer(&newPtr)
+	*(*unsafe.Pointer)(DerefPointer(ptr)) = *(*unsafe.Pointer)(sourcePtr)
 	a.size++
 	i++
 	if i < itemLen {
@@ -144,24 +152,23 @@ loop2:
 }
 
 //Add grows slice by 1 and returns item pointer (see UseItemAddrOpt)
-func (a *Appender) Add() unsafe.Pointer {
+func (a *Appender) Add() interface{} {
 	if a.cap < a.size+1 {
 		a.grow(1)
 	}
-	i := 0
+
+	ptr := a.slice.IndexAt(a.ptr, uintptr(a.size))
 	if a.slice.useItemAddr {
-		result := (a.indexAddr(uintptr(a.size)))
 		a.size++
 		a.header.Len = a.size
-		return result
+		return asInterface(ptr, a.slice.rtypePtr, false)
 	}
-	newPtr := reflect.New(a.itemType)
-	*(*unsafe.Pointer)(a.indexAddr(uintptr(a.size))) = unsafe.Pointer(newPtr.Pointer())
-	result := (DereferencePointer(a.indexAddr(uintptr(a.size))))
+	var newPtr unsafe.Pointer
+	itemPtr := (*unsafe.Pointer)(ptr)
+	*itemPtr = unsafe.Pointer(&newPtr)
 	a.size++
-	i++
 	a.header.Len = a.size
-	return result
+	return asInterface(*itemPtr, a.slice.rtype, false)
 }
 
 func (a *Appender) grow(by int) {

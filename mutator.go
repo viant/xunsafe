@@ -6,321 +6,217 @@ import (
 	"unsafe"
 )
 
-//Setter represents a func setting field value
-type Setter func(structAddr unsafe.Pointer, val interface{})
-
-//Set sets field value
-func (f *Field) Set(structAddr unsafe.Pointer, v interface{}) {
-	if f.setter != nil {
-		f.setter(structAddr, v)
-		return
-	}
-	defer func() {
-		f.setter(structAddr, v)
-	}()
-	switch f.Type.Kind() {
-
-	case reflect.Int:
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetInt(structAddr, val.(int))
-		}
-	case reflect.Int64:
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetInt64(structAddr, val.(int64))
-		}
-	case reflect.Int32:
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetInt32(structAddr, val.(int32))
-		}
-	case reflect.Int16:
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetInt16(structAddr, val.(int16))
-		}
-	case reflect.Int8:
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetInt8(structAddr, val.(int8))
-		}
-	case reflect.Uint:
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetUint(structAddr, val.(uint))
-		}
-	case reflect.Uint64:
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetUint64(structAddr, val.(uint64))
-		}
-	case reflect.Uint32:
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetUint32(structAddr, val.(uint32))
-		}
-	case reflect.Uint16:
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetUint16(structAddr, val.(uint16))
-		}
-	case reflect.Uint8:
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetUint8(structAddr, val.(uint8))
-		}
-	case reflect.Float64:
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetFloat64(structAddr, val.(float64))
-		}
-	case reflect.Float32:
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetFloat32(structAddr, val.(float32))
-		}
-	case reflect.Bool:
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetBool(structAddr, val.(bool))
-		}
-	case reflect.String:
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetString(structAddr, val.(string))
-		}
-	case reflect.Interface:
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetInterface(structAddr, val)
-		}
-
-	default:
-		if f.field.Type.ConvertibleTo(timeType) {
-			f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-				f.SetTime(structAddr, val.(time.Time))
-			}
-			return
-		}
-		if f.field.Type.ConvertibleTo(timeTypePtr) {
-			f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-				f.SetTimePtr(structAddr, val.(*time.Time))
-			}
-			return
-		}
-		f.setter = func(structAddr unsafe.Pointer, val interface{}) {
-			f.SetValue(structAddr, val)
-		}
-	}
-}
-
 //SetInt sets field int
-func (f *Field) SetInt(structAddr unsafe.Pointer, val int) {
-	result := (*int)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetInt(structPtr unsafe.Pointer, val int) {
+	*AsIntPtr(f.Pointer(structPtr)) = val
 }
 
 //SetIntPtr sets field *int
-func (f *Field) SetIntPtr(structAddr unsafe.Pointer, val *int) {
-	result := (**int)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetIntPtr(structPtr unsafe.Pointer, val *int) {
+	*AsIntAddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetInt64 sets field int
-func (f *Field) SetInt64(structAddr unsafe.Pointer, val int64) {
-	result := (*int64)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetInt64(structPtr unsafe.Pointer, val int64) {
+	*AsInt64Ptr(f.Pointer(structPtr)) = val
 }
 
 //SetInt64Ptr sets field *int
-func (f *Field) SetInt64Ptr(structAddr unsafe.Pointer, val *int64) {
-	result := (**int64)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetInt64Ptr(structPtr unsafe.Pointer, val *int64) {
+	*AsInt64AddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetInt32 sets field int
-func (f *Field) SetInt32(structAddr unsafe.Pointer, val int32) {
-	result := (*int32)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetInt32(structPtr unsafe.Pointer, val int32) {
+	*AsInt32Ptr(f.Pointer(structPtr)) = val
 }
 
 //SetInt32Ptr sets field *int
-func (f *Field) SetInt32Ptr(structAddr unsafe.Pointer, val *int32) {
-	result := (**int32)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetInt32Ptr(structPtr unsafe.Pointer, val *int32) {
+	*AsInt32AddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetInt16 sets field int
-func (f *Field) SetInt16(structAddr unsafe.Pointer, val int16) {
-	result := (*int16)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetInt16(structPtr unsafe.Pointer, val int16) {
+	*AsInt16Ptr(f.Pointer(structPtr)) = val
 }
 
 //SetInt16Ptr sets field *int
-func (f *Field) SetInt16Ptr(structAddr unsafe.Pointer, val *int16) {
-	result := (**int16)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetInt16Ptr(structPtr unsafe.Pointer, val *int16) {
+	*AsInt16AddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetInt8 sets field int
-func (f *Field) SetInt8(structAddr unsafe.Pointer, val int8) {
-	result := (*int8)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetInt8(structPtr unsafe.Pointer, val int8) {
+	*AsInt8Ptr(f.Pointer(structPtr)) = val
 }
 
 //SetInt8Ptr sets field *int
-func (f *Field) SetInt8Ptr(structAddr unsafe.Pointer, val *int8) {
-	result := (**int8)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetInt8Ptr(structPtr unsafe.Pointer, val *int8) {
+	*AsInt8AddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetUint sets field uint
-func (f *Field) SetUint(structAddr unsafe.Pointer, val uint) {
-	result := (*uint)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetUint(structPtr unsafe.Pointer, val uint) {
+	*AsUintPtr(f.Pointer(structPtr)) = val
 }
 
 //SetUintPtr sets field *uint
-func (f *Field) SetUintPtr(structAddr unsafe.Pointer, val *uint) {
-	result := (**uint)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetUintPtr(structPtr unsafe.Pointer, val *uint) {
+	*AsUintAddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetUint64 sets field uint
-func (f *Field) SetUint64(structAddr unsafe.Pointer, val uint64) {
-	result := (*uint64)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetUint64(structPtr unsafe.Pointer, val uint64) {
+	*AsUint64Ptr(f.Pointer(structPtr)) = val
 }
 
 //SetUint64Ptr sets field *uint
-func (f *Field) SetUint64Ptr(structAddr unsafe.Pointer, val *uint64) {
-	result := (**uint64)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetUint64Ptr(structPtr unsafe.Pointer, val *uint64) {
+	*AsUint64AddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetUint32 sets field uint
-func (f *Field) SetUint32(structAddr unsafe.Pointer, val uint32) {
-	result := (*uint32)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetUint32(structPtr unsafe.Pointer, val uint32) {
+	*AsUint32Ptr(f.Pointer(structPtr)) = val
 }
 
 //SetUint32Ptr sets field *uint
-func (f *Field) SetUint32Ptr(structAddr unsafe.Pointer, val *uint32) {
-	result := (**uint32)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetUint32Ptr(structPtr unsafe.Pointer, val *uint32) {
+	*AsUint32AddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetUint16 sets field uint
-func (f *Field) SetUint16(structAddr unsafe.Pointer, val uint16) {
-	result := (*uint16)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetUint16(structPtr unsafe.Pointer, val uint16) {
+	*AsUint16Ptr(f.Pointer(structPtr)) = val
 }
 
 //SetUint16Ptr sets field *uint
-func (f *Field) SetUint16Ptr(structAddr unsafe.Pointer, val *uint16) {
-	result := (**uint16)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetUint16Ptr(structPtr unsafe.Pointer, val *uint16) {
+	*AsUint16AddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetUint8 sets field uint
-func (f *Field) SetUint8(structAddr unsafe.Pointer, val uint8) {
-	result := (*uint8)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetUint8(structPtr unsafe.Pointer, val uint8) {
+	*AsUint8Ptr(f.Pointer(structPtr)) = val
 }
 
 //SetUint8Ptr sets field *uint
-func (f *Field) SetUint8Ptr(structAddr unsafe.Pointer, val *uint8) {
-	result := (**uint8)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetUint8Ptr(structPtr unsafe.Pointer, val *uint8) {
+	*AsUint8AddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetFloat64 sets field float64
-func (f *Field) SetFloat64(structAddr unsafe.Pointer, val float64) {
-	result := (*float64)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetFloat64(structPtr unsafe.Pointer, val float64) {
+	*AsFloat64Ptr(f.Pointer(structPtr)) = val
 }
 
 //SetFloat64Ptr sets field *float64
-func (f *Field) SetFloat64Ptr(structAddr unsafe.Pointer, val *float64) {
-	result := (**float64)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetFloat64Ptr(structPtr unsafe.Pointer, val *float64) {
+	*AsFloat64AddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetFloat32 sets field float32
-func (f *Field) SetFloat32(structAddr unsafe.Pointer, val float32) {
-	result := (*float32)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetFloat32(structPtr unsafe.Pointer, val float32) {
+	*AsFloat32Ptr(f.Pointer(structPtr)) = val
 }
 
 //SetFloat32Ptr sets field *float32
-func (f *Field) SetFloat32Ptr(structAddr unsafe.Pointer, val *float32) {
-	result := (**float32)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetFloat32Ptr(structPtr unsafe.Pointer, val *float32) {
+	*AsFloat32AddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetBool sets field bool
-func (f *Field) SetBool(structAddr unsafe.Pointer, val bool) {
-	result := (*bool)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetBool(structPtr unsafe.Pointer, val bool) {
+	*AsBoolPtr(f.Pointer(structPtr)) = val
 }
 
 //SetBoolPtr sets field *bool
-func (f *Field) SetBoolPtr(structAddr unsafe.Pointer, val *bool) {
-	result := (**bool)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetBoolPtr(structPtr unsafe.Pointer, val *bool) {
+	*AsBoolAddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetString sets field string
-func (f *Field) SetString(structAddr unsafe.Pointer, val string) {
-	result := (*string)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetString(structPtr unsafe.Pointer, val string) {
+	*AsStringPtr(f.Pointer(structPtr)) = val
 }
 
 //SetStringPtr sets field *string
-func (f *Field) SetStringPtr(structAddr unsafe.Pointer, val *string) {
-	result := (**string)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetStringPtr(structPtr unsafe.Pointer, val *string) {
+	*AsStringAddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetBytes sets field []byte
-func (f *Field) SetBytes(structAddr unsafe.Pointer, val []byte) {
-	result := (*[]byte)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetBytes(structPtr unsafe.Pointer, val []byte) {
+	*AsBytesPtr(f.Pointer(structPtr)) = val
 }
 
 //SetBytesPtr sets field *[]byte
-func (f *Field) SetBytesPtr(structAddr unsafe.Pointer, val *[]byte) {
-	result := (**[]byte)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetBytesPtr(structPtr unsafe.Pointer, val *[]byte) {
+	*AsBytesAddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetTime sets field time.Time
-func (f *Field) SetTime(structAddr unsafe.Pointer, val time.Time) {
-	result := (*time.Time)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetTime(structPtr unsafe.Pointer, val time.Time) {
+	*AsTimePtr(f.Pointer(structPtr)) = val
 }
 
 //SetTimePtr sets field *time.Time
-func (f *Field) SetTimePtr(structAddr unsafe.Pointer, val *time.Time) {
-	result := (**time.Time)(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetTimePtr(structPtr unsafe.Pointer, val *time.Time) {
+	*AsTimeAddrPtr(f.Pointer(structPtr)) = val
 }
 
 //SetInterface set field interface{}
-func (f *Field) SetInterface(structAddr unsafe.Pointer, val interface{}) {
-	result := (*interface{})(unsafe.Pointer(uintptr(structAddr) + f.field.Offset))
-	*result = val
+func (f *Field) SetInterface(structPtr unsafe.Pointer, val interface{}) {
+	*(*interface{})(f.Pointer(structPtr)) = val
 }
 
 //SetValue sets value
-func (f *Field) SetValue(structAddr unsafe.Pointer, val interface{}) {
-	refValue := reflect.ValueOf(val)
-	switch refValue.Kind() {
+//go:nocheckptr
+func (f *Field) SetValue(structPtr unsafe.Pointer, source interface{}) {
+	ptr := f.Pointer(structPtr)
+	switch f.kind {
+	case reflect.String:
+		*(*string)(ptr) = source.(string)
+	case reflect.Int:
+		*(*int)(ptr) = source.(int)
+	case reflect.Float64:
+		*(*float64)(ptr) = source.(float64)
+	case reflect.Float32:
+		*(*float32)(ptr) = source.(float32)
+	case reflect.Bool:
+		*(*bool)(ptr) = source.(bool)
 	case reflect.Ptr:
-		ptr := (*unsafe.Pointer)(unsafe.Add(structAddr, f.field.Offset))
-		if ptr == nil {
-			return
-		}
-		if refValue.IsZero() {
-			*ptr = nil
-		} else {
-			*ptr = unsafe.Pointer(refValue.Elem().UnsafeAddr())
-		}
+		*(*unsafe.Pointer)(ptr) = AsPointer(source)
 	case reflect.Func:
-		addr := f.Addr(structAddr)
-		reflect.ValueOf(addr).Elem().Set(refValue)
+		addr := f.Addr(f.Pointer(structPtr))
+		reflect.ValueOf(addr).Elem().Set(reflect.ValueOf(source))
 	default:
-		addr := f.Addr(structAddr)
-		if addr == nil || !refValue.IsValid() {
-			return
-		}
-		reflect.ValueOf(addr).Elem().Set(refValue)
+		*(*unsafe.Pointer)(ptr) = *(*unsafe.Pointer)(AsPointer(source))
 	}
+}
 
+//Set sets only non pointer value, the reason for this limited functionality method is speed,
+//its 20x faster than SetValue
+//go:nocheckptr
+func (f *Field) Set(structPtr unsafe.Pointer, source interface{}) {
+	ptr := f.Pointer(structPtr)
+	switch f.kind {
+	case reflect.String:
+		*(*string)(ptr) = source.(string)
+	case reflect.Int:
+		*(*int)(ptr) = source.(int)
+	case reflect.Int64:
+		*(*int)(ptr) = source.(int)
+	case reflect.Float64:
+		*(*float64)(ptr) = source.(float64)
+	case reflect.Float32:
+		*(*float32)(ptr) = source.(float32)
+	case reflect.Bool:
+		*(*bool)(ptr) = source.(bool)
+	case reflect.Ptr: //had to comment out this cast since this suppresses inlining
+		//*(*unsafe.Pointer)(ptr) = AsPointer(source)
+	default:
+		*(*unsafe.Pointer)(ptr) = *(*unsafe.Pointer)(AsPointer(source))
+	}
 }

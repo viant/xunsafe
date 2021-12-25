@@ -82,10 +82,9 @@ func TestFieldPointer(t *testing.T) {
 
 	for _, testCase := range testCases {
 		testType := reflect.TypeOf(testCase.instance)
-		instanceAddr := Addr(testCase.instance)
+		instanceAddr := EnsurePointer(testCase.instance)
 		field := FieldByIndex(testType, testCase.Index)
-		ptr := field.AddrGetter()
-		actualPtr := ptr(instanceAddr)
+		actualPtr := field.Addr(instanceAddr)
 		actual := reflect.ValueOf(actualPtr)
 		for actual.Kind() == reflect.Ptr {
 			actual = actual.Elem()
