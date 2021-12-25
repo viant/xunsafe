@@ -1,8 +1,14 @@
 package xunsafe
 
 import (
+	"reflect"
 	"time"
 	"unsafe"
+)
+
+var (
+	typeTime    = reflect.TypeOf(time.Time{})
+	typeTimePtr = reflect.TypeOf(&time.Time{})
 )
 
 //AsInt casts pointer to int

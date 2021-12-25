@@ -26,7 +26,7 @@ func DerefPointer(pointer unsafe.Pointer) unsafe.Pointer {
 	return *(*unsafe.Pointer)(pointer)
 }
 
-//AsPointer returns a  pointer for an interface
+//AsPointer returns a  pointer for an empty interface
 func AsPointer(v interface{}) unsafe.Pointer {
 	empty := (*emptyInterface)(unsafe.Pointer(&v))
 	return empty.word

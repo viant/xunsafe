@@ -10,6 +10,7 @@ Please refer to [`CHANGELOG.md`](CHANGELOG.md) if you encounter breaking changes
 - [Motivation](#motivation)
 - [Introduction](#introduction)
 - [Usage](#usage)
+- [Bugs](#bugs)
 - [Benchmark](#benchmark)
 - [Contribution](#contributing-to-xunsafe)
 - [License](#license)
@@ -28,8 +29,6 @@ What that means that extra overhead of using reflection is only around 1.5 to fo
 
 In order to achieve better performance, this library uses unsafe.Pointer along with StructField.Offset to effectively access/modify struct fields.
 On top of that most of implemented methods, inline giving substantial performance boost which is x40 times as opposed to the seme not inlined version.
-In order to reduce inlining cost in generic method, redefined from reflect package *emptyInterface, rtype are used.
-
 
 ## Usage
 
@@ -183,6 +182,12 @@ BenchmarkAppender_Append_Native-16                       2436530               4
 * **'Native'** suffix represent statically typed code
 * **'Xunsafe'** suffix represent reflection implemented by this library
 * **'Reflect'** suffix represent implementation with golang native reflect package
+
+
+## Bugs
+
+This package operates on unsafe.Pointer and also uses some redefined private reflect package types like rtype, emptyInterface types.
+User of the package should ensure the code is fully tested and run test with -race and  -gcflags=all=-d=checkptr flags
 
 
 ## License
