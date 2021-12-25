@@ -24,7 +24,12 @@ func (t *Type) Deref(val interface{}) interface{} {
 }
 
 //Pointer returns a pointer
-func (t *Type) Pointer(value interface{}) interface{} {
+func (t *Type) Pointer(value interface{}) unsafe.Pointer {
+	return AsPointer(value)
+}
+
+//Ref returns a reference to value
+func (t *Type) Ref(value interface{}) interface{} {
 	e := (*emptyInterface)(unsafe.Pointer(&value))
 	if e.typ.kind&kindDirectIface != 0 {
 		var newPtr unsafe.Pointer

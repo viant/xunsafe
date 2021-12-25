@@ -151,7 +151,7 @@ For example for filed with int type, the casting come in form ```(*int)(unsafe.P
 ```
 
 
-### Pointer/Deref
+### Arbitrary type Ref/Deref/Pointer
 
 Defined Type implements Pointer and Deref arbitrary type.
 
@@ -159,15 +159,16 @@ Defined Type implements Pointer and Deref arbitrary type.
         type T 
     	aType := xunsafe.NewType(reflect.TypeOf(T))
 		var t T
-		ptr := aType.Pointer(t) //return *T
-		deref := aType.Deref(ptr) //return T
+		ref := aType.Ref(t) //return *T
+		deref := aType.Deref(ref) //return T
+		ptr := aType.Pointer(t) //return unsafe.Pointer
 ```
 
 ## Bugs
 
 This package operates on unsafe.Pointer and also uses some redefined private reflect package types like rtype, emptyInterface.
+While directed type should work well, some generic method like Field.Interface, Field.Set, may not support all data types.
 User of the package should ensure the code is fully tested and run test with -race and  -gcflags=all=-d=checkptr flags
-
 
 
 ### Benchmark
@@ -203,6 +204,21 @@ BenchmarkAppender_Append_Native-16                       2436530               4
 * **'Reflect'** suffix represent implementation with golang native reflect package
 
 
+## Contributing to xunsafe
+
+XUnsafe is an open source project and contributors are welcome!
+
+
+It would be nice if at some point native golang library exposes ability to create ref/deref/pointer for an actual value behind the interface
+to remove dependency/exposure of the private reflect pacakge types from this library.
+
+```go
+    i := 101
+    var v interface = i
+	vPtr := xxxx.Pointer(v)
+	vPtrInterface := xxxx.Ref(v)
+	cloned := xxxx.Deref(vPtrInterface)
+```
 
 
 ## License

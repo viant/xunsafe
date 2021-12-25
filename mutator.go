@@ -215,7 +215,7 @@ func (f *Field) Set(structPtr unsafe.Pointer, source interface{}) {
 	case reflect.Bool:
 		*(*bool)(ptr) = source.(bool)
 	case reflect.Ptr: //had to comment out this cast since this suppresses inlining
-		//*(*unsafe.Pointer)(ptr) = AsPointer(source)
+		//*(*unsafe.Ref)(ptr) = AsPointer(source)
 	default:
 		*(*unsafe.Pointer)(ptr) = *(*unsafe.Pointer)(AsPointer(source))
 	}

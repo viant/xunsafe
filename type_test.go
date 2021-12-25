@@ -55,7 +55,7 @@ func TestType_Type(t *testing.T) {
 
 	for _, testCase := range testCases {
 		aType := NewType(reflect.TypeOf(testCase.value))
-		ptr := aType.Pointer(testCase.value)
+		ptr := aType.Ref(testCase.value)
 		value := reflect.ValueOf(ptr)
 		assert.EqualValues(t, reflect.Ptr, value.Kind(), testCase.description)
 		assert.EqualValues(t, testCase.value, value.Elem().Interface(), testCase.description)
