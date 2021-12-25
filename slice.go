@@ -172,7 +172,10 @@ func (a *Appender) Add() interface{} {
 }
 
 func (a *Appender) grow(by int) {
-	cap := (a.cap + by) * 2
+	cap := (a.cap + by)
+	if a.cap > 0 {
+		cap = (a.cap + by) * 2
+	}
 	newSlice := reflect.MakeSlice(a.slice.Type, cap, cap)
 	if a.cap > 0 {
 		reflect.Copy(newSlice, a.reflectSlice)
