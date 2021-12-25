@@ -151,6 +151,25 @@ For example for filed with int type, the casting come in form ```(*int)(unsafe.P
 ```
 
 
+### Pointer/Deref
+
+Defined Type implements Pointer and Deref arbitrary type.
+
+```go
+        type T 
+    	aType := xunsafe.NewType(reflect.TypeOf(T))
+		var t T
+		ptr := aType.Pointer(t) //return *T
+		deref := aType.Deref(ptr) //return T
+```
+
+## Bugs
+
+This package operates on unsafe.Pointer and also uses some redefined private reflect package types like rtype, emptyInterface.
+User of the package should ensure the code is fully tested and run test with -race and  -gcflags=all=-d=checkptr flags
+
+
+
 ### Benchmark
 
 Accessor/Mutator benchmark
@@ -184,10 +203,6 @@ BenchmarkAppender_Append_Native-16                       2436530               4
 * **'Reflect'** suffix represent implementation with golang native reflect package
 
 
-## Bugs
-
-This package operates on unsafe.Pointer and also uses some redefined private reflect package types like rtype, emptyInterface types.
-User of the package should ensure the code is fully tested and run test with -race and  -gcflags=all=-d=checkptr flags
 
 
 ## License
