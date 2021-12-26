@@ -210,7 +210,7 @@ XUnsafe is an open source project and contributors are welcome!
 
 
 It would be nice if at some point native golang library exposes ability to create ref/deref/pointer for an actual value behind the interface
-to remove dependency/exposure of the private reflect pacakge types from this library.
+without that can be inlined to remove dependency/exposure of the private reflect pacakge types from this library.
 
 ```go
     i := 101

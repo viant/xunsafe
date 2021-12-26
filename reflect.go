@@ -103,7 +103,7 @@ const (
 	kindMask        = (1 << 5) - 1
 )
 
-//AsPointer returns a  pointer for an interface (interface has to store a pointer)
+//AsPointer returns a  pointer for an empty interface
 func asInterface(ptr unsafe.Pointer, rtype *rtype, canDeref bool) (v interface{}) {
 	empty := (*emptyInterface)(unsafe.Pointer(&v))
 	empty.word = ptr

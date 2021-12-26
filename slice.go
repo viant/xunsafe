@@ -156,7 +156,6 @@ func (a *Appender) Add() interface{} {
 	if a.cap < a.size+1 {
 		a.grow(1)
 	}
-
 	ptr := a.slice.IndexAt(a.ptr, uintptr(a.size))
 	if a.slice.useItemAddr {
 		a.size++
@@ -172,7 +171,7 @@ func (a *Appender) Add() interface{} {
 }
 
 func (a *Appender) grow(by int) {
-	cap := (a.cap + by)
+	cap := a.cap + by
 	if a.cap > 0 {
 		cap = (a.cap + by) * 2
 	}
@@ -181,7 +180,7 @@ func (a *Appender) grow(by int) {
 		reflect.Copy(newSlice, a.reflectSlice)
 	}
 	a.reflectSlice = newSlice
-	a.header.Data = a.reflectSlice.Pointer()
+	a.header.Data = newSlice.Pointer()
 	a.header.Len = cap
 	a.header.Cap = cap
 	a.cap = cap
