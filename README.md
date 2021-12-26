@@ -28,7 +28,7 @@ What that means that extra overhead of using reflection is only around 1.5 to fo
 ## Introduction
 
 In order to achieve better performance, this library uses unsafe.Pointer along with StructField.Offset to effectively access/modify struct fields.
-On top of that most of implemented methods, inline giving substantial performance boost which is x40 times as opposed to the seme not inlined version.
+On top of that most of implemented methods, inline giving substantial performance boost which is x40 times as opposed to the same not inlined version.
 
 ## Usage
 
