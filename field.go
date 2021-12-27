@@ -9,13 +9,10 @@ import (
 type Field struct {
 	Name string
 	reflect.Type
-	offset   uintptr
-	kind     reflect.Kind
-	rtype    *rtype
-	flag     flag
-	rtypPtr  *rtype
-	flagPtr  flag
-	flagAddr flag
+	offset  uintptr
+	kind    reflect.Kind
+	rtype   *rtype
+	rtypPtr *rtype
 }
 
 //Pointer return  field pointer (structPtr + field.Offset)
