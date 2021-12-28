@@ -17,6 +17,11 @@ func (t *Type) Type() reflect.Type {
 	return t.typ
 }
 
+//Interface returns an interface for the pointer
+func (t *Type) Interface(ptr unsafe.Pointer) interface{} {
+	return asInterface(ptr, t.rtype, true)
+}
+
 //Deref dereference pointer
 func (t *Type) Deref(val interface{}) interface{} {
 	ptr := AsPointer(val)

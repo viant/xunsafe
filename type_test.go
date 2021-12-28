@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
+	"unsafe"
 )
 
 func TestType_Type(t *testing.T) {
@@ -61,6 +62,8 @@ func TestType_Type(t *testing.T) {
 		assert.EqualValues(t, testCase.value, value.Elem().Interface(), testCase.description)
 		deref := aType.Deref(ptr)
 		assert.EqualValues(t, testCase.value, deref, testCase.description)
+		iFace := aType.Interface(unsafe.Pointer(value.Elem().UnsafeAddr()))
+		assert.EqualValues(t, iFace, deref)
 	}
 
 }
