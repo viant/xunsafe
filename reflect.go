@@ -39,18 +39,6 @@ import (
 //flag copied from reflect pacakge
 type flag uintptr
 
-const (
-	flagKindWidth        = 5 // there are 27 kinds
-	flagKindMask    flag = 1<<flagKindWidth - 1
-	flagStickyRO    flag = 1 << 5
-	flagEmbedRO     flag = 1 << 6
-	flagIndir       flag = 1 << 7
-	flagAddr        flag = 1 << 8
-	flagMethod      flag = 1 << 9
-	flagMethodShift      = 10
-	flagRO          flag = flagStickyRO | flagEmbedRO
-)
-
 //rtype copied from reflect package
 type rtype struct {
 	size       uintptr
@@ -78,8 +66,6 @@ func (t *rtype) Kind() reflect.Kind { return reflect.Kind(t.kind & kindMask) }
 
 func (t *rtype) pointers() bool { return t.ptrdata != 0 }
 
-func (t *rtype) common() *rtype { return t }
-
 //emptyInterface copied from reflect package
 type emptyInterface struct {
 	typ  *rtype
@@ -93,7 +79,8 @@ type value struct {
 	flag flag
 }
 
-func valuePointer(v *reflect.Value) unsafe.Pointer {
+//ValuePointer returns value pointer
+func ValuePointer(v *reflect.Value) unsafe.Pointer {
 	return (*value)(unsafe.Pointer(v)).ptr
 }
 

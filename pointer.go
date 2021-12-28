@@ -13,11 +13,11 @@ func EnsurePointer(src interface{}) unsafe.Pointer {
 	case reflect.UnsafePointer:
 		return src.(unsafe.Pointer)
 	case reflect.Ptr:
-		return valuePointer(&value)
+		return ValuePointer(&value)
 	default:
 		newPtr := reflect.New(value.Type())
 		newPtr.Elem().Set(value)
-		return valuePointer(&newPtr)
+		return ValuePointer(&newPtr)
 	}
 }
 
