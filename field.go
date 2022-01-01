@@ -25,11 +25,7 @@ func (f *Field) Pointer(structPtr unsafe.Pointer) unsafe.Pointer {
 //SafePointer returns field pointer, if field pointer is a pointer this method initialises that pointer
 func (f *Field) SafePointer(structPtr unsafe.Pointer) unsafe.Pointer {
 	if f.kind == reflect.Ptr {
-		ptr := (*unsafe.Pointer)(f.Pointer(structPtr))
-		if *ptr == nil {
-			var newPointer unsafe.Pointer
-			*ptr = unsafe.Pointer(&newPointer)
-		}
+		EnsureAddressPointer(f.Pointer(structPtr))
 	}
 	return f.Pointer(structPtr)
 }

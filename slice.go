@@ -139,9 +139,7 @@ func (a *Appender) Append(items ...interface{}) {
 loop2:
 	sourcePtr := AsPointer(items[i])
 	ptr := a.slice.IndexAt(a.ptr, uintptr(a.size))
-	var newPtr unsafe.Pointer
-	itemPtr := (*unsafe.Pointer)(ptr)
-	*itemPtr = unsafe.Pointer(&newPtr)
+	EnsureAddressPointer(ptr)
 	*(*unsafe.Pointer)(DerefPointer(ptr)) = *(*unsafe.Pointer)(sourcePtr)
 	a.size++
 	i++
@@ -162,9 +160,7 @@ func (a *Appender) Add() interface{} {
 		a.header.Len = a.size
 		return asInterface(ptr, a.slice.rtypePtr, false)
 	}
-	var newPtr unsafe.Pointer
-	itemPtr := (*unsafe.Pointer)(ptr)
-	*itemPtr = unsafe.Pointer(&newPtr)
+	itemPtr := EnsureAddressPointer(ptr)
 	a.size++
 	a.header.Len = a.size
 	return asInterface(*itemPtr, a.slice.rtype, false)

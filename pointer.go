@@ -31,3 +31,14 @@ func AsPointer(v interface{}) unsafe.Pointer {
 	empty := (*emptyInterface)(unsafe.Pointer(&v))
 	return empty.word
 }
+
+//EnsureAddressPointer ensure that address pointer is not nil, ptr has to be address pointer
+func EnsureAddressPointer(addrPtr unsafe.Pointer) *unsafe.Pointer {
+	itemPtr := (*unsafe.Pointer)(addrPtr)
+	if *itemPtr != nil {
+		return itemPtr
+	}
+	var newPtr unsafe.Pointer
+	*itemPtr = unsafe.Pointer(&newPtr)
+	return itemPtr
+}
