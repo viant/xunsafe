@@ -2,31 +2,30 @@ package xunsafe
 
 import (
 	"reflect"
-	"strings"
 )
 
 type (
 
 	//Struct represents a struct
 	Struct struct {
-		Field []Field
+		Fields []Field
 	}
 
 	//Matcher represents a field matcher
 	Matcher struct {
-		fuzzy bool
+		keyFn func(string) string
 		index map[string]*Field
 	}
 )
 
-func (s *Struct) Matcher(fuzzy bool) *Matcher {
+//Matcher creates a filed matched for supplied key Fn
+func (s *Struct) Matcher(keyFn func(string) string) *Matcher {
 	var matcher = Matcher{
-		fuzzy: fuzzy,
-		index: make(map[string]*Field, len(s.Field)),
+		index: make(map[string]*Field, len(s.Fields)),
 	}
-	for i := range s.Field {
-		field := &s.Field[i]
-		matcher.index[matcher.key(field.Name)] = field
+	for i := range s.Fields {
+		field := &s.Fields[i]
+		matcher.index[keyFn(field.Name)] = field
 	}
 	return &matcher
 }
@@ -37,22 +36,15 @@ func NewStruct(sType reflect.Type) *Struct {
 		sType = sType.Elem()
 	}
 	result := &Struct{
-		Field: make([]Field, sType.NumField()),
+		Fields: make([]Field, sType.NumField()),
 	}
 	for i := 0; i < sType.NumField(); i++ {
-		result.Field[i] = *NewField(sType.Field(i))
+		result.Fields[i] = *NewField(sType.Field(i))
 	}
 	return result
 }
 
 //Match matches field with name
 func (s *Matcher) Match(name string) *Field {
-	return s.index[s.key(name)]
-}
-
-func (s *Matcher) key(name string) string {
-	if !s.fuzzy {
-		return name
-	}
-	return strings.Replace(strings.ToLower(name), "_", "", strings.Count(name, "_"))
+	return s.index[s.keyFn(name)]
 }
