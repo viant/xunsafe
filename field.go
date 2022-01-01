@@ -9,10 +9,12 @@ import (
 type Field struct {
 	Name string
 	reflect.Type
-	offset  uintptr
-	kind    reflect.Kind
-	rtype   *rtype
-	rtypPtr *rtype
+	Tag       reflect.StructTag
+	Anonymous bool
+	offset    uintptr
+	kind      reflect.Kind
+	rtype     *rtype
+	rtypPtr   *rtype
 }
 
 //Pointer return  field pointer (structPtr + field.Offset)
@@ -62,10 +64,12 @@ func (f *Field) initType() {
 func NewField(field reflect.StructField) *Field {
 	fieldType := field.Type
 	f := &Field{
-		Name:   field.Name,
-		Type:   fieldType,
-		offset: field.Offset,
-		kind:   fieldType.Kind(),
+		Name:      field.Name,
+		Type:      fieldType,
+		Tag:       field.Tag,
+		Anonymous: field.Anonymous,
+		offset:    field.Offset,
+		kind:      fieldType.Kind(),
 	}
 	f.initType()
 	return f
