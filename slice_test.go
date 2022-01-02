@@ -86,6 +86,152 @@ func TestSlice_Range(t *testing.T) {
 
 }
 
+func TestSlice_ValueAt(t *testing.T) {
+	type Foo struct {
+		ID   int
+		Name string
+	}
+
+	ID := FieldByName(reflect.TypeOf(Foo{}), "ID")
+	Name := FieldByName(reflect.TypeOf(Foo{}), "Name")
+
+	var testCases = []struct {
+		description string
+		field       *Field
+		source      interface{}
+		expect      interface{}
+	}{
+		{
+			description: "slice",
+			field:       ID,
+			source: []Foo{
+				{
+					ID:   1,
+					Name: "abc",
+				},
+				{
+					ID:   12,
+					Name: "xyz",
+				},
+			},
+			expect: []interface{}{1, 12},
+		},
+		{
+			description: "slice item pointer",
+			field:       Name,
+			source: []*Foo{
+				{
+					ID:   1,
+					Name: "abc",
+				},
+				{
+					ID:   12,
+					Name: "xyz",
+				},
+			},
+			expect: []interface{}{"abc", "xyz"},
+		},
+		{
+			description: "primitive slice",
+			field:       nil,
+			source: []string{
+				"abc",
+				"xyz",
+				"zzz",
+			},
+			expect: []interface{}{"abc",
+				"xyz",
+				"zzz"},
+		},
+	}
+
+	for _, testCase := range testCases {
+		aSlice := NewSlice(reflect.TypeOf(testCase.source))
+		holderAddr := EnsurePointer(testCase.source)
+		actual := make([]interface{}, 0)
+
+		for i := 0; i < aSlice.Len(holderAddr); i++ {
+			item := aSlice.ValueAt(holderAddr, i)
+			if testCase.field == nil {
+				actual = append(actual, item)
+				continue
+			}
+			val := testCase.field.Interface(AsPointer(item))
+			actual = append(actual, val)
+		}
+		assert.EqualValues(t, testCase.expect, actual)
+
+	}
+
+}
+
+func TestSlice_ValuePointerAt(t *testing.T) {
+	type Foo struct {
+		ID   int
+		Name string
+	}
+
+	ID := FieldByName(reflect.TypeOf(Foo{}), "ID")
+	Name := FieldByName(reflect.TypeOf(Foo{}), "Name")
+
+	var testCases = []struct {
+		description string
+		field       *Field
+		source      interface{}
+		expect      interface{}
+	}{
+		{
+			description: "slice",
+			field:       ID,
+			source: []Foo{
+				{
+					ID:   1,
+					Name: "abc",
+				},
+				{
+					ID:   12,
+					Name: "xyz",
+				},
+			},
+			expect: []interface{}{1, 12},
+		},
+		{
+			description: "slice item pointer",
+			field:       Name,
+			source: []*Foo{
+				{
+					ID:   1,
+					Name: "abc",
+				},
+				{
+					ID:   12,
+					Name: "xyz",
+				},
+			},
+			expect: []interface{}{"abc", "xyz"},
+		},
+	}
+
+	for _, testCase := range testCases {
+		aSlice := NewSlice(reflect.TypeOf(testCase.source))
+		holderAddr := EnsurePointer(testCase.source)
+		actual := make([]interface{}, 0)
+
+		for i := 0; i < aSlice.Len(holderAddr); i++ {
+			item := aSlice.ValuePointerAt(holderAddr, i)
+			if testCase.field == nil {
+				actual = append(actual, item)
+				continue
+			}
+			val := testCase.field.Interface(AsPointer(item))
+			actual = append(actual, val)
+		}
+		assert.EqualValues(t, testCase.expect, actual)
+
+	}
+
+}
+
 func TestSlice_Appender(t *testing.T) {
 	type Foo struct {
 		ID   int
@@ -237,7 +383,7 @@ func BenchmarkSlice_Index_Xunsafe(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < sliceSize; j++ {
-			val := aSlice.IndexAt(ptr, j).(*int)
+			val := aSlice.AddrAt(ptr, j).(*int)
 			if *val != j {
 				b.Fail()
 			}

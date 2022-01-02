@@ -29,8 +29,8 @@ type (
 	}
 )
 
-//AddrAt return slice item pointer for supplied index
-func (s *Slice) AddrAt(sliceAddr unsafe.Pointer, index uintptr) unsafe.Pointer {
+//PointerAt return slice item pointer for supplied index
+func (s *Slice) PointerAt(sliceAddr unsafe.Pointer, index uintptr) unsafe.Pointer {
 	header := (*reflect.SliceHeader)(sliceAddr)
 	return unsafe.Add(unsafe.Pointer(header.Data), index*s.itemSize)
 }
@@ -47,18 +47,28 @@ func (s *Slice) Cap(slicePtr unsafe.Pointer) int {
 	return header.Cap
 }
 
-//Index return slice item
-func (s *Slice) Index(slicePtr unsafe.Pointer, index int) interface{} {
-	p := s.AddrAt(slicePtr, uintptr(index))
+//ValuePointerAt return value pointer *T, for both []T and []*T slice definition
+func (s *Slice) ValuePointerAt(slicePtr unsafe.Pointer, index int) interface{} {
+	p := s.PointerAt(slicePtr, uintptr(index))
+	if s.isPointer {
+		p = DerefPointer(p)
+		return asInterface(p, s.rtype, false)
+	}
+	return asInterface(p, s.rtypePtr, false)
+}
+
+//ValueAt return slice item for supplied index
+func (s *Slice) ValueAt(slicePtr unsafe.Pointer, index int) interface{} {
+	p := s.PointerAt(slicePtr, uintptr(index))
 	if s.isPointer {
 		p = DerefPointer(p)
 	}
 	return asInterface(p, s.rtype, false)
 }
 
-//IndexAt return slice item at position
-func (s *Slice) IndexAt(slicePtr unsafe.Pointer, index int) interface{} {
-	return asInterface(s.AddrAt(slicePtr, uintptr(index)), s.rtypePtr, false)
+//AddrAt return slice item addr for supplied index
+func (s *Slice) AddrAt(slicePtr unsafe.Pointer, index int) interface{} {
+	return asInterface(s.PointerAt(slicePtr, uintptr(index)), s.rtypePtr, false)
 }
 
 //Range call visit callback for each slice element , to terminate visit should return false
@@ -67,7 +77,7 @@ func (s *Slice) IndexAt(slicePtr unsafe.Pointer, index int) interface{} {
 func (s *Slice) Range(slicePtr unsafe.Pointer, visit func(index int, item interface{}) bool) {
 	header := *(*reflect.SliceHeader)(slicePtr)
 	for i := 0; i < header.Len; i++ {
-		val := s.Index(slicePtr, i)
+		val := s.ValueAt(slicePtr, i)
 		if !visit(i, val) {
 			return
 		}
@@ -137,7 +147,7 @@ func (a *Appender) Append(items ...interface{}) {
 	if a.slice.useItemAddr {
 	loop1:
 		sourcePtr := AsPointer(items[i])
-		ptr := a.slice.AddrAt(a.ptr, uintptr(a.size))
+		ptr := a.slice.PointerAt(a.ptr, uintptr(a.size))
 		*(*unsafe.Pointer)(ptr) = *(*unsafe.Pointer)(sourcePtr)
 		a.size++
 		i++
@@ -149,7 +159,7 @@ func (a *Appender) Append(items ...interface{}) {
 	}
 loop2:
 	sourcePtr := AsPointer(items[i])
-	ptr := a.slice.AddrAt(a.ptr, uintptr(a.size))
+	ptr := a.slice.PointerAt(a.ptr, uintptr(a.size))
 	EnsureAddressPointer(ptr)
 	*(*unsafe.Pointer)(DerefPointer(ptr)) = *(*unsafe.Pointer)(sourcePtr)
 	a.size++
@@ -165,7 +175,7 @@ func (a *Appender) Add() interface{} {
 	if a.cap < a.size+1 {
 		a.grow(1)
 	}
-	ptr := a.slice.AddrAt(a.ptr, uintptr(a.size))
+	ptr := a.slice.PointerAt(a.ptr, uintptr(a.size))
 	if a.slice.useItemAddr {
 		a.size++
 		a.header.Len = a.size
