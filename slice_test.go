@@ -237,7 +237,7 @@ func BenchmarkSlice_Index_Xunsafe(b *testing.B) {
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < sliceSize; j++ {
-			val := aSlice.Addr(ptr, j).(*int)
+			val := aSlice.IndexAt(ptr, j).(*int)
 			if *val != j {
 				b.Fail()
 			}
