@@ -11,7 +11,7 @@ type Field struct {
 	reflect.Type
 	Tag       reflect.StructTag
 	Anonymous bool
-	offset    uintptr
+	Offset    uintptr
 	kind      reflect.Kind
 	rtype     *rtype
 	rtypPtr   *rtype
@@ -19,7 +19,7 @@ type Field struct {
 
 //Pointer return  field pointer (structPtr + field.Offset)
 func (f *Field) Pointer(structPtr unsafe.Pointer) unsafe.Pointer {
-	return unsafe.Pointer(uintptr(structPtr) + f.offset)
+	return unsafe.Pointer(uintptr(structPtr) + f.Offset)
 }
 
 //SafePointer returns field pointer, if field pointer is a pointer this method initialises that pointer
@@ -64,7 +64,7 @@ func NewField(field reflect.StructField) *Field {
 		Type:      fieldType,
 		Tag:       field.Tag,
 		Anonymous: field.Anonymous,
-		offset:    field.Offset,
+		Offset:    field.Offset,
 		kind:      fieldType.Kind(),
 	}
 	f.initType()
