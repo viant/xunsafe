@@ -25,6 +25,20 @@ func (f *Field) IntPtr(structPtr unsafe.Pointer) *int {
 	return *result
 }
 
+//Error cast field pointer to error
+func (f *Field) Error(structPtr unsafe.Pointer) error {
+	return AsError(f.Pointer(structPtr))
+}
+
+//ErrorPtr cast field pointer to *error
+func (f *Field) ErrorPtr(structPtr unsafe.Pointer) *error {
+	result := AsErrorAddrPtr(f.Pointer(structPtr))
+	if result == nil {
+		return nil
+	}
+	return *result
+}
+
 //IntAddr cast field pointer to **int
 func (f *Field) IntAddr(structPtr unsafe.Pointer) *int {
 	return AsIntPtr(f.Pointer(structPtr))

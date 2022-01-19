@@ -11,6 +11,21 @@ var (
 	typeTimePtr = reflect.TypeOf(&time.Time{})
 )
 
+//AsError casts pointer to error
+func AsError(pointer unsafe.Pointer) error {
+	return *(*error)(pointer)
+}
+
+//AsErrorPtr casts pointer to *error
+func AsErrorPtr(pointer unsafe.Pointer) *error {
+	return (*error)(pointer)
+}
+
+//AsErrorAddrPtr casts pointer to **error
+func AsErrorAddrPtr(pointer unsafe.Pointer) **error {
+	return (**error)(pointer)
+}
+
 //AsInt casts pointer to int
 func AsInt(pointer unsafe.Pointer) int {
 	return *(*int)(pointer)

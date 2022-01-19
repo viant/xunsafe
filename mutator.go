@@ -6,6 +6,11 @@ import (
 	"unsafe"
 )
 
+//SetError sets field error
+func (f *Field) SetError(structPtr unsafe.Pointer, val error) {
+	*AsErrorPtr(f.Pointer(structPtr)) = val
+}
+
 //SetInt sets field int
 func (f *Field) SetInt(structPtr unsafe.Pointer, val int) {
 	*AsIntPtr(f.Pointer(structPtr)) = val
