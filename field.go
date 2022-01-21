@@ -22,6 +22,15 @@ func (f *Field) Pointer(structPtr unsafe.Pointer) unsafe.Pointer {
 	return unsafe.Pointer(uintptr(structPtr) + f.Offset)
 }
 
+//ValuePointer return pointer to T, if value is as *T, this method would dereference it
+func (f *Field) ValuePointer(structPtr unsafe.Pointer) unsafe.Pointer {
+	ret := unsafe.Pointer(uintptr(structPtr) + f.Offset)
+	if f.kind == reflect.Ptr {
+		ret = DerefPointer(ret)
+	}
+	return ret
+}
+
 //SafePointer returns field pointer, if field pointer is a pointer this method initialises that pointer
 func (f *Field) SafePointer(structPtr unsafe.Pointer) unsafe.Pointer {
 	if f.kind == reflect.Ptr {
