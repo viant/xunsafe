@@ -251,20 +251,27 @@ func TestSlice_Appender(t *testing.T) {
 
 func TestSlice_AppenderAdd(t *testing.T) {
 	type Foo struct {
-		ID   int
-		Name string
+		ID    int
+		Price float64
+		Name  string
 	}
+
 	aSlice := NewSlice(reflect.TypeOf([]*Foo{}))
+	foosLen := 20
 	var foos []*Foo
 	appender := aSlice.Appender(unsafe.Pointer(&foos))
-	for i := 0; i < 20; i++ {
+
+	for i := 0; i < foosLen; i++ {
 		fooPtr, ok := appender.Add().(*Foo)
 		assert.True(t, ok)
-		*fooPtr = Foo{ID: i}
+		foo := Foo{ID: i, Price: float64(i), Name: "foo name"}
+		*fooPtr = foo
 	}
-	assert.EqualValues(t, 20, len(foos))
-	for i := 0; i < 20; i++ {
+	assert.EqualValues(t, foosLen, len(foos))
+	for i := 0; i < foosLen; i++ {
 		assert.EqualValues(t, i, foos[i].ID)
+		assert.EqualValues(t, float64(i), foos[i].Price)
+		assert.EqualValues(t, "foo name", foos[i].Name)
 	}
 }
 
