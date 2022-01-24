@@ -196,6 +196,9 @@ func (f *Field) SetValue(structPtr unsafe.Pointer, source interface{}) {
 	case reflect.Func:
 		addr := f.Addr(f.Pointer(structPtr))
 		reflect.ValueOf(addr).Elem().Set(reflect.ValueOf(source))
+	case reflect.Interface:
+		newAt := reflect.NewAt(f.Type, f.Pointer(structPtr))
+		newAt.Elem().Set(reflect.ValueOf(source))
 	default:
 		*(*unsafe.Pointer)(ptr) = *(*unsafe.Pointer)(AsPointer(source))
 	}

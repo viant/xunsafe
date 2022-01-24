@@ -181,6 +181,10 @@ func (a *Appender) Add() interface{} {
 		a.header.Len = a.size
 		return asInterface(ptr, a.slice.rtypePtr, false)
 	}
+	if a.slice.isPointer {
+		nPtr := reflect.New(a.itemType.Elem())
+		*(*unsafe.Pointer)(ptr) = unsafe.Pointer(nPtr.Pointer())
+	}
 	itemPtr := EnsureAddressPointer(ptr)
 	a.size++
 	a.header.Len = a.size
