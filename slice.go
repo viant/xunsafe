@@ -160,6 +160,10 @@ func (a *Appender) Append(items ...interface{}) {
 loop2:
 	sourcePtr := AsPointer(items[i])
 	ptr := a.slice.PointerAt(a.ptr, uintptr(a.size))
+	if a.slice.isPointer {
+		nPtr := reflect.New(a.itemType.Elem())
+		*(*unsafe.Pointer)(ptr) = unsafe.Pointer(nPtr.Pointer())
+	}
 	EnsureAddressPointer(ptr)
 	*(*unsafe.Pointer)(DerefPointer(ptr)) = *(*unsafe.Pointer)(sourcePtr)
 	a.size++
