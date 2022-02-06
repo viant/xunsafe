@@ -24,11 +24,8 @@ func TestIf(t *testing.T) {
 	v := reflect.New(bt).Interface()
 	ptr := unsafe.Pointer(f)
 	x.Fields[0].SetValue(ptr, v)
-	fmt.Printf("%v %v %v\n", ptr, f.Bar, v)
 	f.Bar.ID = 123
 
-	ll := x.Fields[0].Value(ptr)
-	fmt.Printf("%T %v\n", ll, ll)
 }
 
 func TestField_Accessor(t *testing.T) {
