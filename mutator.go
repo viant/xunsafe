@@ -203,21 +203,22 @@ func (f *Field) SetValue(structPtr unsafe.Pointer, source interface{}) {
 	case reflect.Struct:
 		srcPtr := AsPointer(source)
 		destPtr := f.Pointer(structPtr)
+		Copy(destPtr, srcPtr, int(f.Type.Size()))
 
-		for i := 0; i < f.Type.NumField(); i++ {
-			field := f.Type.Field(i)
-			fSrcPtr := unsafe.Pointer(uintptr(srcPtr) + field.Offset)
-			fDstPtr := unsafe.Pointer(uintptr(destPtr) + field.Offset)
-			switch field.Type.Kind() {
-			case reflect.String:
-				*(*string)(fDstPtr) = *(*string)(fSrcPtr)
-			case reflect.Ptr, reflect.Struct, reflect.Slice:
-				srcValue := reflect.NewAt(f.Type, fSrcPtr)
-				NewField(field).SetValue(fDstPtr, srcValue)
-			default:
-				*(*unsafe.Pointer)(fDstPtr) = *(*unsafe.Pointer)(fSrcPtr)
-			}
-		}
+		//for i := 0; i < f.Type.NumField(); i++ {
+		//	field := f.Type.Field(i)
+		//	fSrcPtr := unsafe.Pointer(uintptr(srcPtr) + field.Offset)
+		//	fDstPtr := unsafe.Pointer(uintptr(destPtr) + field.Offset)
+		//	switch field.Type.Kind() {
+		//	case reflect.String:
+		//		*(*string)(fDstPtr) = *(*string)(fSrcPtr)
+		//	case reflect.Ptr, reflect.Struct, reflect.Slice:
+		//		srcValue := reflect.NewAt(f.Type, fSrcPtr)
+		//		NewField(field).SetValue(fDstPtr, srcValue)
+		//	default:
+		//		*(*unsafe.Pointer)(fDstPtr) = *(*unsafe.Pointer)(fSrcPtr)
+		//	}
+	//	}
 	case reflect.Slice:
 		sourceHeader := (*reflect.SliceHeader)(AsPointer(source))
 		destHader := (*reflect.SliceHeader)(ptr)

@@ -50,3 +50,21 @@ func EnsureAddressPointer(addrPtr unsafe.Pointer) *unsafe.Pointer {
 	*itemPtr = unsafe.Pointer(&newPtr)
 	return itemPtr
 }
+
+const n = 8192
+
+//Copy k bytes from src to dest
+func Copy(dest, src unsafe.Pointer, k int) {
+	bsLen := k
+	chunks := bsLen / n
+	offset := uintptr(0)
+	for i := 0; i < chunks; i++ {
+		copy((*(*[n]byte)(unsafe.Pointer(uintptr(dest) + offset)))[:n], (*(*[n]byte)(unsafe.Pointer(uintptr(src) + offset)))[:n])
+		offset += n
+	}
+	limit := bsLen % n
+	if limit == 0 {
+		return
+	}
+	copy((*(*[n]byte)(unsafe.Pointer(uintptr(dest) + offset)))[:limit], (*(*[n]byte)(unsafe.Pointer(uintptr(src) + offset)))[:limit])
+}
