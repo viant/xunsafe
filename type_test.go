@@ -2,19 +2,22 @@ package xunsafe
 
 import (
 	"github.com/stretchr/testify/assert"
+	"io"
 	"reflect"
 	"testing"
 	"unsafe"
 )
 
 func TestType_Type(t *testing.T) {
-
+	var e error
+	e = io.EOF
 	var z = 0
 	type Foo struct {
 		Name string
 		ID   int
 	}
 
+	var foo = &Foo{Name: "abc"}
 	var testCases = []struct {
 		description string
 		value       interface{}
@@ -22,6 +25,10 @@ func TestType_Type(t *testing.T) {
 		{
 			description: "int",
 			value:       100,
+		},
+		{
+			description: "**Foo",
+			value:       &foo,
 		},
 		{
 			description: "string",
@@ -51,6 +58,10 @@ func TestType_Type(t *testing.T) {
 		{
 			description: "*int",
 			value:       &z,
+		},
+		{
+			description: "error",
+			value:       e,
 		},
 	}
 

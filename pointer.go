@@ -21,9 +21,17 @@ func EnsurePointer(src interface{}) unsafe.Pointer {
 	}
 }
 
-//DerefPointer returns deref pointer
+//DerefPointer returns deref pointer (**T -> *T)
 func DerefPointer(pointer unsafe.Pointer) unsafe.Pointer {
 	return *(*unsafe.Pointer)(pointer)
+}
+
+//RefPointer returns reference to the pointer (*T -> **T)
+func RefPointer(pointer unsafe.Pointer) unsafe.Pointer {
+	var newPtr unsafe.Pointer
+	updated := unsafe.Pointer(&newPtr)
+	*(*unsafe.Pointer)(updated) = pointer
+	return updated
 }
 
 //AsPointer returns a  pointer for an empty interface
