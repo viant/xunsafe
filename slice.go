@@ -60,9 +60,6 @@ func (s *Slice) ValuePointerAt(slicePtr unsafe.Pointer, index int) interface{} {
 //ValueAt return slice item for supplied index
 func (s *Slice) ValueAt(slicePtr unsafe.Pointer, index int) interface{} {
 	p := s.PointerAt(slicePtr, uintptr(index))
-	if s.isPointer {
-		p = DerefPointer(p)
-	}
 	return asInterface(p, s.rtype, false)
 }
 
