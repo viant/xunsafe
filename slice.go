@@ -20,7 +20,7 @@ type (
 	//Appender represents a slice appender
 	Appender struct {
 		cap          int
-		size         int
+		len          int
 		slice        *Slice
 		header       *reflect.SliceHeader
 		reflectSlice reflect.Value
@@ -88,6 +88,8 @@ func (s *Slice) Appender(slicePointer unsafe.Pointer) *Appender {
 		header:   header,
 		ptr:      slicePointer,
 		itemType: s.Type.Elem(),
+		cap:      header.Cap,
+		len:      header.Len,
 	}
 }
 
@@ -136,7 +138,7 @@ func (s *Slice) applyOptions(options []interface{}) {
 //Append appends items to a slice
 func (a *Appender) Append(items ...interface{}) {
 	itemLen := len(items)
-	if a.cap < a.size+itemLen {
+	if a.cap < a.len+itemLen {
 		a.grow(itemLen)
 	}
 	i := 0
@@ -144,37 +146,37 @@ func (a *Appender) Append(items ...interface{}) {
 	if a.slice.useItemAddr {
 	loop1:
 		sourcePtr := AsPointer(items[i])
-		ptr := a.slice.PointerAt(a.ptr, uintptr(a.size))
+		ptr := a.slice.PointerAt(a.ptr, uintptr(a.len))
 		*(*unsafe.Pointer)(ptr) = *(*unsafe.Pointer)(sourcePtr)
-		a.size++
+		a.len++
 		i++
 		if i < itemLen {
 			goto loop1
 		}
-		a.header.Len = a.size
+		a.header.Len = a.len
 		return
 	}
 loop2:
 	sourcePtr := AsPointer(items[i])
-	ptr := a.slice.PointerAt(a.ptr, uintptr(a.size))
+	ptr := a.slice.PointerAt(a.ptr, uintptr(a.len))
 	*(*unsafe.Pointer)(ptr) = sourcePtr
-	a.size++
+	a.len++
 	i++
 	if i < itemLen {
 		goto loop2
 	}
-	a.header.Len = a.size
+	a.header.Len = a.len
 }
 
 //Add grows slice by 1 and returns item pointer (see UseItemAddrOpt)
 func (a *Appender) Add() interface{} {
-	if a.cap < a.size+1 {
+	if a.cap < a.len+1 {
 		a.grow(1)
 	}
-	ptr := a.slice.PointerAt(a.ptr, uintptr(a.size))
+	ptr := a.slice.PointerAt(a.ptr, uintptr(a.len))
 	if a.slice.useItemAddr {
-		a.size++
-		a.header.Len = a.size
+		a.len++
+		a.header.Len = a.len
 		return asInterface(ptr, a.slice.rtypePtr, false)
 	}
 	if a.slice.isPointer {
@@ -182,8 +184,8 @@ func (a *Appender) Add() interface{} {
 		*(*unsafe.Pointer)(ptr) = unsafe.Pointer(nPtr.Pointer())
 	}
 	itemPtr := EnsureAddressPointer(ptr)
-	a.size++
-	a.header.Len = a.size
+	a.len++
+	a.header.Len = a.len
 	return asInterface(*itemPtr, a.slice.rtype, false)
 }
 

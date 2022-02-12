@@ -266,9 +266,14 @@ func TestSlice_AppenderAdd(t *testing.T) {
 	for i := 0; i < foosLen; i++ {
 		fooPtr, ok := appender.Add().(*Foo)
 		assert.True(t, ok)
-		foo := Foo{ID: i, Price: float64(i), Name: "foo name"}
-		*fooPtr = foo
+		//foo := Foo{ID: i, Price: float64(i), Name: "foo name"}
+		//*fooPtr = foo
+		fooPtr.ID = 1
+		fooPtr.Price = float64(i)
+		fooPtr.Name = "foo name"
 	}
+
+	fmt.Printf("%v\n", foos)
 	assert.EqualValues(t, foosLen, len(foos))
 	for i := 0; i < foosLen; i++ {
 		assert.EqualValues(t, i, foos[i].ID)
