@@ -238,15 +238,16 @@ func TestSlice_Appender(t *testing.T) {
 		Name string
 	}
 	aSlice := NewSlice(reflect.TypeOf([]*Foo{}))
-	var foos []*Foo
+	var foos = []*Foo{&Foo{ID: 111, Name: "tesst"}}
 	appender := aSlice.Appender(unsafe.Pointer(&foos))
+
 	for i := 0; i < 20; i++ {
 		fooPtr := &Foo{ID: i, Name: "foo"}
 		appender.Append(fooPtr)
 	}
-	assert.EqualValues(t, 20, len(foos))
-	for i := 0; i < 20; i++ {
-		assert.EqualValues(t, i, foos[i].ID)
+	assert.EqualValues(t, 21, len(foos))
+	for i := 1; i < 21; i++ {
+		assert.EqualValues(t, i-1, foos[i].ID)
 		assert.EqualValues(t, "foo", foos[i].Name)
 	}
 }

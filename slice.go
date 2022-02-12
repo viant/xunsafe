@@ -84,13 +84,19 @@ func (s *Slice) Range(slicePtr unsafe.Pointer, visit func(index int, item interf
 //Appender returns a slice appender
 func (s *Slice) Appender(slicePointer unsafe.Pointer) *Appender {
 	header := (*reflect.SliceHeader)(slicePointer)
-	return &Appender{slice: s,
+	result := &Appender{slice: s,
 		header:   header,
 		ptr:      slicePointer,
 		itemType: s.Type.Elem(),
 		cap:      header.Cap,
 		len:      header.Len,
 	}
+
+	if result.cap > 0 {
+		result.reflectSlice = reflect.NewAt(s.Type, slicePointer).Elem()
+	}
+
+	return result
 }
 
 func (s *Slice) initTypes() {
