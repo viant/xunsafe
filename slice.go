@@ -153,7 +153,11 @@ func (a *Appender) Append(items ...interface{}) {
 	loop1:
 		sourcePtr := AsPointer(items[i])
 		ptr := a.slice.PointerAt(a.ptr, uintptr(a.len))
-		*(*unsafe.Pointer)(ptr) = *(*unsafe.Pointer)(sourcePtr)
+		if !a.slice.isPointer {
+			Copy(ptr, sourcePtr, int(a.itemType.Size()))
+		} else {
+			*(*unsafe.Pointer)(ptr) = *(*unsafe.Pointer)(sourcePtr)
+		}
 		a.len++
 		i++
 		if i < itemLen {

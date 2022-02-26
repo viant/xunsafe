@@ -298,6 +298,18 @@ func TestAppender_Append(t *testing.T) {
 	}{
 
 		{
+			description: "[]Foo",
+			itemType:    reflect.TypeOf(Foo{}),
+			setter: func(ptr interface{}, val int) {
+				item := ptr.(*Foo)
+				item.Name = fmt.Sprintf("name: %v", val)
+			},
+			expect: []interface{}{
+				Foo{Name: "name: 0"},
+				Foo{Name: "name: 1"},
+			},
+		},
+		{
 			description: "[]int",
 			itemType:    reflect.TypeOf(0),
 			setter: func(ptr interface{}, val int) {
@@ -315,22 +327,7 @@ func TestAppender_Append(t *testing.T) {
 			},
 			expect: []interface{}{ptrTo(0), ptrTo(1), ptrTo(2), ptrTo(3), ptrTo(4), ptrTo(5), ptrTo(6), ptrTo(7), ptrTo(8), ptrTo(9)},
 		},
-		{
-			description: "[]Foo",
-			itemType:    reflect.TypeOf(Foo{}),
-			setter: func(ptr interface{}, val int) {
-				item := ptr.(*Foo)
-				item.ID = val
-			},
-			expect: []interface{}{
-				Foo{ID: 0},
-				Foo{ID: 1},
-				Foo{ID: 2},
-				Foo{ID: 3},
-				Foo{ID: 4},
-				Foo{ID: 5},
-			},
-		},
+
 		{
 			description: "[]*Foo",
 			itemType:    reflect.TypeOf(&Foo{}),
