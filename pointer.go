@@ -54,6 +54,7 @@ func EnsureAddressPointer(addrPtr unsafe.Pointer) *unsafe.Pointer {
 const n = 8192
 
 //Copy k bytes from src to dest
+//go:nocheckptr
 func Copy(dest, src unsafe.Pointer, k int) {
 	bsLen := k
 	chunks := bsLen / n
