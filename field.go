@@ -12,6 +12,7 @@ type Field struct {
 	Tag       reflect.StructTag
 	Anonymous bool
 	Offset    uintptr
+	Index     uint16
 	kind      reflect.Kind
 	rtype     *rtype
 	rtypPtr   *rtype
@@ -75,6 +76,9 @@ func NewField(field reflect.StructField) *Field {
 		Anonymous: field.Anonymous,
 		Offset:    field.Offset,
 		kind:      fieldType.Kind(),
+	}
+	if len(field.Index) > 0 {
+		f.Index = uint16(field.Index[0])
 	}
 	f.initType()
 	return f
