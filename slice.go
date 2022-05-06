@@ -32,7 +32,8 @@ type (
 //PointerAt return slice item pointer for supplied index
 func (s *Slice) PointerAt(sliceAddr unsafe.Pointer, index uintptr) unsafe.Pointer {
 	header := (*reflect.SliceHeader)(sliceAddr)
-	return unsafe.Add(unsafe.Pointer(header.Data), index*s.itemSize)
+	return unsafe.Pointer(uintptr(unsafe.Pointer(header.Data)) + index*s.itemSize)
+	//	return unsafe.Add(unsafe.Pointer(header.Data), index*s.itemSize)
 }
 
 //Len return slice length
