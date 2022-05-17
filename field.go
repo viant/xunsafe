@@ -16,6 +16,7 @@ type Field struct {
 	kind      reflect.Kind
 	rtype     *rtype
 	rtypPtr   *rtype
+	iface     bool
 }
 
 //Pointer return  field pointer (structPtr + field.Offset)
@@ -58,6 +59,8 @@ func (f *Field) EnsurePointer(structPtr unsafe.Pointer) unsafe.Pointer {
 
 func (f *Field) initType() {
 	fType := f.Type
+	f.iface = f.Type.Kind() == reflect.Interface
+
 	ptrValue := reflect.New(fType)
 	ptrElemValue := ptrValue.Elem()
 	valPtr := ptrValue.Interface()

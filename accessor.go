@@ -7,8 +7,12 @@ import (
 
 //Interface cast field pointer to value
 func (f *Field) Interface(structPtr unsafe.Pointer) interface{} {
+	ptr := f.Pointer(structPtr)
+	if f.iface {
+		return *(*interface{})(ptr)
+	}
 	//return reflect.NewAt(f.Type, f.Ref(structPtr)).Elem().Interface()
-	return asInterface(f.Pointer(structPtr), f.rtype, true)
+	return asInterface(ptr, f.rtype, true)
 }
 
 //Int cast field pointer to int

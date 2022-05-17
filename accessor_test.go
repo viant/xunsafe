@@ -54,14 +54,15 @@ func TestField_Accessor(t *testing.T) {
 		F64 float64
 		F32 float32
 
-		B    bool
-		S    string
-		Bs   []byte
-		T    time.Time
-		Bars []Bar
-		Foo  *Foo
-		F2   *Foo
-		Fn   func()
+		B         bool
+		S         string
+		Bs        []byte
+		T         time.Time
+		Bars      []Bar
+		Foo       *Foo
+		F2        *Foo
+		Fn        func()
+		Interface interface{}
 	}
 
 	type Struct2 struct {
@@ -115,6 +116,7 @@ func TestField_Accessor(t *testing.T) {
 		Fn: func() {
 
 		},
+		Interface: &Foo{ID: 1},
 	}
 
 	aStruct2 := &Struct2{
@@ -144,6 +146,11 @@ func TestField_Accessor(t *testing.T) {
 		expect      interface{}
 		name        string
 	}{
+		{
+			description: "interface",
+			expect:      aStruct1.Interface,
+			name:        "Interface",
+		},
 		{
 			description: "function",
 			expect:      aStruct1.Fn,
