@@ -171,7 +171,7 @@ func (f *Field) SetTimePtr(structPtr unsafe.Pointer, val *time.Time) {
 	*AsTimeAddrPtr(f.Pointer(structPtr)) = val
 }
 
-//SetInterface set field interface{}
+//SetInterface set field interface{}, only support empty interfaces
 func (f *Field) SetInterface(structPtr unsafe.Pointer, val interface{}) {
 	*(*interface{})(f.Pointer(structPtr)) = val
 }

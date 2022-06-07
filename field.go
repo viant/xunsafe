@@ -5,6 +5,15 @@ import (
 	"unsafe"
 )
 
+//ptrKind defines generic ptr handling kind
+type ptrKind byte
+
+const (
+	ptrKindEmptyInterface = ptrKind(iota)
+	ptrKindInterface
+	ptrKindMethodInterface
+)
+
 //Field represents a field
 type Field struct {
 	Name string
@@ -16,7 +25,7 @@ type Field struct {
 	kind      reflect.Kind
 	rtype     *rtype
 	rtypPtr   *rtype
-	iface     bool
+	ptrKind
 }
 
 //Pointer return  field pointer (structPtr + field.Offset)
@@ -59,8 +68,14 @@ func (f *Field) EnsurePointer(structPtr unsafe.Pointer) unsafe.Pointer {
 
 func (f *Field) initType() {
 	fType := f.Type
-	f.iface = f.Type.Kind() == reflect.Interface
-
+	f.ptrKind = ptrKindEmptyInterface
+	if f.Type.Kind() == reflect.Interface {
+		if f.Type.NumMethod() == 0 {
+			f.ptrKind = ptrKindInterface
+		} else {
+			f.ptrKind = ptrKindMethodInterface
+		}
+	}
 	ptrValue := reflect.New(fType)
 	ptrElemValue := ptrValue.Elem()
 	valPtr := ptrValue.Interface()
