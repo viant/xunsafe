@@ -65,6 +65,20 @@ func TestSlice_Range(t *testing.T) {
 				"xyz",
 				"zzz"},
 		},
+		{
+			description: "iface slice",
+			field:       nil,
+			source: []interface{}{
+				"abc",
+				1,
+				true,
+			},
+			expect: []interface{}{
+				"abc",
+				1,
+				true,
+			},
+		},
 	}
 
 	for _, testCase := range testCases {
@@ -80,10 +94,9 @@ func TestSlice_Range(t *testing.T) {
 			actual = append(actual, val)
 			return true
 		})
-
-		assert.EqualValues(t, testCase.expect, actual)
+		fmt.Printf("%v\n", testCase.description)
+		assert.EqualValues(t, testCase.expect, actual, testCase.description)
 	}
-
 }
 
 func TestSlice_ValueAt(t *testing.T) {
@@ -91,7 +104,6 @@ func TestSlice_ValueAt(t *testing.T) {
 		ID   int
 		Name string
 	}
-
 	ID := FieldByName(reflect.TypeOf(Foo{}), "ID")
 	Name := FieldByName(reflect.TypeOf(Foo{}), "Name")
 
@@ -170,7 +182,6 @@ func TestSlice_ValuePointerAt(t *testing.T) {
 		ID   int
 		Name string
 	}
-
 	ID := FieldByName(reflect.TypeOf(Foo{}), "ID")
 	Name := FieldByName(reflect.TypeOf(Foo{}), "Name")
 
@@ -258,7 +269,6 @@ func TestSlice_AppenderAdd(t *testing.T) {
 		Price float64
 		Name  string
 	}
-
 	aSlice := NewSlice(reflect.TypeOf([]*Foo{}))
 	foosLen := 20
 	var foos []*Foo
@@ -267,14 +277,11 @@ func TestSlice_AppenderAdd(t *testing.T) {
 	for i := 0; i < foosLen; i++ {
 		fooPtr, ok := appender.Add().(*Foo)
 		assert.True(t, ok)
-		//foo := Foo{ID: i, Price: float64(i), Name: "foo name"}
-		//*fooPtr = foo
-		fooPtr.ID = 1
+		fooPtr.ID = i
 		fooPtr.Price = float64(i)
 		fooPtr.Name = "foo name"
 	}
 
-	fmt.Printf("%v\n", foos)
 	assert.EqualValues(t, foosLen, len(foos))
 	for i := 0; i < foosLen; i++ {
 		assert.EqualValues(t, i, foos[i].ID)
@@ -284,7 +291,6 @@ func TestSlice_AppenderAdd(t *testing.T) {
 }
 
 func TestAppender_Append(t *testing.T) {
-
 	type Foo struct {
 		ID   int
 		Name string

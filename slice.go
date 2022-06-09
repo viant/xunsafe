@@ -13,9 +13,10 @@ type (
 		isPointer   bool
 		useItemAddr bool //useItemAddr flag instructs implementation to use item address as **T for []*T or *T for []T
 		//otherwise item would use *T for a slice defined as []T or []*T,
-		itemSize uintptr
-		rtype    *rtype
-		rtypePtr *rtype
+		itemSize     uintptr
+		rtype        *rtype
+		rtypePtr     *rtype
+		itemIterface bool
 	}
 	//Appender represents a slice appender
 	Appender struct {
@@ -51,6 +52,9 @@ func (s *Slice) Cap(slicePtr unsafe.Pointer) int {
 //ValuePointerAt return value pointer *T, for both []T and []*T slice definition
 func (s *Slice) ValuePointerAt(slicePtr unsafe.Pointer, index int) interface{} {
 	p := s.PointerAt(slicePtr, uintptr(index))
+	if s.rtype == nil {
+		return reflect.NewAt(s.Type.Elem(), p).Elem().Addr().Interface()
+	}
 	if s.isPointer {
 		p = DerefPointer(p)
 		return asInterface(p, s.rtype, false)
@@ -61,7 +65,14 @@ func (s *Slice) ValuePointerAt(slicePtr unsafe.Pointer, index int) interface{} {
 //ValueAt return slice item for supplied index
 func (s *Slice) ValueAt(slicePtr unsafe.Pointer, index int) interface{} {
 	p := s.PointerAt(slicePtr, uintptr(index))
-	return asInterface(p, s.rtype, false)
+	if s.itemIterface {
+		return reflect.NewAt(s.Type.Elem(), p).Elem().Interface()
+	}
+	if !s.useItemAddr && s.isPointer {
+		p = DerefPointer(p)
+	}
+	v := asInterface(p, s.rtype, false)
+	return v
 }
 
 //AddrAt return slice item addr for supplied index
@@ -123,9 +134,11 @@ func NewSlice(sliceType reflect.Type, options ...interface{}) *Slice {
 	}
 	itemType := sliceType.Elem()
 	result := &Slice{
-		Type:     sliceType,
-		itemSize: itemType.Size(),
+		Type:         sliceType,
+		itemSize:     itemType.Size(),
+		itemIterface: itemType.Kind() == reflect.Interface,
 	}
+
 	result.applyOptions(options)
 	result.initTypes()
 	return result
