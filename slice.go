@@ -228,3 +228,12 @@ func (a *Appender) grow(by int) {
 	a.header.Cap = cap
 	a.cap = cap
 }
+
+//Trunc truncates a slice to provided size, if size grater than len return error
+func (a *Appender) Trunc(size int) error {
+	if size >= a.header.Len {
+		return fmt.Errorf("invalid trunc size: %v, len : %v", size, a.header.Len)
+	}
+	a.header.Len = size
+	return nil
+}
