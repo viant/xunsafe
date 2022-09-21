@@ -20,13 +20,14 @@ type (
 	}
 	//Appender represents a slice appender
 	Appender struct {
-		cap          int
-		len          int
-		slice        *Slice
-		header       *reflect.SliceHeader
-		reflectSlice reflect.Value
-		itemType     reflect.Type
-		ptr          unsafe.Pointer
+		cap             int
+		len             int
+		slice           *Slice
+		header          *reflect.SliceHeader
+		reflectSlicePtr reflect.Value
+		reflectSlice    reflect.Value
+		itemType        reflect.Type
+		ptr             unsafe.Pointer
 	}
 )
 
@@ -97,17 +98,16 @@ func (s *Slice) Range(slicePtr unsafe.Pointer, visit func(index int, item interf
 func (s *Slice) Appender(slicePointer unsafe.Pointer) *Appender {
 	header := (*reflect.SliceHeader)(slicePointer)
 	result := &Appender{slice: s,
-		header:   header,
-		ptr:      slicePointer,
-		itemType: s.Type.Elem(),
-		cap:      header.Cap,
-		len:      header.Len,
+		header:          header,
+		ptr:             slicePointer,
+		itemType:        s.Type.Elem(),
+		cap:             header.Cap,
+		len:             header.Len,
+		reflectSlicePtr: reflect.NewAt(s.Type, slicePointer),
 	}
-
 	if result.cap > 0 {
-		result.reflectSlice = reflect.NewAt(s.Type, slicePointer).Elem()
+		result.reflectSlice = result.reflectSlicePtr.Elem()
 	}
-
 	return result
 }
 
@@ -230,7 +230,9 @@ func (a *Appender) grow(by int) {
 	if a.cap > 0 {
 		reflect.Copy(newSlice, a.reflectSlice)
 	}
+
 	a.reflectSlice = newSlice
+	a.reflectSlicePtr.Elem().Set(a.reflectSlice)
 	a.header.Data = newSlice.Pointer()
 	a.header.Len = cap
 	a.header.Cap = cap
