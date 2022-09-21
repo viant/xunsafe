@@ -186,7 +186,11 @@ func (a *Appender) Append(items ...interface{}) {
 	}
 loop2:
 	sourcePtr := AsPointer(items[i])
+	index := uintptr(a.len)
 	ptr := a.slice.PointerAt(a.ptr, uintptr(a.len))
+	if (*unsafe.Pointer)(ptr) == nil {
+		panic(fmt.Sprintf("pointer was nil, header:  %+v, idx: %v", a.header, index))
+	}
 	*(*unsafe.Pointer)(ptr) = sourcePtr
 	a.len++
 	i++
