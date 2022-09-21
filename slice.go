@@ -166,10 +166,14 @@ func (a *Appender) Append(items ...interface{}) {
 	if a.slice.useItemAddr {
 	loop1:
 		sourcePtr := AsPointer(items[i])
-		ptr := a.slice.PointerAt(a.ptr, uintptr(a.len))
+		index := uintptr(a.len)
+		ptr := a.slice.PointerAt(a.ptr, index)
 		if !a.slice.isPointer {
 			Copy(ptr, sourcePtr, int(a.itemType.Size()))
 		} else {
+			if (*unsafe.Pointer)(ptr) == nil {
+				panic(fmt.Sprintf("pointer was nil, header:  %+v, idx: %v", a.header, index))
+			}
 			*(*unsafe.Pointer)(ptr) = *(*unsafe.Pointer)(sourcePtr)
 		}
 		a.len++
