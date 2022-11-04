@@ -225,6 +225,11 @@ func (f *Field) SetValue(structPtr unsafe.Pointer, source interface{}) {
 		destHader.Data = sourceHeader.Data
 		destHader.Len = sourceHeader.Len
 		destHader.Cap = sourceHeader.Cap
+	case reflect.Map:
+		newAt := reflect.NewAt(f.Type, ptr)
+		value := reflect.ValueOf(source)
+		newAt.Elem().Set(value)
+
 	default:
 		*(*unsafe.Pointer)(ptr) = *(*unsafe.Pointer)(AsPointer(source))
 	}
