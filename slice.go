@@ -245,5 +245,6 @@ func (a *Appender) Trunc(size int) error {
 		return fmt.Errorf("invalid trunc size: %v, len : %v", size, a.header.Len)
 	}
 	a.header.Len = size
+	a.len = size
 	return nil
 }
