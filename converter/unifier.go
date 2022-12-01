@@ -2,14 +2,18 @@ package converter
 
 import (
 	"reflect"
-	"unsafe"
+	"time"
 )
 
 type Unified struct {
-	X     func(pointer unsafe.Pointer) unsafe.Pointer
-	Y     func(pointer unsafe.Pointer) unsafe.Pointer
+	X     UnifyFn
+	Y     UnifyFn
 	RType reflect.Type
 }
+
+var timeType = reflect.TypeOf(time.Time{})
+var intType = reflect.TypeOf(0)
+var float64Type = reflect.TypeOf(0.0)
 
 func NormalizeAndUnify(x, y reflect.Type) (*Unified, error) {
 	if x == y {
@@ -22,52 +26,11 @@ func NormalizeAndUnify(x, y reflect.Type) (*Unified, error) {
 	}
 
 	resultType := NormalizeType(toType)
-	return unify(x, y, resultType)
+	return newUnifier(x, y, resultType)
 }
 
 func Unify(x, y reflect.Type) (*Unified, error) {
-	return unify(x, y, x)
-}
-
-func unify(x reflect.Type, y reflect.Type, resultType reflect.Type) (*Unified, error) {
-	xNormalizer, err := normalizeTo(x, resultType)
-	if err != nil {
-		return nil, err
-	}
-
-	yNormalizer, err := normalizeTo(y, resultType)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Unified{
-		X:     xNormalizer,
-		Y:     yNormalizer,
-		RType: resultType,
-	}, nil
-}
-
-func normalizeTo(from reflect.Type, to reflect.Type) (func(pointer unsafe.Pointer) unsafe.Pointer, error) {
-	if from == to {
-		return func(pointer unsafe.Pointer) unsafe.Pointer {
-			return pointer
-		}, nil
-	}
-
-	switch to.Kind() {
-	case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return ToIntPtr(from)
-	case reflect.Float64, reflect.Float32:
-		return ToFloat64Ptr(from)
-	case reflect.String:
-		return ToStringPtr(from)
-	default:
-		if to == timeType {
-			return ToTimePtr(to)
-		}
-
-		return nil, nil
-	}
+	return newUnifier(x, y, x)
 }
 
 func NormalizeType(from reflect.Type) reflect.Type {
