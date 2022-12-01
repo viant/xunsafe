@@ -116,6 +116,14 @@ func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
 				return unsafe.Pointer(&aString), nil
 			}
 			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+		case reflect.Bool:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				anInt := int(*(*uint)(pointer))
+				aBool := anInt != 0
+				return unsafe.Pointer(&aBool), nil
+			}
+
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
 		}
 
 	case reflect.Int, reflect.Int64:
@@ -189,8 +197,16 @@ func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
 				aString := strconv.Itoa(anInt)
 				return unsafe.Pointer(&aString), nil
 			}
-			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
 
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+		case reflect.Bool:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				anInt := *(*int)(pointer)
+				aBool := anInt != 0
+				return unsafe.Pointer(&aBool), nil
+			}
+
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
 		}
 
 	case reflect.Uint8:
@@ -266,6 +282,15 @@ func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
 				anInt := int(*(*uint8)(pointer))
 				aString := strconv.Itoa(anInt)
 				return unsafe.Pointer(&aString), nil
+			}
+
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
+		case reflect.Bool:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				anInt := *(*uint8)(pointer)
+				aBool := anInt != 0
+				return unsafe.Pointer(&aBool), nil
 			}
 
 			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
@@ -349,6 +374,15 @@ func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
 			}
 
 			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
+		case reflect.Bool:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				anInt := *(*int8)(pointer)
+				aBool := anInt != 0
+				return unsafe.Pointer(&aBool), nil
+			}
+
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
 		}
 
 	case reflect.Uint16:
@@ -425,6 +459,15 @@ func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
 				anInt := int(*(*uint16)(pointer))
 				aString := strconv.Itoa(anInt)
 				return unsafe.Pointer(&aString), nil
+			}
+
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
+		case reflect.Bool:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				anInt := *(*uint16)(pointer)
+				aBool := anInt != 0
+				return unsafe.Pointer(&aBool), nil
 			}
 
 			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
@@ -507,6 +550,15 @@ func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
 			}
 
 			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
+		case reflect.Bool:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				anInt := *(*int16)(pointer)
+				aBool := anInt != 0
+				return unsafe.Pointer(&aBool), nil
+			}
+
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
 		}
 
 	case reflect.Uint32:
@@ -582,6 +634,15 @@ func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
 				anInt := int(*(*uint32)(pointer))
 				aString := strconv.Itoa(anInt)
 				return unsafe.Pointer(&aString), nil
+			}
+
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
+		case reflect.Bool:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				anInt := *(*uint32)(pointer)
+				aBool := anInt != 0
+				return unsafe.Pointer(&aBool), nil
 			}
 
 			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
@@ -663,6 +724,15 @@ func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
 			}
 
 			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
+		case reflect.Bool:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				anInt := *(*int32)(pointer)
+				aBool := anInt != 0
+				return unsafe.Pointer(&aBool), nil
+			}
+
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
 		}
 
 	case reflect.Float64:
@@ -738,6 +808,15 @@ func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
 				aFloat := *(*float64)(pointer)
 				aString := strconv.FormatFloat(aFloat, 'f', -1, 32)
 				return unsafe.Pointer(&aString), nil
+			}
+
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
+		case reflect.Bool:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				anInt := *(*float64)(pointer)
+				aBool := anInt != 0
+				return unsafe.Pointer(&aBool), nil
 			}
 
 			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
@@ -817,6 +896,15 @@ func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
 				aFloat := float64(*(*float32)(pointer))
 				aString := strconv.FormatFloat(aFloat, 'f', -1, 32)
 				return unsafe.Pointer(&aString), nil
+			}
+
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
+		case reflect.Bool:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				anInt := *(*float32)(pointer)
+				aBool := anInt != 0
+				return unsafe.Pointer(&aBool), nil
 			}
 
 			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
@@ -972,6 +1060,86 @@ func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
 
 	case reflect.Bool:
 		switch to.Kind() {
+		case reflect.Int64, reflect.Int:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				if *(*bool)(pointer) {
+					return intOnePtr, nil
+				}
+
+				return intZeroPtr, nil
+			}
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
+		case reflect.Uint64, reflect.Uint:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				if *(*bool)(pointer) {
+					return uintOnePtr, nil
+				}
+
+				return uintZeroPtr, nil
+			}
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
+		case reflect.Int32:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				if *(*bool)(pointer) {
+					return int32OnePtr, nil
+				}
+
+				return int32ZeroPtr, nil
+			}
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
+		case reflect.Uint32:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				if *(*bool)(pointer) {
+					return uint32OnePtr, nil
+				}
+
+				return uint32ZeroPtr, nil
+			}
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
+		case reflect.Uint16:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				if *(*bool)(pointer) {
+					return uint16OnePtr, nil
+				}
+
+				return uint16ZeroPtr, nil
+			}
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
+		case reflect.Int16:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				if *(*bool)(pointer) {
+					return int16OnePtr, nil
+				}
+
+				return int16ZeroPtr, nil
+			}
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
+		case reflect.Int8:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				if *(*bool)(pointer) {
+					return int8OnePtr, nil
+				}
+
+				return int8ZeroPtr, nil
+			}
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
+		case reflect.Uint8:
+			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
+				if *(*bool)(pointer) {
+					return uint8OnePtr, nil
+				}
+
+				return uint8ZeroPtr, nil
+			}
+			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, fn)
+
 		case reflect.Bool:
 			return wrapWithDeref(x, fromPtrCounter, to, resultTypeCounter, nil)
 

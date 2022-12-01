@@ -57,10 +57,40 @@ func TestUnifier(t *testing.T) {
 				return *(**uint64)(pointer)
 			},
 		},
+		{
+			description: "int -> bool | false",
+			fromType:    reflect.TypeOf(int64(0)),
+			toType:      reflect.TypeOf(true),
+			actual:      int64(0),
+			expected:    false,
+			interfacer: func(pointer unsafe.Pointer) interface{} {
+				return *(*bool)(pointer)
+			},
+		},
+		{
+			description: "int -> bool | true",
+			fromType:    reflect.TypeOf(int64(10)),
+			toType:      reflect.TypeOf(true),
+			actual:      int64(10),
+			expected:    true,
+			interfacer: func(pointer unsafe.Pointer) interface{} {
+				return *(*bool)(pointer)
+			},
+		},
+		{
+			description: "bool -> int | 0",
+			fromType:    reflect.TypeOf(true),
+			toType:      reflect.TypeOf(int64(10)),
+			actual:      false,
+			expected:    0,
+			interfacer: func(pointer unsafe.Pointer) interface{} {
+				return *(*int)(pointer)
+			},
+		},
 	}
 
-	for _, testCase := range testCases[len(testCases)-1:] {
-		//for _, testCase := range testCases {
+	//for _, testCase := range testCases[len(testCases)-1:] {
+	for _, testCase := range testCases {
 		unified, err := Unify(testCase.toType, testCase.fromType)
 		if !assert.Nil(t, err, testCase.description) {
 			continue
@@ -82,10 +112,6 @@ func TestUnifier(t *testing.T) {
 func uint64Ptr(i int) *uint64 {
 	asUint := uint64(i)
 	return &asUint
-}
-
-func intPtr(i int) *int {
-	return &i
 }
 
 func stringPtr(i string) *string {
