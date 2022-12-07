@@ -8,6 +8,59 @@ import (
 	"unsafe"
 )
 
+func TestDerefSafePointer(t *testing.T) {
+
+	type Bar struct {
+		Id   int
+		Name string
+		Flag *int
+	}
+	type Foo struct {
+		ID  int
+		Bar *Bar
+	}
+	foo := &Foo{}
+	foo2 := &Foo{Bar: &Bar{}}
+
+	var testCases = []struct {
+		description string
+		init        func() (unsafe.Pointer, reflect.Type)
+		validate    func(ptr unsafe.Pointer) bool
+	}{
+		{
+			description: "**Bar",
+			init: func() (unsafe.Pointer, reflect.Type) {
+				ptr := unsafe.Pointer(&foo.Bar)
+				return ptr, reflect.TypeOf(foo.Bar)
+			},
+			validate: func(ptr unsafe.Pointer) bool {
+				barRef := (*Bar)(ptr)
+				barRef.Name = "test"
+				return assert.EqualValues(t, foo.Bar.Name, barRef.Name)
+			},
+		},
+		{
+			description: "**int",
+			init: func() (unsafe.Pointer, reflect.Type) {
+				ptr := unsafe.Pointer(&foo2.Bar.Flag)
+				return ptr, reflect.TypeOf(foo2.Bar.Flag)
+			},
+			validate: func(ptr unsafe.Pointer) bool {
+				barRef := (*int)(ptr)
+				*barRef = 123
+				return assert.EqualValues(t, *foo2.Bar.Flag, *barRef)
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		p, pType := testCase.init()
+		actual := DerefSafePointer(p, pType)
+		assert.True(t, testCase.validate(actual), testCase.description)
+	}
+
+}
+
 func TesAsPointer(t *testing.T) {
 	k := 10
 	l := 20
