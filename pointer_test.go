@@ -55,7 +55,7 @@ func TestDerefSafePointer(t *testing.T) {
 
 	for _, testCase := range testCases {
 		p, pType := testCase.init()
-		actual := DerefSafePointer(p, pType)
+		actual := SafeDerefPointer(p, pType)
 		assert.True(t, testCase.validate(actual), testCase.description)
 	}
 

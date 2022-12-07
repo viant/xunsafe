@@ -21,8 +21,8 @@ func EnsurePointer(src interface{}) unsafe.Pointer {
 	}
 }
 
-//DerefSafePointer returns deref pointer (**T -> *T), pType has to be *T
-func DerefSafePointer(pointer unsafe.Pointer, pType reflect.Type) unsafe.Pointer {
+//SafeDerefPointer returns deref pointer (**T -> *T), pType has to be *T
+func SafeDerefPointer(pointer unsafe.Pointer, pType reflect.Type) unsafe.Pointer {
 	ptr := (*unsafe.Pointer)(pointer)
 	if *ptr == nil {
 		n := reflect.New(pType.Elem())
