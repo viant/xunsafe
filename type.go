@@ -25,6 +25,10 @@ func (t *Type) Kind() reflect.Kind {
 	return t.kind
 }
 
+func (t *Type) Value(ptr unsafe.Pointer, canDeref bool) (v interface{}) {
+	return asInterface(ptr, t.rtype, true)
+}
+
 //Interface returns an interface for the pointer
 func (t *Type) Interface(ptr unsafe.Pointer) (v interface{}) {
 	//if t.isError {
