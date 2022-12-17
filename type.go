@@ -30,13 +30,14 @@ func (t *Type) Interface(ptr unsafe.Pointer) (v interface{}) {
 	if t.isError {
 		return AsError(ptr)
 	}
-	empty := (*emptyInterface)(unsafe.Pointer(&v))
-	empty.word = ptr
-	if t.rtype.kind&kindDirectIface != 0 && t.flag&flagIndir != 0 {
-		empty.word = *(*unsafe.Pointer)(ptr)
-	}
-	empty.typ = t.rtype
-	return v
+	return asInterface(ptr, t.rtype, true)
+	//empty := (*emptyInterface)(unsafe.Pointer(&v))
+	//empty.word = ptr
+	//if t.rtype.kind&kindDirectIface != 0 && t.flag&flagIndir != 0 {
+	//	empty.word = *(*unsafe.Pointer)(ptr)
+	//}
+	//empty.typ = t.rtype
+	//return v
 }
 
 //Deref dereference pointer
