@@ -26,22 +26,12 @@ func (t *Type) Kind() reflect.Kind {
 }
 
 func (t *Type) Value(ptr unsafe.Pointer, canDeref bool) (v interface{}) {
-	return asInterface(ptr, t.rtype, true)
+	return asInterface(ptr, t.rtype, canDeref)
 }
 
 //Interface returns an interface for the pointer
 func (t *Type) Interface(ptr unsafe.Pointer) (v interface{}) {
-	//if t.isError {
-	//	return AsError(ptr)
-	//}
-	//return asInterface(ptr, t.rtype, true)
-	empty := (*emptyInterface)(unsafe.Pointer(&v))
-	empty.word = ptr
-	if t.flag&flagIndir != 0 {
-		empty.word = *(*unsafe.Pointer)(ptr)
-	}
-	empty.typ = t.rtype
-	return v
+	asInterface(ptr, t.rtype, true)
 }
 
 //Deref dereference pointer

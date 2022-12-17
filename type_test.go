@@ -82,3 +82,11 @@ func TestType_Type(t *testing.T) {
 	}
 
 }
+
+func TestType_Interface(t *testing.T) {
+	type Foo struct {
+		Id   int
+		Name string
+	}
+
+}
