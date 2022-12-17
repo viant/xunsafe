@@ -71,15 +71,12 @@ func NewType(t reflect.Type) *Type {
 	ptrElemValue := ptrValue.Elem()
 	valPtr := ptrValue.Interface()
 	val := ptrElemValue.Interface()
-	rType := ((*emptyInterface)(unsafe.Pointer(&val)))
-	flag := flag(rType.typ.kind)
 	result := &Type{
 		isError:  t.Name() == "error",
 		typ:      t,
 		kind:     t.Kind(),
 		rtypePtr: ((*emptyInterface)(unsafe.Pointer(&valPtr))).typ,
 		rtype:    ((*emptyInterface)(unsafe.Pointer(&val))).typ,
-		flag:     flag,
 	}
 	return result
 }
