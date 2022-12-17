@@ -5,7 +5,6 @@ import (
 	"io"
 	"reflect"
 	"testing"
-	"unsafe"
 )
 
 func TestType_Type(t *testing.T) {
@@ -66,15 +65,20 @@ func TestType_Type(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
+		if testCase.description != "*struct" {
+			continue
+		}
 		aType := NewType(reflect.TypeOf(testCase.value))
+
 		ptr := aType.Ref(testCase.value)
 		value := reflect.ValueOf(ptr)
+
 		assert.EqualValues(t, reflect.Ptr, value.Kind(), testCase.description)
 		assert.EqualValues(t, testCase.value, value.Elem().Interface(), testCase.description)
 		deref := aType.Deref(ptr)
 		assert.EqualValues(t, testCase.value, deref, testCase.description)
-		iFace := aType.Interface(unsafe.Pointer(value.Elem().UnsafeAddr()))
-		assert.EqualValues(t, iFace, deref)
+		iFace := aType.Interface(AsPointer(deref))
+		assert.EqualValues(t, iFace, deref, testCase.description)
 	}
 
 }

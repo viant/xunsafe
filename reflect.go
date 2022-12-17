@@ -85,9 +85,10 @@ func ValuePointer(v *reflect.Value) unsafe.Pointer {
 }
 
 const (
-	kindDirectIface = 1 << 5
-	kindGCProg      = 1 << 6 // Type.gc points to GC program
-	kindMask        = (1 << 5) - 1
+	kindDirectIface      = 1 << 5
+	kindGCProg           = 1 << 6 // Type.gc points to GC program
+	kindMask             = (1 << 5) - 1
+	flagIndir       flag = 1 << 7
 )
 
 //AsPointer returns a  pointer for an empty interface

@@ -12,7 +12,7 @@ type Type struct {
 	rtype    *rtype
 	rtypePtr *rtype
 	kind     reflect.Kind
-	canDeref bool
+	flag     flag
 }
 
 //Type returns reflect type
@@ -25,20 +25,18 @@ func (t *Type) Kind() reflect.Kind {
 	return t.kind
 }
 
-//Value returns an interface for the pointer
-func (t *Type) Value(ptr unsafe.Pointer, deref bool) interface{} {
-	if t.isError {
-		return AsError(ptr)
-	}
-	return asInterface(ptr, t.rtype, deref)
-}
-
 //Interface returns an interface for the pointer
-func (t *Type) Interface(ptr unsafe.Pointer) interface{} {
+func (t *Type) Interface(ptr unsafe.Pointer) (v interface{}) {
 	if t.isError {
 		return AsError(ptr)
 	}
-	return asInterface(ptr, t.rtype, true)
+	empty := (*emptyInterface)(unsafe.Pointer(&v))
+	empty.word = ptr
+	if t.rtype.kind&kindDirectIface != 0 && t.flag&flagIndir != 0 {
+		empty.word = *(*unsafe.Pointer)(ptr)
+	}
+	empty.typ = t.rtype
+	return v
 }
 
 //Deref dereference pointer
@@ -68,15 +66,16 @@ func NewType(t reflect.Type) *Type {
 	ptrElemValue := ptrValue.Elem()
 	valPtr := ptrValue.Interface()
 	val := ptrElemValue.Interface()
+	rType := ((*emptyInterface)(unsafe.Pointer(&val)))
 
-	canDeref := t.Kind() == reflect.Ptr && t.Elem().Kind() == reflect.Ptr
+	flag := flag(rType.typ.kind)
 	result := &Type{
 		isError:  t.Name() == "error",
 		typ:      t,
 		kind:     t.Kind(),
-		canDeref: canDeref,
 		rtypePtr: ((*emptyInterface)(unsafe.Pointer(&valPtr))).typ,
-		rtype:    ((*emptyInterface)(unsafe.Pointer(&val))).typ,
+		rtype:    rType.typ,
+		flag:     flag,
 	}
 	return result
 }
