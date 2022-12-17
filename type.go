@@ -38,7 +38,7 @@ func (t *Type) Interface(ptr unsafe.Pointer) interface{} {
 	if t.isError {
 		return AsError(ptr)
 	}
-	return asInterface(ptr, t.rtype, false)
+	return asInterface(ptr, t.rtype, true)
 }
 
 //Deref dereference pointer
