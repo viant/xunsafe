@@ -33,6 +33,14 @@ func (f *Field) Pointer(structPtr unsafe.Pointer) unsafe.Pointer {
 	return unsafe.Pointer(uintptr(structPtr) + f.Offset)
 }
 
+//IsNil returns nil if structPtr is nil or field value is nil
+func (f *Field) IsNil(structPtr unsafe.Pointer) bool {
+	if structPtr == nil {
+		return true
+	}
+	return *(*unsafe.Pointer)(f.Pointer(structPtr)) == nil
+}
+
 //ValuePointer return pointer to T, if value is as *T, this method would dereference it
 func (f *Field) ValuePointer(structPtr unsafe.Pointer) unsafe.Pointer {
 	ret := unsafe.Pointer(uintptr(structPtr) + f.Offset)
@@ -43,11 +51,16 @@ func (f *Field) ValuePointer(structPtr unsafe.Pointer) unsafe.Pointer {
 }
 
 //SafePointer returns field pointer, if field pointer is a pointer this method initialises that pointer
-func (f *Field) SafePointer(structPtr unsafe.Pointer) unsafe.Pointer {
+func (f *Field) SafePointer(structPtr unsafe.Pointer, target reflect.Type) unsafe.Pointer {
+	fieldPtr := f.Pointer(structPtr)
 	if f.kind == reflect.Ptr {
-		EnsureAddressPointer(f.Pointer(structPtr))
+		itemPtr := (*unsafe.Pointer)(fieldPtr)
+		if *itemPtr != nil {
+			return fieldPtr
+		}
+		EnsureAddressPointer(fieldPtr, f.Type)
 	}
-	return f.Pointer(structPtr)
+	return fieldPtr
 }
 
 //EnsurePointer initialises field type pointer if needed, and return filed type value pointer rather field pointer.

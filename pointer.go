@@ -52,12 +52,14 @@ func AsPointer(v interface{}) unsafe.Pointer {
 }
 
 //EnsureAddressPointer ensure that address pointer is not nil, ptr has to be address pointer
-func EnsureAddressPointer(addrPtr unsafe.Pointer) *unsafe.Pointer {
+func EnsureAddressPointer(addrPtr unsafe.Pointer, target reflect.Type) *unsafe.Pointer {
 	itemPtr := (*unsafe.Pointer)(addrPtr)
 	if *itemPtr != nil {
 		return itemPtr
 	}
-	var newPtr unsafe.Pointer
+
+	newValue := reflect.New(target)
+	newPtr := ValuePointer(&newValue)
 	*itemPtr = unsafe.Pointer(&newPtr)
 	return itemPtr
 }

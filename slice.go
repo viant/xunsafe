@@ -215,7 +215,7 @@ func (a *Appender) Add() interface{} {
 		nPtr := reflect.New(a.itemType.Elem())
 		*(*unsafe.Pointer)(ptr) = unsafe.Pointer(nPtr.Pointer())
 	}
-	itemPtr := EnsureAddressPointer(ptr)
+	itemPtr := EnsureAddressPointer(ptr, a.itemType)
 	a.len++
 	a.header.Len = a.len
 	return asInterface(*itemPtr, a.slice.rtype, false)
