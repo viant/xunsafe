@@ -201,13 +201,15 @@ func (f *Field) SetValue(structPtr unsafe.Pointer, source interface{}) {
 		value := reflect.ValueOf(source)
 		newAt.Elem().Set(value)
 	case reflect.Struct:
-		newAt := reflect.NewAt(f.Type, ptr)
-		value := reflect.ValueOf(source)
-		newAt.Elem().Set(value)
 
-		//srcPtr := AsPointer(source)
-		//destPtr := f.Pointer(structPtr)
-		//Copy(destPtr, srcPtr, int(f.Type.Size()))
+		srcPtr := AsPointer(source)
+		destPtr := f.Pointer(structPtr)
+		Copy(destPtr, srcPtr, int(f.Type.Size()))
+
+		//uncomment this to troubleshoot caller issue
+		//newAt := reflect.NewAt(f.Type, ptr)
+		//value := reflect.ValueOf(source)
+		//newAt.Elem().Set(value)
 
 		//for i := 0; i < f.Type.NumField(); i++ {
 		//	field := f.Type.Field(i)
