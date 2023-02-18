@@ -9,6 +9,11 @@ import (
 )
 
 func TestUnifier(t *testing.T) {
+	type Foo struct {
+		ID   int
+		Name string
+	}
+
 	testCases := []struct {
 		description string
 		fromType    reflect.Type
@@ -21,7 +26,7 @@ func TestUnifier(t *testing.T) {
 			description: "ref pointer value",
 			fromType:    reflect.PtrTo(reflect.TypeOf(0)),
 			toType:      reflect.TypeOf(0),
-			actual:      intPtr(10),
+			actual:      refPtr(intPtr(10)),
 			expected:    10,
 			interfacer: func(pointer unsafe.Pointer) interface{} {
 				return *(*int)(pointer)
@@ -87,6 +92,26 @@ func TestUnifier(t *testing.T) {
 				return *(*int)(pointer)
 			},
 		},
+		{
+			description: "bool -> int | 0",
+			fromType:    reflect.TypeOf(true),
+			toType:      reflect.TypeOf(int64(10)),
+			actual:      false,
+			expected:    0,
+			interfacer: func(pointer unsafe.Pointer) interface{} {
+				return *(*int)(pointer)
+			},
+		},
+		{
+			description: "null -> bool | false",
+			fromType:    reflect.TypeOf(&Foo{}),
+			toType:      reflect.TypeOf(false),
+			actual:      nil,
+			expected:    false,
+			interfacer: func(pointer unsafe.Pointer) interface{} {
+				return *(*bool)(pointer)
+			},
+		},
 	}
 
 	//for _, testCase := range testCases[len(testCases)-1:] {
@@ -116,4 +141,8 @@ func uint64Ptr(i int) *uint64 {
 
 func stringPtr(i string) *string {
 	return &i
+}
+
+func refPtr(value interface{}) interface{} {
+	return xunsafe.NewType(reflect.TypeOf(value)).Ref(value)
 }

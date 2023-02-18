@@ -376,6 +376,7 @@ func Benchmark_Mutator_Set_Xunsafe(b *testing.B) {
 		_mutNameField.Set(addr, name)
 		_mutValField.Set(addr, val)
 	}
+
 	assert.EqualValues(b, id, _mutBenchInstance.ID, id)
 	assert.EqualValues(b, name, _mutBenchInstance.Name, name)
 	assert.EqualValues(b, val, _mutBenchInstance.Val, val)
