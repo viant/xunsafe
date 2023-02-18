@@ -1,6 +1,7 @@
 package xunsafe
 
 import (
+	"fmt"
 	"reflect"
 	"time"
 	"unsafe"
@@ -180,6 +181,13 @@ func (f *Field) SetInterface(structPtr unsafe.Pointer, val interface{}) {
 //go:nocheckptr
 func (f *Field) SetValue(structPtr unsafe.Pointer, source interface{}) {
 	ptr := f.Pointer(structPtr)
+	if debugEnabled {
+		sourceType := reflect.TypeOf(source)
+		if f.Type != sourceType {
+			panic(fmt.Errorf("xunsafe.SetValue: types mismatch: wanted %v, got %v", f.Type.String(), sourceType.String()))
+		}
+	}
+
 	switch f.kind {
 	case reflect.String:
 		*(*string)(ptr) = source.(string)
@@ -262,6 +270,6 @@ func (f *Field) Set(structPtr unsafe.Pointer, source interface{}) {
 	case reflect.Ptr: //had to comment out this cast since this suppresses inlining
 		//*(*unsafe.Pointer)(ptr) = AsPointer(source)
 	default:
-		*(*unsafe.Pointer)(ptr) = *(*unsafe.Pointer)(AsPointer(source))
+		*(*unsafe.Pointer)(ptr) = *(*unsafe.Pointer)(asPointer(source))
 	}
 }

@@ -21,7 +21,7 @@ func TestIf(t *testing.T) {
 	f := &Foo{}
 	x := NewStruct(reflect.TypeOf(f))
 	bt := reflect.TypeOf(&Bar{})
-	v := reflect.New(bt).Interface()
+	v := reflect.New(bt.Elem()).Interface()
 	ptr := unsafe.Pointer(f)
 	x.Fields[0].SetValue(ptr, v)
 	f.Bar.ID = 123

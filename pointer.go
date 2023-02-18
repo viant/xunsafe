@@ -45,8 +45,26 @@ func RefPointer(pointer unsafe.Pointer) unsafe.Pointer {
 	return updated
 }
 
+type (
+	wrapper struct {
+		value interface{}
+	}
+)
+
 //AsPointer returns a  pointer for an empty interface
 func AsPointer(v interface{}) unsafe.Pointer {
+	empty := (*emptyInterface)(unsafe.Pointer(&v))
+	word := empty.word
+	//32 directIface flag
+	if empty.typ != nil && empty.typ.kind&32 == 32 && empty.typ.kind&byte(reflect.Struct) == 25 {
+		aValue := wrapper{value: v}
+		word = unsafe.Pointer(&aValue)
+	}
+
+	return word
+}
+
+func asPointer(v interface{}) unsafe.Pointer {
 	empty := (*emptyInterface)(unsafe.Pointer(&v))
 	return empty.word
 }
