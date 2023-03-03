@@ -1,4 +1,4 @@
-//go:build debug
+//go:build !debug
 
 package xunsafe
 
@@ -11,8 +11,6 @@ import (
 //its 20x faster than SetValue
 //go:nocheckptr
 func (f *Field) Set(structPtr unsafe.Pointer, source interface{}) {
-	f.MustBeAssignable(source)
-
 	ptr := f.Pointer(structPtr)
 	switch f.kind {
 	case reflect.String:
