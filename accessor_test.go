@@ -443,6 +443,26 @@ func TestField_Accessor(t *testing.T) {
 
 }
 
+func TestFuncAccessor(t *testing.T) {
+	type Foo struct {
+		ID           int
+		IntConverter func(int) string
+		Name         string
+	}
+
+	aFoo := &Foo{
+		ID: 125,
+		IntConverter: func(i int) string {
+			return "125"
+		},
+		Name: "a Foo",
+	}
+
+	field := FieldByName(reflect.TypeOf(Foo{}), "IntConverter")
+	funcValue := field.Value(unsafe.Pointer(aFoo)).(func(int) string)
+	assert.EqualValues(t, "125", funcValue(125))
+}
+
 type AccBenchStruct struct {
 	ID   int
 	Name string
