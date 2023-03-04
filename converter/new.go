@@ -1224,6 +1224,10 @@ func wrapWithDeref(from reflect.Type, fromCounter int, resultTypeCounter int, fn
 }
 
 func IsPrimitive(from reflect.Type) bool {
+	if from == nil {
+		return true
+	}
+
 	switch from.Kind() {
 	case reflect.Ptr, reflect.Struct, reflect.Slice, reflect.Map, reflect.Interface:
 		return false
