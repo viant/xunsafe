@@ -230,7 +230,7 @@ func (f *Field) SetValue(structPtr unsafe.Pointer, source interface{}) {
 	case reflect.Ptr:
 		*(*unsafe.Pointer)(ptr) = AsPointer(source)
 	case reflect.Func:
-		addr := f.Addr(ptr)
+		addr := f.Addr(structPtr)
 		reflect.ValueOf(addr).Elem().Set(reflect.ValueOf(source))
 	case reflect.Interface:
 		newAt := reflect.NewAt(f.Type, ptr)

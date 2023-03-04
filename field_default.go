@@ -1,4 +1,4 @@
-//go:build debug
+//go:build !debug
 
 package xunsafe
 
@@ -7,12 +7,12 @@ import (
 	"unsafe"
 )
 
+func (f *Field) MustBeAssignable(y interface{}) {}
+
 //Set sets only non pointer value, the reason for this limited functionality method is speed,
 //its 20x faster than SetValue
 //go:nocheckptr
 func (f *Field) Set(structPtr unsafe.Pointer, source interface{}) {
-	f.MustBeAssignable(source)
-
 	ptr := f.Pointer(structPtr)
 	switch f.kind {
 	case reflect.String:

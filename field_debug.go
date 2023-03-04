@@ -1,16 +1,33 @@
-//go:build !debug
+//go:build debug
 
 package xunsafe
 
 import (
+	"fmt"
 	"reflect"
 	"unsafe"
 )
+
+func (f *Field) MustBeAssignable(y interface{}) {
+	xType := f.Type
+	var yType reflect.Type
+	var ok bool
+	yType, ok = y.(reflect.Type)
+	if !ok {
+		yType = reflect.TypeOf(y)
+	}
+
+	if xType != yType && xType.Kind() != reflect.Interface {
+		panic(fmt.Errorf("xunsafe.SetValue: types mismatch: wanted %v, got %v", xType.String(), yType.String()))
+	}
+}
 
 //Set sets only non pointer value, the reason for this limited functionality method is speed,
 //its 20x faster than SetValue
 //go:nocheckptr
 func (f *Field) Set(structPtr unsafe.Pointer, source interface{}) {
+	f.MustBeAssignable(source)
+
 	ptr := f.Pointer(structPtr)
 	switch f.kind {
 	case reflect.String:
