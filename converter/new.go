@@ -1238,6 +1238,9 @@ func IsPrimitive(from reflect.Type) bool {
 
 func deref(rType reflect.Type) (reflect.Type, int) {
 	i := 0
+	if rType == nil {
+		return rType, 0
+	}
 	for rType.Kind() == reflect.Ptr {
 		rType = rType.Elem()
 		i++
