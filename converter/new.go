@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"fmt"
 	"github.com/viant/xunsafe"
 	"reflect"
 	"strconv"
@@ -41,6 +42,21 @@ func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
 	originalResult := to
 	x, fromPtrCounter := deref(x)
 	to, resultTypeCounter := deref(to)
+
+	defer func() {
+		if r := recover(); r != nil {
+			from := ""
+			if originalFrom != nil {
+				from = x.String()
+			}
+			to := ""
+			if originalResult != nil {
+				to = originalResult.String()
+			}
+			fmt.Printf("newUnifyFn fotm: %v, to: %v\n", from, to)
+			panic(r)
+		}
+	}()
 
 	switch x.Kind() {
 	case reflect.Uint, reflect.Uint64:
@@ -1245,6 +1261,5 @@ func deref(rType reflect.Type) (reflect.Type, int) {
 		rType = rType.Elem()
 		i++
 	}
-
 	return rType, i
 }
