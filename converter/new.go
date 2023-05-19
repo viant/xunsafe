@@ -34,7 +34,7 @@ func newUnifier(to reflect.Type, from reflect.Type, resultType reflect.Type) (*U
 }
 
 func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
-	if x == to || x == nil || y == nil {
+	if x == to || x == nil || to == nil {
 		return nil, nil
 	}
 
