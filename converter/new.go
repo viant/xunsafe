@@ -34,7 +34,7 @@ func newUnifier(to reflect.Type, from reflect.Type, resultType reflect.Type) (*U
 }
 
 func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
-	if x == to {
+	if x == to || x == nil || y == nil {
 		return nil, nil
 	}
 
@@ -53,7 +53,7 @@ func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
 			if originalResult != nil {
 				to = originalResult.String()
 			}
-			fmt.Printf("newUnifyFn fotm: %v, to: %v\n", from, to)
+			fmt.Printf("newUnifyFn from: %v, to: %v\n", from, to)
 			panic(r)
 		}
 	}()
