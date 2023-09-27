@@ -6,7 +6,7 @@ import (
 	"unsafe"
 )
 
-//Slice represents a slice
+// Slice represents a slice
 type (
 	Slice struct {
 		reflect.Type
@@ -17,6 +17,7 @@ type (
 		rtype        *rtype
 		rtypePtr     *rtype
 		itemIterface bool
+		elem         *Field
 	}
 	//Appender represents a slice appender
 	Appender struct {
@@ -31,26 +32,26 @@ type (
 	}
 )
 
-//PointerAt return slice item pointer for supplied index
+// PointerAt return slice item pointer for supplied index
 func (s *Slice) PointerAt(sliceAddr unsafe.Pointer, index uintptr) unsafe.Pointer {
 	header := (*reflect.SliceHeader)(sliceAddr)
 	return unsafe.Pointer(uintptr(unsafe.Pointer(header.Data)) + index*s.itemSize)
 	//	return unsafe.Add(unsafe.Pointer(header.Data), index*s.itemSize)
 }
 
-//Len return slice length
+// Len return slice length
 func (s *Slice) Len(slicePtr unsafe.Pointer) int {
 	header := *(*reflect.SliceHeader)(slicePtr)
 	return header.Len
 }
 
-//Cap return slice capacity
+// Cap return slice capacity
 func (s *Slice) Cap(slicePtr unsafe.Pointer) int {
 	header := *(*reflect.SliceHeader)(slicePtr)
 	return header.Cap
 }
 
-//ValuePointerAt return value pointer *T, for both []T and []*T slice definition
+// ValuePointerAt return value pointer *T, for both []T and []*T slice definition
 func (s *Slice) ValuePointerAt(slicePtr unsafe.Pointer, index int) interface{} {
 	p := s.PointerAt(slicePtr, uintptr(index))
 	if s.rtype == nil {
@@ -63,7 +64,7 @@ func (s *Slice) ValuePointerAt(slicePtr unsafe.Pointer, index int) interface{} {
 	return asInterface(p, s.rtypePtr, false)
 }
 
-//ValueAt return slice item for supplied index
+// ValueAt return slice item for supplied index
 func (s *Slice) ValueAt(slicePtr unsafe.Pointer, index int) interface{} {
 	p := s.PointerAt(slicePtr, uintptr(index))
 	if s.itemIterface {
@@ -76,14 +77,28 @@ func (s *Slice) ValueAt(slicePtr unsafe.Pointer, index int) interface{} {
 	return v
 }
 
-//AddrAt return slice item addr for supplied index
+func (s *Slice) SetValueAt(slicePtr unsafe.Pointer, index int, value interface{}) {
+	itemPtr := s.PointerAt(slicePtr, uintptr(index))
+	if s.itemIterface {
+		*(*interface{})(itemPtr) = value
+		return
+	}
+	if s.isPointer {
+		valuePtr := AsPointer(value)
+		*(*unsafe.Pointer)(itemPtr) = valuePtr
+		return
+	}
+	s.elem.SetValue(itemPtr, value)
+}
+
+// AddrAt return slice item addr for supplied index
 func (s *Slice) AddrAt(slicePtr unsafe.Pointer, index int) interface{} {
 	return asInterface(s.PointerAt(slicePtr, uintptr(index)), s.rtypePtr, false)
 }
 
-//Range call visit callback for each slice element , to terminate visit should return false
-//use useItemAddr would use item pointer as *T for a slice defined as []T or []*T,
-//otherwise for slice defined as []*T, item would get **T pointer
+// Range call visit callback for each slice element , to terminate visit should return false
+// use useItemAddr would use item pointer as *T for a slice defined as []T or []*T,
+// otherwise for slice defined as []*T, item would get **T pointer
 func (s *Slice) Range(slicePtr unsafe.Pointer, visit func(index int, item interface{}) bool) {
 	header := *(*reflect.SliceHeader)(slicePtr)
 	for i := 0; i < header.Len; i++ {
@@ -94,7 +109,7 @@ func (s *Slice) Range(slicePtr unsafe.Pointer, visit func(index int, item interf
 	}
 }
 
-//Appender returns a slice appender
+// Appender returns a slice appender
 func (s *Slice) Appender(slicePointer unsafe.Pointer) *Appender {
 	header := (*reflect.SliceHeader)(slicePointer)
 	result := &Appender{slice: s,
@@ -120,10 +135,10 @@ func (s *Slice) initTypes() {
 	s.rtypePtr = ((*emptyInterface)(unsafe.Pointer(&ptr))).typ
 }
 
-//UseItemAddrOpt option that instructs implementation to use item address as **T for []*T or *T for []T, otherwise *T would be used
+// UseItemAddrOpt option that instructs implementation to use item address as **T for []*T or *T for []T, otherwise *T would be used
 type UseItemAddrOpt bool
 
-//NewSlice creates  slice
+// NewSlice creates  slice
 func NewSlice(sliceType reflect.Type, options ...interface{}) *Slice {
 	switch sliceType.Kind() {
 	case reflect.Slice:
@@ -139,6 +154,7 @@ func NewSlice(sliceType reflect.Type, options ...interface{}) *Slice {
 		itemIterface: itemType.Kind() == reflect.Interface,
 	}
 
+	result.elem = &Field{Type: sliceType.Elem(), kind: sliceType.Elem().Kind()}
 	result.applyOptions(options)
 	result.initTypes()
 	return result
@@ -155,7 +171,7 @@ func (s *Slice) applyOptions(options []interface{}) {
 	}
 }
 
-//Append appends items to a slice
+// Append appends items to a slice
 func (a *Appender) Append(items ...interface{}) {
 	itemLen := len(items)
 	if a.cap < a.len+itemLen {
@@ -200,7 +216,7 @@ loop2:
 	a.header.Len = a.len
 }
 
-//Add grows slice by 1 and returns item pointer (see UseItemAddrOpt)
+// Add grows slice by 1 and returns item pointer (see UseItemAddrOpt)
 func (a *Appender) Add() interface{} {
 	if a.cap < a.len+1 {
 		a.grow(1)
@@ -239,7 +255,7 @@ func (a *Appender) grow(by int) {
 	a.cap = cap
 }
 
-//Trunc truncates a slice to provided size, if size grater than len return error
+// Trunc truncates a slice to provided size, if size grater than len return error
 func (a *Appender) Trunc(size int) error {
 	if size >= a.header.Len {
 		return fmt.Errorf("invalid trunc size: %v, len : %v", size, a.header.Len)
