@@ -1029,12 +1029,11 @@ func newUnifyFn(x reflect.Type, to reflect.Type) (UnifyFn, error) {
 		case reflect.Bool:
 			var fn UnifyFn = func(pointer unsafe.Pointer) (unsafe.Pointer, error) {
 				aString := *(*string)(pointer)
-				aBool, err := strconv.ParseBool(aString)
-				if err != nil {
-					return nil, err
+				if aString == "" {
+					return falsePtr, nil
 				}
 
-				return unsafe.Pointer(&aBool), nil
+				return truePtr, nil
 			}
 
 			return wrapWithDeref(x, fromPtrCounter, resultTypeCounter, fn)
