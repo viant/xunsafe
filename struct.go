@@ -18,7 +18,7 @@ type (
 	}
 )
 
-//Matcher creates a filed matched for supplied key Fn
+// Matcher creates a filed matched for supplied key Fn
 func (s *Struct) Matcher(keyFn func(string) string) *Matcher {
 	var matcher = Matcher{
 		index: make(map[string]*Field, len(s.Fields)),
@@ -30,7 +30,21 @@ func (s *Struct) Matcher(keyFn func(string) string) *Matcher {
 	return &matcher
 }
 
-//NewStruct creates a unsafe struct wrapper
+func (s *Struct) MatchByType(target reflect.Type) *Field {
+	for i := range s.Fields {
+		field := &s.Fields[i]
+		fType := field.Type
+		if fType.Kind() == reflect.Ptr {
+			fType = fType.Elem()
+		}
+		if fType == reflect.TypeOf(target) {
+			return field
+		}
+	}
+	return nil
+}
+
+// NewStruct creates a unsafe struct wrapper
 func NewStruct(sType reflect.Type) *Struct {
 	if sType.Kind() == reflect.Ptr {
 		sType = sType.Elem()
@@ -44,7 +58,7 @@ func NewStruct(sType reflect.Type) *Struct {
 	return result
 }
 
-//Match matches field with name
+// Match matches field with name
 func (s *Matcher) Match(name string) *Field {
 	return s.index[s.keyFn(name)]
 }
