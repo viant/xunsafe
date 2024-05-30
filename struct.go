@@ -30,6 +30,7 @@ func (s *Struct) Matcher(keyFn func(string) string) *Matcher {
 	return &matcher
 }
 
+// Match matches field with type
 func (s *Struct) MatchByType(target reflect.Type) *Field {
 	for i := range s.Fields {
 		field := &s.Fields[i]
@@ -37,7 +38,7 @@ func (s *Struct) MatchByType(target reflect.Type) *Field {
 		if fType.Kind() == reflect.Ptr {
 			fType = fType.Elem()
 		}
-		if fType == reflect.TypeOf(target) {
+		if fType == target {
 			return field
 		}
 	}
