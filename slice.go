@@ -264,3 +264,8 @@ func (a *Appender) Trunc(size int) error {
 	a.len = size
 	return nil
 }
+
+// Len returns slice length
+func (a *Appender) Len() int {
+	return a.header.Len
+}
