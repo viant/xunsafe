@@ -39,19 +39,18 @@ func loadLinkedinTypes() {
 				result = append(result, typ)
 				if typ.Kind() == reflect.Ptr {
 					typ = typ.Elem()
-					if typ.Name() == "" {
-						continue
-					}
-					packageTypes[typ.PkgPath()] = append(packageTypes[typ.Name()], typ)
-					var typeName string
-					if typ.PkgPath() == "" {
-						typeName = typ.Name()
-					} else {
-						typeName = typ.PkgPath() + "." + typ.Name()
-					}
-					indexedTypes[typeName] = typ
 				}
-
+				if typ.Name() == "" {
+					continue
+				}
+				packageTypes[typ.PkgPath()] = append(packageTypes[typ.Name()], typ)
+				var typeName string
+				if typ.PkgPath() == "" {
+					typeName = typ.Name()
+				} else {
+					typeName = typ.PkgPath() + "." + typ.Name()
+				}
+				indexedTypes[typeName] = typ
 			}
 		}
 	})
