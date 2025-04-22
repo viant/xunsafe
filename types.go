@@ -43,7 +43,7 @@ func loadLinkedinTypes() {
 				if typ.Name() == "" {
 					continue
 				}
-				packageTypes[typ.PkgPath()] = append(packageTypes[typ.Name()], typ)
+				packageTypes[typ.PkgPath()] = append(packageTypes[typ.PkgPath()], typ)
 				var typeName string
 				if typ.PkgPath() == "" {
 					typeName = typ.Name()
