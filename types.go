@@ -48,7 +48,7 @@ func loadLinkedinTypes() {
 				if typ.PkgPath() == "" {
 					typeName = typ.Name()
 				} else {
-					typeName = typ.PkgPath() + "." + typ.Name()
+					typeName = typ.PkgPath() + "/" + typ.Name()
 				}
 				indexedTypes[typeName] = typ
 			}
