@@ -204,6 +204,28 @@ BenchmarkAppender_Append_Native-16                       2436530               4
 * **'Reflect'** suffix represent implementation with golang native reflect package
 
 
+
+
+## Linkedin type discovery
+
+```go
+
+package main
+import (
+    "fmt"
+    "github.com/viant/xunsafe"
+    "reflect"
+	_ "somepkg"
+)
+
+func usage()  {
+    rType := xunsage.LookupType("somepkg.SomeType")
+	fmt.Printf("type: %s\n", rType.Name())
+}
+```
+
+
+
 ## Contributing to xunsafe
 
 XUnsafe is an open source project and contributors are welcome!
