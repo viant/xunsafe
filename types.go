@@ -61,3 +61,12 @@ func PackageTypes(name string) []reflect.Type {
 	loadLinkedinTypes()
 	return packageTypes[name]
 }
+
+// PackageNames returns linkedin package names
+func PackageNames() []string {
+	var result = make([]string, 0, len(packageTypes))
+	for pkg := range packageTypes {
+		result = append(result, pkg)
+	}
+	return result
+}
