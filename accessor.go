@@ -9,7 +9,7 @@ import (
 func (f *Field) Interface(structPtr unsafe.Pointer) interface{} {
 	ptr := f.Pointer(structPtr)
 	if f.ptrKind == ptrKindEmptyInterface {
-		return asInterface(ptr, f.rtype, true)
+		return asInterface(ptr, f.rtype, f.direct)
 	}
 	if f.ptrKind == ptrKindMethodInterface {
 		return *(*interface {

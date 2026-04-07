@@ -5,8 +5,8 @@ import (
 	"unsafe"
 )
 
-//EnsurePointer returns unsafe pointer for src value or value pointer
-//if you guarantee src is already pointer AsPointer is much faster option
+// EnsurePointer returns unsafe pointer for src value or value pointer
+// if you guarantee src is already pointer AsPointer is much faster option
 func EnsurePointer(src interface{}) unsafe.Pointer {
 	value := reflect.ValueOf(src)
 	switch value.Kind() {
@@ -21,7 +21,7 @@ func EnsurePointer(src interface{}) unsafe.Pointer {
 	}
 }
 
-//SafeDerefPointer returns deref pointer (**T -> *T), pType has to be *T
+// SafeDerefPointer returns deref pointer (**T -> *T), pType has to be *T
 func SafeDerefPointer(pointer unsafe.Pointer, pType reflect.Type) unsafe.Pointer {
 	ptr := (*unsafe.Pointer)(pointer)
 	if *ptr == nil {
@@ -32,17 +32,16 @@ func SafeDerefPointer(pointer unsafe.Pointer, pType reflect.Type) unsafe.Pointer
 	return *ptr
 }
 
-//DerefPointer returns deref pointer (**T -> *T)
+// DerefPointer returns deref pointer (**T -> *T)
 func DerefPointer(pointer unsafe.Pointer) unsafe.Pointer {
 	return *(*unsafe.Pointer)(pointer)
 }
 
-//RefPointer returns reference to the pointer (*T -> **T)
+// RefPointer returns reference to the pointer (*T -> **T)
 func RefPointer(pointer unsafe.Pointer) unsafe.Pointer {
-	var newPtr unsafe.Pointer
-	updated := unsafe.Pointer(&newPtr)
-	*(*unsafe.Pointer)(updated) = pointer
-	return updated
+	cell := new(unsafe.Pointer)
+	*cell = pointer
+	return unsafe.Pointer(cell)
 }
 
 type (
@@ -51,7 +50,7 @@ type (
 	}
 )
 
-//AsPointer returns a  pointer for an empty interface
+// AsPointer returns a  pointer for an empty interface
 func AsPointer(v interface{}) unsafe.Pointer {
 	empty := (*emptyInterface)(unsafe.Pointer(&v))
 	word := empty.word
@@ -70,22 +69,22 @@ func asPointer(v interface{}) unsafe.Pointer {
 	return empty.word
 }
 
-//EnsureAddressPointer ensure that address pointer is not nil, ptr has to be address pointer
+// EnsureAddressPointer ensure that address pointer is not nil, ptr has to be address pointer
 func EnsureAddressPointer(addrPtr unsafe.Pointer, target reflect.Type) *unsafe.Pointer {
 	itemPtr := (*unsafe.Pointer)(addrPtr)
 	if *itemPtr != nil {
 		return itemPtr
 	}
 
-	newValue := reflect.New(target)
-	newPtr := ValuePointer(&newValue)
-	*itemPtr = unsafe.Pointer(&newPtr)
+	newValue := reflect.New(target.Elem())
+	*itemPtr = unsafe.Pointer(newValue.Pointer())
 	return itemPtr
 }
 
 const n = 8192
 
-//Copy k bytes from src to dest
+// Copy k bytes from src to dest
+//
 //go:nocheckptr
 func Copy(dest, src unsafe.Pointer, k int) {
 	bsLen := k

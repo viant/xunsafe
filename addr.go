@@ -1,10 +1,8 @@
 package xunsafe
 
-import (
-	"unsafe"
-)
+import "unsafe"
 
-//Addr returns field addr
+// Addr returns field addr
 func (f *Field) Addr(structPtr unsafe.Pointer) interface{} {
 	return asInterface(f.Pointer(structPtr), f.rtypPtr, false)
 }

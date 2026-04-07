@@ -36,10 +36,10 @@ import (
 	"unsafe"
 )
 
-//flag copied from reflect pacakge
+// flag copied from reflect pacakge
 type flag uintptr
 
-//rtype copied from reflect package
+// rtype copied from reflect package
 type rtype struct {
 	size       uintptr
 	ptrdata    uintptr // number of bytes in the type that can contain pointers
@@ -66,20 +66,20 @@ func (t *rtype) Kind() reflect.Kind { return reflect.Kind(t.kind & kindMask) }
 
 func (t *rtype) pointers() bool { return t.ptrdata != 0 }
 
-//emptyInterface copied from reflect package
+// emptyInterface copied from reflect package
 type emptyInterface struct {
 	typ  *rtype
 	word unsafe.Pointer
 }
 
-//value is simplied reflect value
+// value is simplied reflect value
 type value struct {
 	typ  *rtype
 	ptr  unsafe.Pointer
 	flag flag
 }
 
-//ValuePointer returns value pointer
+// ValuePointer returns value pointer
 func ValuePointer(v *reflect.Value) unsafe.Pointer {
 	return (*value)(unsafe.Pointer(v)).ptr
 }
@@ -91,13 +91,22 @@ const (
 	flagIndir       flag = 1 << 7
 )
 
-//AsPointer returns a  pointer for an empty interface
+// AsPointer returns a  pointer for an empty interface
 func asInterface(ptr unsafe.Pointer, rtype *rtype, canDeref bool) (v interface{}) {
 	empty := (*emptyInterface)(unsafe.Pointer(&v))
 	empty.word = ptr
-	if rtype.kind&kindDirectIface != 0 && canDeref {
+	if canDeref {
 		empty.word = *(*unsafe.Pointer)(ptr)
 	}
 	empty.typ = rtype
 	return v
+}
+
+func isDirectIfaceType(t reflect.Type) bool {
+	switch t.Kind() {
+	case reflect.Ptr, reflect.UnsafePointer, reflect.Map, reflect.Func, reflect.Chan:
+		return true
+	default:
+		return false
+	}
 }

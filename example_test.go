@@ -6,7 +6,7 @@ import (
 	"reflect"
 )
 
-func Example_FastReflection() {
+func Example() {
 	type Foo struct {
 		ID   int
 		Name string
@@ -24,7 +24,7 @@ func Example_FastReflection() {
 
 }
 
-func ExampleAddr() {
+func ExampleField_Addr() {
 	type Foo struct {
 		ID   int
 		Name string

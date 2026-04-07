@@ -5,7 +5,7 @@ import (
 	"unsafe"
 )
 
-//ptrKind defines generic ptr handling kind
+// ptrKind defines generic ptr handling kind
 type ptrKind byte
 
 const (
@@ -14,7 +14,7 @@ const (
 	ptrKindMethodInterface
 )
 
-//Field represents a field
+// Field represents a field
 type Field struct {
 	Name string
 	reflect.Type
@@ -25,15 +25,16 @@ type Field struct {
 	kind      reflect.Kind
 	rtype     *rtype
 	rtypPtr   *rtype
+	direct    bool
 	ptrKind
 }
 
-//Pointer return  field pointer (structPtr + field.Offset)
+// Pointer return  field pointer (structPtr + field.Offset)
 func (f *Field) Pointer(structPtr unsafe.Pointer) unsafe.Pointer {
 	return unsafe.Pointer(uintptr(structPtr) + f.Offset)
 }
 
-//IsNil returns nil if structPtr is nil or field value is nil
+// IsNil returns nil if structPtr is nil or field value is nil
 func (f *Field) IsNil(structPtr unsafe.Pointer) bool {
 	if structPtr == nil {
 		return true
@@ -41,7 +42,7 @@ func (f *Field) IsNil(structPtr unsafe.Pointer) bool {
 	return *(*unsafe.Pointer)(f.Pointer(structPtr)) == nil
 }
 
-//ValuePointer return pointer to T, if value is as *T, this method would dereference it
+// ValuePointer return pointer to T, if value is as *T, this method would dereference it
 func (f *Field) ValuePointer(structPtr unsafe.Pointer) unsafe.Pointer {
 	ret := unsafe.Pointer(uintptr(structPtr) + f.Offset)
 	if f.kind == reflect.Ptr {
@@ -50,7 +51,7 @@ func (f *Field) ValuePointer(structPtr unsafe.Pointer) unsafe.Pointer {
 	return ret
 }
 
-//SafePointer returns field pointer, if field pointer is a pointer this method initialises that pointer
+// SafePointer returns field pointer, if field pointer is a pointer this method initialises that pointer
 func (f *Field) SafePointer(structPtr unsafe.Pointer, target reflect.Type) unsafe.Pointer {
 	fieldPtr := f.Pointer(structPtr)
 	if f.kind == reflect.Ptr {
@@ -63,9 +64,9 @@ func (f *Field) SafePointer(structPtr unsafe.Pointer, target reflect.Type) unsaf
 	return fieldPtr
 }
 
-//EnsurePointer initialises field type pointer if needed, and return filed type value pointer rather field pointer.
-//for example if field is of T type this method returns *T, in case field is of *T, this method
-//also return *T, if you need always field pointer use Field.Pointer method
+// EnsurePointer initialises field type pointer if needed, and return filed type value pointer rather field pointer.
+// for example if field is of T type this method returns *T, in case field is of *T, this method
+// also return *T, if you need always field pointer use Field.Pointer method
 func (f *Field) EnsurePointer(structPtr unsafe.Pointer) unsafe.Pointer {
 	addr := f.Pointer(structPtr)
 	ptr := (*unsafe.Pointer)(addr)
@@ -73,8 +74,8 @@ func (f *Field) EnsurePointer(structPtr unsafe.Pointer) unsafe.Pointer {
 		return addr
 	}
 	if *ptr == nil {
-		var newPointer unsafe.Pointer
-		*ptr = unsafe.Pointer(&newPointer)
+		newValue := reflect.New(f.Type.Elem())
+		*ptr = unsafe.Pointer(newValue.Pointer())
 	}
 	return *ptr
 }
@@ -97,7 +98,7 @@ func (f *Field) initType() {
 	f.rtype = ((*emptyInterface)(unsafe.Pointer(&val))).typ
 }
 
-//NewField creates a new filed
+// NewField creates a new filed
 func NewField(field reflect.StructField) *Field {
 	fieldType := field.Type
 	f := &Field{
@@ -107,6 +108,7 @@ func NewField(field reflect.StructField) *Field {
 		Anonymous: field.Anonymous,
 		Offset:    field.Offset,
 		kind:      fieldType.Kind(),
+		direct:    isDirectIfaceType(fieldType),
 	}
 	if len(field.Index) > 0 {
 		f.Index = uint16(field.Index[0])
@@ -115,12 +117,12 @@ func NewField(field reflect.StructField) *Field {
 	return f
 }
 
-//FieldByIndex creates a field for supplied struct type and field indexAddr
+// FieldByIndex creates a field for supplied struct type and field indexAddr
 func FieldByIndex(structType reflect.Type, index int) *Field {
 	return NewField(structType.Field(index))
 }
 
-//FieldByName creates a field for supplied struct type and field name
+// FieldByName creates a field for supplied struct type and field name
 func FieldByName(structType reflect.Type, name string) *Field {
 	switch structType.Kind() {
 	case reflect.Ptr:

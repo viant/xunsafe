@@ -5,67 +5,65 @@ import (
 	"unsafe"
 )
 
-//Type represents a Type
+// Type represents a Type
 type Type struct {
 	typ      reflect.Type
 	isError  bool
 	rtype    *rtype
 	rtypePtr *rtype
 	kind     reflect.Kind
+	direct   bool
 	flag     flag
 }
 
-//Type returns reflect type
+// Type returns reflect type
 func (t *Type) Type() reflect.Type {
 	return t.typ
 }
 
-//Kind returns reflect kind
+// Kind returns reflect kind
 func (t *Type) Kind() reflect.Kind {
 	return t.kind
 }
 
-//Interface returns an interface for the pointer
+// Interface returns an interface for the pointer
 func (t *Type) Interface(ptr unsafe.Pointer) interface{} {
 	if t.isError {
 		return AsError(ptr)
 	}
-	return asInterface(ptr, t.rtype, true)
+	return asInterface(ptr, t.rtype, t.direct)
 }
 
-//Value returns value for the original type
+// Value returns value for the original type
 func (t *Type) Value(ptr unsafe.Pointer) (v interface{}) {
 	if t.isError {
 		return AsError(ptr)
 	}
-	empty := (*emptyInterface)(unsafe.Pointer(&v))
-	empty.word = ptr
-	empty.typ = t.rtype
-	return v
+	return asInterface(ptr, t.rtype, t.direct)
 }
 
-//Deref dereference pointer
+// Deref dereference pointer
 func (t *Type) Deref(val interface{}) interface{} {
 	ptr := AsPointer(val)
-	return asInterface(ptr, t.rtype, true)
+	return asInterface(ptr, t.rtype, t.direct)
 }
 
-//Pointer returns a pointer
+// Pointer returns a pointer
 func (t *Type) Pointer(value interface{}) unsafe.Pointer {
 	return AsPointer(value)
 }
 
-//Ref returns a reference to value
+// Ref returns a reference to value
 func (t *Type) Ref(value interface{}) interface{} {
 	e := (*emptyInterface)(unsafe.Pointer(&value))
-	if e.typ.kind&kindDirectIface != 0 {
+	if t.direct {
 		e.word = RefPointer(e.word)
 	}
 	e.typ = t.rtypePtr
 	return value
 }
 
-//NewType creates a type
+// NewType creates a type
 func NewType(t reflect.Type) *Type {
 	ptrValue := reflect.New(t)
 	ptrElemValue := ptrValue.Elem()
@@ -75,6 +73,7 @@ func NewType(t reflect.Type) *Type {
 		isError:  t.Name() == "error",
 		typ:      t,
 		kind:     t.Kind(),
+		direct:   isDirectIfaceType(t),
 		rtypePtr: ((*emptyInterface)(unsafe.Pointer(&valPtr))).typ,
 		rtype:    ((*emptyInterface)(unsafe.Pointer(&val))).typ,
 	}
