@@ -86,6 +86,7 @@ func ValuePointer(v *reflect.Value) unsafe.Pointer {
 
 const (
 	kindDirectIface      = 1 << 5
+	tflagDirectIface     = 1 << 5 // Go >= 1.26 stores the direct-interface flag in tflag instead of kind
 	kindGCProg           = 1 << 6 // Type.gc points to GC program
 	kindMask             = (1 << 5) - 1
 	flagIndir       flag = 1 << 7

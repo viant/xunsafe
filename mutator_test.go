@@ -332,6 +332,66 @@ var _mutIDField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "ID")
 var _mutNameField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "Name")
 var _mutValField = FieldByName(reflect.TypeOf(AccBenchStruct{}), "Val")
 
+func TestField_Set(t *testing.T) {
+	type Holder struct {
+		S   string
+		I   int
+		I64 int64
+		F64 float64
+		F32 float32
+		B   bool
+	}
+	holder := &Holder{}
+	holderType := reflect.TypeOf(holder).Elem()
+
+	var testCases = []struct {
+		description string
+		name        string
+		value       interface{}
+	}{
+		{description: "string", name: "S", value: "abc"},
+		{description: "int", name: "I", value: 12},
+		{description: "int64", name: "I64", value: int64(-34)},
+		{description: "float64", name: "F64", value: 5.5},
+		{description: "float32", name: "F32", value: float32(6.25)},
+		{description: "bool", name: "B", value: true},
+	}
+
+	for _, testCase := range testCases {
+		field := FieldByName(holderType, testCase.name)
+		field.Set(unsafe.Pointer(holder), testCase.value)
+		actual := reflect.ValueOf(holder).Elem().FieldByName(testCase.name).Interface()
+		assert.EqualValues(t, testCase.value, actual, testCase.description)
+	}
+}
+
+func TestField_SetInterface(t *testing.T) {
+	type singlePtr struct{ P *int }
+	type Holder struct {
+		Any interface{}
+	}
+	v := 42
+	holder := &Holder{}
+	field := FieldByName(reflect.TypeOf(holder).Elem(), "Any")
+
+	var testCases = []struct {
+		description string
+		value       interface{}
+	}{
+		{description: "int", value: 12},
+		{description: "string", value: "abc"},
+		{description: "*int", value: &v},
+		{description: "single pointer struct", value: singlePtr{P: &v}},
+		{description: "nil", value: nil},
+	}
+
+	for _, testCase := range testCases {
+		field.SetInterface(unsafe.Pointer(holder), testCase.value)
+		assert.Equal(t, testCase.value, holder.Any, testCase.description)
+		assert.Equal(t, testCase.value, AsInterface(field.Pointer(unsafe.Pointer(holder))), testCase.description)
+	}
+}
+
 func BenchmarkField_Mutator_Native(b *testing.B) {
 	var id = 1000
 	var name = "test 1000"

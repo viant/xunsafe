@@ -24,8 +24,9 @@ func TestIf(t *testing.T) {
 	v := reflect.New(bt.Elem()).Interface()
 	ptr := unsafe.Pointer(f)
 	x.Fields[0].SetValue(ptr, v)
+	assert.Same(t, v.(*Bar), f.Bar)
 	f.Bar.ID = 123
-
+	assert.EqualValues(t, 123, v.(*Bar).ID)
 }
 
 func TestField_Accessor(t *testing.T) {
