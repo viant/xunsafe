@@ -61,7 +61,7 @@ func TestDerefSafePointer(t *testing.T) {
 
 }
 
-func TesAsPointer(t *testing.T) {
+func TestAsPointer(t *testing.T) {
 	k := 10
 	l := 20
 	i := int64(30)
