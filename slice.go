@@ -73,7 +73,8 @@ func (s *Slice) ValueAt(slicePtr unsafe.Pointer, index int) interface{} {
 	if !s.useItemAddr && s.isPointer {
 		p = DerefPointer(p)
 	}
-	v := asInterface(p, s.rtype, false)
+	v := asInterface(p, s.rtype,
+		!s.isPointer && s.rtype.isDirectIface())
 	return v
 }
 

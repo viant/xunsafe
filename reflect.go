@@ -108,12 +108,3 @@ func asInterface(ptr unsafe.Pointer, rtype *rtype, canDeref bool) (v interface{}
 	empty.typ = rtype
 	return v
 }
-
-func isDirectIfaceType(t reflect.Type) bool {
-	switch t.Kind() {
-	case reflect.Ptr, reflect.UnsafePointer, reflect.Map, reflect.Func, reflect.Chan:
-		return true
-	default:
-		return false
-	}
-}

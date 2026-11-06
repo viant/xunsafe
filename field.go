@@ -96,6 +96,7 @@ func (f *Field) initType() {
 	val := ptrElemValue.Interface()
 	f.rtypPtr = ((*emptyInterface)(unsafe.Pointer(&valPtr))).typ
 	f.rtype = ((*emptyInterface)(unsafe.Pointer(&val))).typ
+	f.direct = f.rtype.isDirectIface()
 }
 
 // NewField creates a new filed
@@ -108,7 +109,6 @@ func NewField(field reflect.StructField) *Field {
 		Anonymous: field.Anonymous,
 		Offset:    field.Offset,
 		kind:      fieldType.Kind(),
-		direct:    isDirectIfaceType(fieldType),
 	}
 	if len(field.Index) > 0 {
 		f.Index = uint16(field.Index[0])

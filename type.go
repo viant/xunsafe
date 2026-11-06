@@ -73,9 +73,9 @@ func NewType(t reflect.Type) *Type {
 		isError:  t.Name() == "error",
 		typ:      t,
 		kind:     t.Kind(),
-		direct:   isDirectIfaceType(t),
 		rtypePtr: ((*emptyInterface)(unsafe.Pointer(&valPtr))).typ,
 		rtype:    ((*emptyInterface)(unsafe.Pointer(&val))).typ,
 	}
+	result.direct = result.rtype.isDirectIface()
 	return result
 }
