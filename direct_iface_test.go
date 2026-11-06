@@ -199,3 +199,64 @@ func TestSlice_ValueAtPointerIdentity(t *testing.T) {
 		}
 	}
 }
+
+func TestAsPointer_DirectIfaceArray(t *testing.T) {
+	v := 0
+	aType := NewType(reflect.TypeOf([1]*int{}))
+	for _, testCase := range []struct {
+		name  string
+		value [1]*int
+	}{
+		{name: "non-nil", value: [1]*int{&v}},
+		{name: "nil"},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			value := testCase.value
+			check := func(t *testing.T, actual [1]*int) {
+				t.Helper()
+				if actual != value {
+					t.Errorf("element = %p, want %p", actual[0], value[0])
+				}
+			}
+			t.Run("AsPointer", func(t *testing.T) {
+				ptr := AsPointer(value)
+				if ptr == nil {
+					t.Fatal("AsPointer returned nil for an array value")
+				}
+				check(t, *(*[1]*int)(ptr))
+			})
+			t.Run("DerefValue", func(t *testing.T) {
+				check(t, aType.Deref(value).([1]*int))
+			})
+			t.Run("DerefPointer", func(t *testing.T) {
+				check(t, aType.Deref(&value).([1]*int))
+			})
+		})
+	}
+}
+
+func TestAsPointer_ArrayControls(t *testing.T) {
+	v := 42
+	for _, value := range []interface{}{
+		[0]*int{},
+		[1]int{42},
+		[2]*int{&v, nil},
+	} {
+		ptr := AsPointer(value)
+		if ptr == nil {
+			t.Fatalf("AsPointer returned nil for %T", value)
+		}
+		actual := reflect.NewAt(reflect.TypeOf(value), ptr).Elem().Interface()
+		if !reflect.DeepEqual(actual, value) {
+			t.Errorf("AsPointer changed %T", value)
+		}
+	}
+	array := [1]*int{&v}
+	if AsPointer(&array) != unsafe.Pointer(&array) {
+		t.Error("AsPointer changed the address of a pointer to an array")
+	}
+	var nilArray *[1]*int
+	if AsPointer(nilArray) != nil {
+		t.Error("AsPointer changed a nil pointer to an array")
+	}
+}
