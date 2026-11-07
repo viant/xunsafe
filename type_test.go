@@ -90,5 +90,8 @@ func TestType_Interface(t *testing.T) {
 		Id   int
 		Name string
 	}
-
+	foo := Foo{Id: 1, Name: "abc"}
+	aType := NewType(reflect.TypeOf(foo))
+	assert.EqualValues(t, foo, aType.Interface(unsafe.Pointer(&foo)))
+	assert.EqualValues(t, foo, aType.Value(unsafe.Pointer(&foo)))
 }

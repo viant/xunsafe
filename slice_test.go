@@ -94,7 +94,6 @@ func TestSlice_Range(t *testing.T) {
 			actual = append(actual, val)
 			return true
 		})
-		fmt.Printf("%v\n", testCase.description)
 		assert.EqualValues(t, testCase.expect, actual, testCase.description)
 	}
 }
@@ -171,7 +170,7 @@ func TestSlice_ValueAt(t *testing.T) {
 			val := testCase.field.Interface(AsPointer(item))
 			actual = append(actual, val)
 		}
-		assert.EqualValues(t, testCase.expect, actual)
+		assert.EqualValues(t, testCase.expect, actual, testCase.description)
 
 	}
 
@@ -237,7 +236,7 @@ func TestSlice_ValuePointerAt(t *testing.T) {
 			val := testCase.field.Interface(AsPointer(item))
 			actual = append(actual, val)
 		}
-		assert.EqualValues(t, testCase.expect, actual)
+		assert.EqualValues(t, testCase.expect, actual, testCase.description)
 
 	}
 
@@ -469,6 +468,28 @@ func BenchmarkAppender_Append_Native(b *testing.B) {
 		if len(ints) != 100 {
 			b.Fail()
 		}
+	}
+}
+
+func TestSlice_AddrAt(t *testing.T) {
+	type Foo struct {
+		ID int
+	}
+	foos := []Foo{{ID: 1}, {ID: 2}}
+	fooPtrs := []*Foo{{ID: 3}, {ID: 4}}
+
+	fooSlice := NewSlice(reflect.TypeOf(foos))
+	for i := range foos {
+		actual, ok := fooSlice.AddrAt(unsafe.Pointer(&foos), i).(*Foo)
+		assert.True(t, ok, "[]Foo")
+		assert.Same(t, &foos[i], actual, "[]Foo")
+	}
+
+	fooPtrSlice := NewSlice(reflect.TypeOf(fooPtrs))
+	for i := range fooPtrs {
+		actual, ok := fooPtrSlice.AddrAt(unsafe.Pointer(&fooPtrs), i).(**Foo)
+		assert.True(t, ok, "[]*Foo")
+		assert.Same(t, &fooPtrs[i], actual, "[]*Foo")
 	}
 }
 

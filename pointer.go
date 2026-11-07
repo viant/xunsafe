@@ -54,8 +54,10 @@ type (
 func AsPointer(v interface{}) unsafe.Pointer {
 	empty := (*emptyInterface)(unsafe.Pointer(&v))
 	word := empty.word
-	//32 directIface flag
-	if empty.typ != nil && empty.typ.kind&32 == 32 && empty.typ.kind&byte(reflect.Struct) == 25 {
+	if empty.typ != nil &&
+		empty.typ.isDirectIface() &&
+		(empty.typ.Kind() == reflect.Struct ||
+			empty.typ.Kind() == reflect.Array) {
 		word = RefPointer(word)
 		//aValue := wrapper{value: v}
 		//word = unsafe.Pointer(&aValue)

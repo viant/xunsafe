@@ -66,6 +66,12 @@ func (t *rtype) Kind() reflect.Kind { return reflect.Kind(t.kind & kindMask) }
 
 func (t *rtype) pointers() bool { return t.ptrdata != 0 }
 
+// isDirectIface reports whether a value of this type is stored directly in the interface data word.
+// Go < 1.26 marks it in kind, Go >= 1.26 marks it in tflag; the other bit is unused in each version.
+func (t *rtype) isDirectIface() bool {
+	return t != nil && (t.kind&kindDirectIface != 0 || t.tflag&tflagDirectIface != 0)
+}
+
 // emptyInterface copied from reflect package
 type emptyInterface struct {
 	typ  *rtype
@@ -86,6 +92,7 @@ func ValuePointer(v *reflect.Value) unsafe.Pointer {
 
 const (
 	kindDirectIface      = 1 << 5
+	tflagDirectIface     = 1 << 5 // Go >= 1.26 stores the direct-interface flag in tflag instead of kind
 	kindGCProg           = 1 << 6 // Type.gc points to GC program
 	kindMask             = (1 << 5) - 1
 	flagIndir       flag = 1 << 7
@@ -100,13 +107,4 @@ func asInterface(ptr unsafe.Pointer, rtype *rtype, canDeref bool) (v interface{}
 	}
 	empty.typ = rtype
 	return v
-}
-
-func isDirectIfaceType(t reflect.Type) bool {
-	switch t.Kind() {
-	case reflect.Ptr, reflect.UnsafePointer, reflect.Map, reflect.Func, reflect.Chan:
-		return true
-	default:
-		return false
-	}
 }
